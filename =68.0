@@ -1,0 +1,24 @@
+Requirement already satisfied: pip in /usr/local/python/3.12.1/lib/python3.12/site-packages (25.3)
+Collecting pip
+  Downloading pip-26.0.1-py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: setuptools in /home/codespace/.local/lib/python3.12/site-packages (80.9.0)
+Collecting setuptools
+  Using cached setuptools-82.0.1-py3-none-any.whl.metadata (6.5 kB)
+Collecting wheel
+  Downloading wheel-0.46.3-py3-none-any.whl.metadata (2.4 kB)
+Requirement already satisfied: packaging>=24.0 in /home/codespace/.local/lib/python3.12/site-packages (from wheel) (25.0)
+Downloading pip-26.0.1-py3-none-any.whl (1.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 8.7 MB/s  0:00:00
+Using cached setuptools-82.0.1-py3-none-any.whl (1.0 MB)
+Downloading wheel-0.46.3-py3-none-any.whl (30 kB)
+Installing collected packages: wheel, setuptools, pip
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 80.9.0
+    Uninstalling setuptools-80.9.0:
+      Successfully uninstalled setuptools-80.9.0
+  Attempting uninstall: pip
+    Found existing installation: pip 25.3
+    Uninstalling pip-25.3:
+      Successfully uninstalled pip-25.3
+
+Successfully installed pip-26.0.1 setuptools-82.0.1 wheel-0.46.3

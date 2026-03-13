@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+
+# Streamlit
+.streamlit/
+
+# Local assets cache
+signaction_assets/
+
+# Audio temp
+*.wav
+*.flac
+*.mp3

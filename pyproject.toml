@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signaction"
+version = "0.1.0"
+description = "Text/speech to sign-language visualization (MVP scaffold)."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+  "streamlit>=1.31",
+  "spacy>=3.7",
+  "vosk>=0.3.45",
+  "numpy>=1.24",
+  "pillow>=10.0",
+  "soundfile>=0.12.1",
+  "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+mic = [
+  "sounddevice>=0.4.6",
+]
+
+video = [
+  "imageio>=2.34",
+  "imageio-ffmpeg>=0.4.9",
+]
+
+whisper = [
+  "faster-whisper>=1.0.3",
+]
+
+kaggle = [
+  "kaggle>=1.5.12",
+]
+
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.4",
+]
+
+[project.scripts]
+signaction = "signaction.cli:main"
+
+[tool.setuptools]
+packages = ["signaction", "signaction.stt"]
+
+[tool.setuptools.package-data]
+signaction = ["py.typed"]
+
+[tool.ruff]
+line-length = 100

@@ -1,0 +1,11 @@
+{
+  "aliases": {
+    "HI": "HELLO",
+    "U": "YOU"
+  },
+  "phrases": {
+    "THANK YOU": "THANK_YOU",
+    "GOOD MORNING": "GOOD_MORNING",
+    "HOW ARE YOU": "HOW_ARE_YOU"
+  }
+}

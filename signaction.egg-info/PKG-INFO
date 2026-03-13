@@ -1,0 +1,312 @@
+Metadata-Version: 2.4
+Name: signaction
+Version: 0.1.0
+Summary: Text/speech to sign-language visualization (MVP scaffold).
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: streamlit>=1.31
+Requires-Dist: spacy>=3.7
+Requires-Dist: vosk>=0.3.45
+Requires-Dist: numpy>=1.24
+Requires-Dist: pillow>=10.0
+Requires-Dist: soundfile>=0.12.1
+Requires-Dist: scipy>=1.10
+Provides-Extra: mic
+Requires-Dist: sounddevice>=0.4.6; extra == "mic"
+Provides-Extra: video
+Requires-Dist: imageio>=2.34; extra == "video"
+Requires-Dist: imageio-ffmpeg>=0.4.9; extra == "video"
+Provides-Extra: whisper
+Requires-Dist: faster-whisper>=1.0.3; extra == "whisper"
+Provides-Extra: kaggle
+Requires-Dist: kaggle>=1.5.12; extra == "kaggle"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+
+SignAction
+
+Python MVP that translates **typed text** or **spoken speech** into a **sign-language-like “gloss”** and renders a **visual gesture sequence**.
+
+This repo intentionally ships with **placeholder sign GIFs** that are generated on demand (non-copyrighted). You can later replace them with real sign clips/GIFs.
+
+Features
+
+- Dual input: text or speech
+- Speech-to-text (offline): Vosk
+- NLP preprocessing: tokenization, stopword removal, lemmatization, simple gloss rules
+- Text-to-sign: token → asset mapping (GIF/MP4), fallback to generated placeholder GIF
+- Visualization: renders the sign sequence as a single animated GIF
+- Interfaces: Streamlit UI + CLI
+
+Architecture
+
+Speech → STT → Text
+Text → NLP (gloss) → Token sequence → Sign mapping → GIF renderer → Output
+
+Project layout
+
+- `signaction/`
+	- `nlp.py`: text normalization + gloss tokens
+	- `stt/`: speech-to-text backends (Vosk default)
+	- `translate.py`: tokens → sign items
+	- `render.py`: sequence → animated GIF
+	- `app.py`: Streamlit UI
+	- `cli.py`: CLI
+- `signaction_assets/` (created at runtime): token assets cache
+
+Setup
+
+1) Create a venv and install dependencies
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e .
+```
+
+Microphone recording (CLI) requires an extra:
+
+```bash
+pip install -e ".[mic]"
+```
+
+2) Install the spaCy English model
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+Note: this model improves lemmatization quality, but the app will still run without it (it falls back to a basic tokenizer).
+
+Fastest MVP (text → GIF only)
+
+If you only want the simplest MVP (typed text → sign GIF output) run:
+
+```bash
+streamlit run mvp_text_to_sign.py
+```
+
+The MVP reads assets from `SIGNACTION_ASSETS_DIR` if set (otherwise it uses `./signaction_assets`).
+
+Getting sign assets (you currently have none)
+
+This project does **not** ship real sign-language media by default. You have 2 paths:
+
+1) Quick local demo assets (recommended first)
+
+Generate an alphabet + a few common word/phrase GIFs so the output is not just placeholders:
+
+```bash
+python scripts/bootstrap_demo_assets.py
+export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
+```
+
+Then run:
+
+```bash
+streamlit run mvp_text_to_sign.py
+```
+
+2) Use a real dataset (manual download required)
+
+Datasets are often distributed as **videos (MP4)** rather than GIFs. This project can render MP4 assets too.
+
+- Recommended datasets to look up and download:
+	- WLASL (word-level ASL)
+	- ASLLVD (lexicon)
+	- RWTH-PHOENIX-Weather (continuous signing; more complex)
+
+After downloading, place assets into your assets folder using one of these layouts:
+
+- Flat: `ASSETS_DIR/HELLO.gif`
+- Structured: `ASSETS_DIR/signs/hello.gif` and `ASSETS_DIR/alphabet/h.gif`
+
+If your dataset is MP4 and you want it rendered into the output GIF, install the optional video extra:
+
+```bash
+pip install -e ".[video]"
+```
+
+3) Download a Vosk model (speech mode)
+
+- Download a model folder such as `vosk-model-small-en-us-0.15`.
+- Point `VOSK_MODEL_PATH` to the extracted folder.
+
+Example:
+
+```bash
+export VOSK_MODEL_PATH="$HOME/models/vosk-model-small-en-us-0.15"
+```
+
+Optionally override the assets folder (where token GIF/MP4 files live):
+
+```bash
+export SIGNACTION_ASSETS_DIR="/path/to/your/sign/assets"
+```
+
+Run (Streamlit)
+
+```bash
+streamlit run streamlit_app.py
+```
+
+- **Text** mode: type a sentence and click **Translate**.
+- **Speech** mode: record (if your Streamlit version supports mic capture) or upload audio, then click **Transcribe + Translate**.
+
+Supported upload formats are `wav`, `flac`, `ogg`.
+
+Run (CLI)
+
+Text:
+
+```bash
+signaction text --text "hello how are you" --out out.gif
+```
+
+Audio file:
+
+```bash
+signaction audio --path sample.wav --backend vosk --out out.gif
+```
+
+Microphone (records N seconds):
+
+```bash
+signaction mic --seconds 4 --backend vosk --out out.gif
+```
+
+Getting real sign assets from Kaggle (Recommended!)
+
+**Easy way: Use the Kaggle downloader**
+
+The project now includes scripts to automatically download and organize sign language datasets from Kaggle:
+
+1) **Setup Kaggle API (one-time)**
+
+```bash
+pip install kaggle
+
+# Go to https://www.kaggle.com/settings/account, click "Create New API Token"
+# This downloads kaggle.json. Then:
+
+mkdir -p ~/.kaggle
+mv ~/Downloads/kaggle.json ~/.kaggle/
+chmod 600 ~/.kaggle/kaggle.json
+
+# Verify setup:
+kaggle datasets list
+```
+
+2) **Download a dataset**
+
+List available datasets:
+
+```bash
+python scripts/download_kaggle_dataset.py --list
+```
+
+Download WLASL (Word-Level American Sign Language - ~2000+ words):
+
+```bash
+python scripts/download_kaggle_dataset.py --dataset wlasl --output signaction_assets
+```
+
+Or use the convenience script:
+
+```bash
+bash scripts/setup_kaggle.sh
+```
+
+3) **Use the assets**
+
+Once downloaded, assets are automatically organized into your `signaction_assets/` directory structured as:
+- `signaction_assets/signs/WORD.mp4` (or .gif)
+- `signaction_assets/alphabet/A.gif` (fingerspelling fallback)
+
+Then run the app:
+
+```bash
+export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
+streamlit run mvp_text_to_sign.py
+# or: streamlit run streamlit_app.py
+```
+
+**Available Kaggle Datasets**
+
+| Dataset | Type | Coverage | Size |
+|---------|------|----------|------|
+| **WLASL** | Videos (MP4) | ~2,000+ American Sign Language words | Large |
+| **ASL Alphabet** | Images/GIFs | A-Z fingerspelling | Small |
+| **ASL Recognition** | Mixed | ASL alphabet & words | Medium |
+
+**Programmatic access**
+
+You can also download datasets directly in Python:
+
+```python
+from signaction.kaggle_helper import download_wlasl, KaggleHelper
+
+# Download WLASL dataset
+download_wlasl()
+
+# Or check if Kaggle is available first
+if KaggleHelper.is_available():
+    KaggleHelper.download_dataset("wlasl")
+```
+
+**Note**: Video conversion happens automatically. If MP4 files are large, install the video extra:
+
+```bash
+pip install -e ".[video]"
+```
+
+Where to put real sign assets (manual method)
+
+By default, assets are read from and generated into `signaction_assets/` at the repo root.
+
+- Put per-token assets like `hello.gif` / `HELLO.gif` or `thank_you.mp4` / `THANK_YOU.mp4` in your assets directory.
+- Supported layouts:
+	- Flat: `signaction_assets/hello.gif`
+	- Structured: `signaction_assets/signs/hello.gif` and `signaction_assets/alphabet/h.gif`
+- Tokens are produced by the NLP step in uppercase (see `Gloss` output).
+- If a token asset is missing, the app generates a placeholder GIF automatically.
+
+Debugging missing signs
+
+- Turn on resolver debug logs:
+
+```bash
+export SIGNACTION_DEBUG=1
+```
+
+- The resolver is case-insensitive and indexes your assets directory, so `hello.gif` works for the token `HELLO`.
+
+Phrase + alias mapping (optional)
+
+You can define multi-word signs and token aliases by adding `lexicon.json` to your assets directory:
+
+```json
+{
+	"aliases": {
+		"HI": "HELLO"
+	},
+	"phrases": {
+		"THANK YOU": "THANK_YOU",
+		"GOOD MORNING": "GOOD_MORNING"
+	}
+}
+```
+
+There’s also a ready-to-copy example file at: `signaction_assets_lexicon.example.json`.
+
+Unknown-word fallback
+
+If a token has no matching asset and looks like an alphabetic word (e.g., `PYTHON`), the translator will fall back to **fingerspelling** (P-Y-T-H-O-N) using per-letter assets if you provide them (or placeholders otherwise).
+
+Notes / Limitations
+
+- The NLP “gloss” rules are a baseline and **not a full sign-language translation model**.
+- For production-quality translation, replace `signaction/nlp.py` + `signaction/translate.py` with a learned model and a curated dataset.
+
