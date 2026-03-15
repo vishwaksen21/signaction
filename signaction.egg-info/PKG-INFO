@@ -11,6 +11,9 @@ Requires-Dist: numpy>=1.24
 Requires-Dist: pillow>=10.0
 Requires-Dist: soundfile>=0.12.1
 Requires-Dist: scipy>=1.10
+Requires-Dist: fastapi>=0.110
+Requires-Dist: uvicorn[standard]>=0.27
+Requires-Dist: python-multipart>=0.0.9
 Provides-Extra: mic
 Requires-Dist: sounddevice>=0.4.6; extra == "mic"
 Provides-Extra: video
@@ -90,6 +93,28 @@ streamlit run mvp_text_to_sign.py
 
 The MVP reads assets from `SIGNACTION_ASSETS_DIR` if set (otherwise it uses `./signaction_assets`).
 
+Speech MVP (voice → text → sign GIF)
+
+1) Install full dependencies from the repo root:
+
+```bash
+pip install -e .
+```
+
+2) Download a Vosk model and set:
+
+```bash
+export VOSK_MODEL_PATH="/absolute/path/to/vosk-model-small-en-us-0.15"
+```
+
+Tip: If you place a Vosk model folder under `./models/` (e.g., `models/vosk-model-small-en-us-0.15/`), the MVP app will auto-detect it.
+
+3) Run the same MVP app and switch to the **Speech** tab:
+
+```bash
+streamlit run mvp_text_to_sign.py
+```
+
 Getting sign assets (you currently have none)
 
 This project does **not** ship real sign-language media by default. You have 2 paths:
@@ -128,6 +153,20 @@ If your dataset is MP4 and you want it rendered into the output GIF, install the
 ```bash
 pip install -e ".[video]"
 ```
+
+Kaggle ASL Alphabet (images) → instant improvement
+
+If you downloaded Kaggle dataset `grassknoted/asl-alphabet` into `.kaggle_tmp/` (this repo’s helper scripts do that), import one sample image per letter into your assets folder:
+
+```bash
+python scripts/import_kaggle_asl_alphabet.py
+export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
+```
+
+Then run the MVP and try:
+
+- Input: `c` (should show an alphabet image)
+- Input: `hello` (in the full app pipeline, unknown words can fingerspell H-E-L-L-O)
 
 3) Download a Vosk model (speech mode)
 
@@ -207,16 +246,20 @@ List available datasets:
 python scripts/download_kaggle_dataset.py --list
 ```
 
-Download WLASL (Word-Level American Sign Language - ~2000+ words):
+Download ASL Alphabet (A-Z fingerspelling, recommended first):
 
 ```bash
-python scripts/download_kaggle_dataset.py --dataset wlasl --output signaction_assets
+python scripts/download_kaggle_dataset.py --dataset asl-alphabet --output signaction_assets
 ```
 
-Or use the convenience script:
+Or download other ASL datasets:
 
 ```bash
-bash scripts/setup_kaggle.sh
+# ASL Character Recognition
+python scripts/download_kaggle_dataset.py --dataset asl-recognition
+
+# Sign Language MNIST
+python scripts/download_kaggle_dataset.py --dataset sign-language-mnist
 ```
 
 3) **Use the assets**
@@ -235,11 +278,11 @@ streamlit run mvp_text_to_sign.py
 
 **Available Kaggle Datasets**
 
-| Dataset | Type | Coverage | Size |
-|---------|------|----------|------|
-| **WLASL** | Videos (MP4) | ~2,000+ American Sign Language words | Large |
-| **ASL Alphabet** | Images/GIFs | A-Z fingerspelling | Small |
-| **ASL Recognition** | Mixed | ASL alphabet & words | Medium |
+| Dataset | Type | Coverage | Best For |
+|---------|------|----------|----------|
+| **ASL Alphabet** | Images/GIFs | A-Z fingerspelling | First-time setup, letter recognition |
+| **ASL Recognition** | Images | A-Z + words | Character & word recognition |
+| **Sign Language MNIST** | Images (28x28) | Digit signs + letters | Machine learning training |
 
 **Programmatic access**
 

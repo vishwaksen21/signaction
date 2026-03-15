@@ -9,27 +9,6 @@ import re
 from .types import SignItem
 
 
-@dataclass(frozen=True)
-class SignLexicon:
-    """Resolves tokens to local media assets.
-
-    Expected asset naming (simple convention):
-    - GIF:  <TOKEN>.gif
-    - MP4:  <TOKEN>.mp4
-
-    You can replace generated placeholder GIFs with real sign clips using the same filenames.
-    """
-
-    assets_dir: Path
-
-    def ensure_dirs(self) -> None:
-        self.assets_dir.mkdir(parents=True, exist_ok=True)
-
-    @property
-    def debug(self) -> bool:
-        return os.environ.get("SIGNACTION_DEBUG", "").strip() in {"1", "true", "TRUE", "yes", "YES"}
-
-
 _SUPPORTED_SUFFIXES = {".gif", ".mp4", ".png", ".jpg", ".jpeg"}
 
 
@@ -78,8 +57,28 @@ def _search_dirs(base_dir: Path) -> list[Path]:
     - flat folder: assets_dir/HELLO.gif
     - structured: assets_dir/signs/hello.gif and assets_dir/alphabet/h.gif
     """
-
     return [base_dir, base_dir / "signs", base_dir / "alphabet"]
+
+
+@dataclass(frozen=True)
+class SignLexicon:
+    """Resolves tokens to local media assets.
+
+    Expected asset naming (simple convention):
+    - GIF:  <TOKEN>.gif
+    - MP4:  <TOKEN>.mp4
+
+    You can replace generated placeholder GIFs with real sign clips using the same filenames.
+    """
+
+    assets_dir: Path
+
+    def ensure_dirs(self) -> None:
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def debug(self) -> bool:
+        return os.environ.get("SIGNACTION_DEBUG", "").strip() in {"1", "true", "TRUE", "yes", "YES"}
 
     def resolve(self, token: str) -> SignItem | None:
         self.ensure_dirs()

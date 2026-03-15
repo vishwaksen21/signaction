@@ -18,6 +18,8 @@ Architecture
 Speech → STT → Text
 Text → NLP (gloss) → Token sequence → Sign mapping → GIF renderer → Output
 
+Note: the glossing step uses heuristics (e.g., it may drop auxiliaries like "is/are") but preserves pronouns/content words so phrases like "what is your name" keep "YOUR NAME".
+
 Project layout
 
 - `signaction/`
@@ -45,6 +47,101 @@ Microphone recording (CLI) requires an extra:
 ```bash
 pip install -e ".[mic]"
 ```
+
+Web app (FastAPI backend + Next.js frontend)
+
+This keeps the existing Python pipeline unchanged and only wraps it behind HTTP.
+
+1) Start the backend (FastAPI)
+
+```bash
+./backend_dev.sh
+```
+
+If you see `command not found`, you probably ran `backend_dev.sh` without `./`. Either run `./backend_dev.sh` from the repo root, or:
+
+```bash
+bash backend_dev.sh
+```
+
+If you are currently in `frontend/`, run:
+
+```bash
+../backend_dev.sh
+```
+
+Backend runs on `http://localhost:8000`.
+
+2) Start the frontend (Next.js)
+
+Create a local env file (optional but recommended):
+
+```bash
+cd frontend
+cat > .env.local << 'EOF'
+NEXT_PUBLIC_API_URL=http://localhost:8000
+EOF
+```
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set the API base URL (recommended):
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+Frontend runs on `http://localhost:3000` and calls the backend.
+
+Backend endpoints used by the UI:
+
+- `POST /translate-text`
+- `POST /translate-speech`
+- `GET /dictionary`
+- `GET /health`
+
+Deploy (single container)
+
+The production build serves the frontend from the backend, so deployment is a single web service.
+
+```bash
+docker build -t signaction .
+docker run --rm -p 8000:8000 signaction
+```
+
+Open `http://localhost:8000`.
+
+Deploy (recommended split: Vercel + Render/Railway)
+
+- Frontend (Vercel)
+	- Project root: `frontend/`
+	- Env var: `NEXT_PUBLIC_API_URL=https://<your-backend-domain>`
+
+- Backend (Render/Railway/Docker)
+	- Start command: `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+	- Env vars:
+		- `SIGNACTION_ASSETS_DIR=/path/to/signaction_assets`
+		- `VOSK_MODEL_PATH=/path/to/vosk-model-*` (speech)
+		- `SIGNACTION_CORS_ORIGINS=https://<your-vercel-domain>`
+
+Deploy (docker compose)
+
+```bash
+docker compose up --build
+```
+
+Optional configuration:
+
+```bash
+export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
+export VOSK_MODEL_PATH="/absolute/path/to/vosk-model-small-en-us-0.15"
+export SIGNACTION_CORS_ORIGINS="*"
+```
+
 
 2) Install the spaCy English model
 
@@ -166,6 +263,8 @@ streamlit run streamlit_app.py
 - **Speech** mode: record (if your Streamlit version supports mic capture) or upload audio, then click **Transcribe + Translate**.
 
 Supported upload formats are `wav`, `flac`, `ogg`.
+
+Note: some browsers record microphone audio as `webm`. The FastAPI backend will try to auto-convert `webm` → `wav` if `ffmpeg` is installed.
 
 Run (CLI)
 
