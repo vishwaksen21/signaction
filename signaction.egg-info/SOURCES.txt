@@ -30,5 +30,6 @@ signaction/stt/vosk_backend.py
 signaction/stt/whisper_backend.py
 tests/test_kaggle_integration.py
 tests/test_lexicon.py
+tests/test_nlp.py
 tests/test_pipeline_smoke.py
 tests/test_translate.py

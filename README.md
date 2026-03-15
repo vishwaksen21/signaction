@@ -1,153 +1,100 @@
-SignAction
+# SignAction
 
-Python MVP that translates **typed text** or **spoken speech** into a **sign-language-like “gloss”** and renders a **visual gesture sequence**.
+Professional suite for translating **typed text** or **spoken speech** into a **sign-language-like “gloss”** and rendering a **visual gesture sequence**.
 
-This repo intentionally ships with **placeholder sign GIFs** that are generated on demand (non-copyrighted). You can later replace them with real sign clips/GIFs.
+This application translates English input into actionable sign language assets, presenting them in an easy-to-use web interface.
 
-Features
+## Features
 
-- Dual input: text or speech
-- Speech-to-text (offline): Vosk
-- NLP preprocessing: tokenization, stopword removal, lemmatization, simple gloss rules
-- Text-to-sign: token → asset mapping (GIF/MP4), fallback to generated placeholder GIF
-- Visualization: renders the sign sequence as a single animated GIF
-- Interfaces: Streamlit UI + CLI
+- **Dual Input**: Support for both text or speech input.
+- **Offline Speech-to-Text**: Powered by Vosk for accurate, low-latency offline recognition.
+- **NLP Preprocessing**: Tokenization, stopword removal, lemmatization, and simple gloss translation rules using spaCy.
+- **Text-to-Sign Mapping**: Translates token sequences into corresponding sign assets with dynamic placeholder fallback for missing gestures.
+- **Modern Web Interface**: Next.js & React-based frontend providing a sleek, responsive user experience.
+- **FastAPI Backend**: Robust, high-performance API pipeline serving models and endpoints.
 
-Architecture
+## Architecture
 
-Speech → STT → Text
-Text → NLP (gloss) → Token sequence → Sign mapping → GIF renderer → Output
+1. **Speech Pipeline**: Speech → STT (Vosk) → Text
+2. **Translation Pipeline**: Text → NLP (gloss logic) → Token Sequence
+3. **Rendering**: Token Sequence → Sign Mapping → Asset Rendering (GIF/MP4)
 
-Note: the glossing step uses heuristics (e.g., it may drop auxiliaries like "is/are") but preserves pronouns/content words so phrases like "what is your name" keep "YOUR NAME".
+*Note: The glossing step currently uses heuristics to normalize and drop auxiliaries while preserving content tokens.*
 
-Project layout
+## Project Structure
 
-- `signaction/`
-	- `nlp.py`: text normalization + gloss tokens
-	- `stt/`: speech-to-text backends (Vosk default)
-	- `translate.py`: tokens → sign items
-	- `render.py`: sequence → animated GIF
-	- `app.py`: Streamlit UI
-	- `cli.py`: CLI
-- `signaction_assets/` (created at runtime): token assets cache
+- `backend/`: FastAPI application containing routing, NLP, STT logic, and translation endpoints.
+- `frontend/`: Next.js web application.
+- `signaction/`: Core Python library for STT models (`stt/`), text normalization (`nlp.py`), translation logic (`translate.py`), and asset mapping.
+- `models/`: STT acoustic/language models (e.g., Vosk offline models).
 
-Setup
+## Setup & Installation
 
-1) Create a venv and install dependencies
+### 1. Python Backend Setup
+
+Ensure you have Python installed, then set up the environment:
 
 ```bash
+# Create and activate a virtual environment
 python -m venv .venv
 source .venv/bin/activate
+
+# Install the package and dependencies
 pip install -U pip
 pip install -e .
-```
 
-Microphone recording (CLI) requires an extra:
-
-```bash
+# If you need microphone recording capability:
 pip install -e ".[mic]"
+
+# Download the required spaCy English model for NLP processing
+python -m spacy download en_core_web_sm
 ```
 
-Web app (FastAPI backend + Next.js frontend)
-
-This keeps the existing Python pipeline unchanged and only wraps it behind HTTP.
-
-1) Start the backend (FastAPI)
-
+Start the backend:
 ```bash
+# Run the backend dev script from the project root
 ./backend_dev.sh
 ```
+*The backend service will be available at `http://localhost:8000`.*
 
-If you see `command not found`, you probably ran `backend_dev.sh` without `./`. Either run `./backend_dev.sh` from the repo root, or:
+### 2. Next.js Frontend Setup
 
-```bash
-bash backend_dev.sh
-```
-
-If you are currently in `frontend/`, run:
-
-```bash
-../backend_dev.sh
-```
-
-Backend runs on `http://localhost:8000`.
-
-2) Start the frontend (Next.js)
-
-Create a local env file (optional but recommended):
+Navigate to the frontend directory and install dependencies:
 
 ```bash
 cd frontend
+npm install
+```
+
+Configure the environment (Local setup):
+```bash
+# In the frontend directory, configure the backend API URL
 cat > .env.local << 'EOF'
 NEXT_PUBLIC_API_URL=http://localhost:8000
 EOF
 ```
 
+Start the frontend development server:
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
+*The web interface will be accessible at `http://localhost:3000`.*
 
-Set the API base URL (recommended):
+## Deployment
 
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
+Deploy the system using independent services (Recommended split: Vercel for Frontend, Render/Railway for Backend).
 
-Frontend runs on `http://localhost:3000` and calls the backend.
+**Frontend** (Vercel)
+- Project root: `frontend/`
+- Build command: `npm run build`
+- Environment Variables: `NEXT_PUBLIC_API_URL=https://<your-backend-domain>`
 
-Backend endpoints used by the UI:
-
-- `POST /translate-text`
-- `POST /translate-speech`
-- `GET /dictionary`
-- `GET /health`
-
-Deploy (single container)
-
-The production build serves the frontend from the backend, so deployment is a single web service.
-
-```bash
-docker build -t signaction .
-docker run --rm -p 8000:8000 signaction
-```
-
-Open `http://localhost:8000`.
-
-Deploy (recommended split: Vercel + Render/Railway)
-
-- Frontend (Vercel)
-	- Project root: `frontend/`
-	- Env var: `NEXT_PUBLIC_API_URL=https://<your-backend-domain>`
-
-- Backend (Render/Railway/Docker)
-	- Start command: `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-	- Env vars:
-		- `SIGNACTION_ASSETS_DIR=/path/to/signaction_assets`
-		- `VOSK_MODEL_PATH=/path/to/vosk-model-*` (speech)
-		- `SIGNACTION_CORS_ORIGINS=https://<your-vercel-domain>`
-
-Deploy (docker compose)
-
-```bash
-docker compose up --build
-```
-
-Optional configuration:
-
-```bash
-export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
-export VOSK_MODEL_PATH="/absolute/path/to/vosk-model-small-en-us-0.15"
-export SIGNACTION_CORS_ORIGINS="*"
-```
-
-
-2) Install the spaCy English model
-
-```bash
-python -m spacy download en_core_web_sm
-```
+**Backend** (Render / Railway / EC2)
+- Start Command: `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+- Environment Variables:
+  - `SIGNACTION_ASSETS_DIR=/path/to/signaction_assets`
+  - `VOSK_MODEL_PATH=/path/to/models/vosk-model-small-en-us-0.15`
+  - `SIGNACTION_CORS_ORIGINS=https://<your-vercel-domain>`
 
 Note: this model improves lemmatization quality, but the app will still run without it (it falls back to a basic tokenizer).
 

@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/signaction/frontend/app/about/page.tsx"],"sourcesContent":["export default function AboutPage() {\n  return (\n    <div className=\"prose prose-invert max-w-none\">\n      <h1>About</h1>\n      <p>\n        SignAction is a web interface for a Python backend that translates text and speech into a\n        sign-language-style token stream and resolves tokens to local gesture assets (GIF/MP4).\n      </p>\n      <h2>Accessibility impact</h2>\n      <p>\n        The goal is to make communication more inclusive by presenting a visual gesture sequence\n        driven by your dataset.\n      </p>\n      <h2>How it works</h2>\n      <ol>\n        <li>Speech (optional) → transcript (Vosk)</li>\n        <li>Text → gloss/tokens (rule-based baseline)</li>\n        <li>Tokens → asset lookup (signs/alphabet folders)</li>\n        <li>UI → gesture playback</li>\n      </ol>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;;0BACb,8OAAC;0BAAG;;;;;;0BACJ,8OAAC;0BAAE;;;;;;0BAIH,8OAAC;0BAAG;;;;;;0BACJ,8OAAC;0BAAE;;;;;;0BAIH,8OAAC;0BAAG;;;;;;0BACJ,8OAAC;;kCACC,8OAAC;kCAAG;;;;;;kCACJ,8OAAC;kCAAG;;;;;;kCACJ,8OAAC;kCAAG;;;;;;kCACJ,8OAAC;kCAAG;;;;;;;;;;;;;;;;;;AAIZ"}}]
-}
