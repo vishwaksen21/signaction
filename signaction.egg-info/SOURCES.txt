@@ -2,6 +2,7 @@ README.md
 pyproject.toml
 signaction/__init__.py
 signaction/__main__.py
+signaction/ai_fallback.py
 signaction/app.py
 signaction/audio.py
 signaction/cli.py

@@ -55,7 +55,7 @@ def normalize_text(text: str) -> str:
 def glossify(
     text: str,
     *,
-    remove_stopwords: bool = True,
+    remove_stopwords: bool = False,
     lemmatize: bool = True,
     drop_fillers: bool = True,
 ) -> GlossResult:
@@ -96,7 +96,7 @@ def glossify(
 
         else:
             if lower in _AUXILIARIES:
-                out = t.text
+                out = lower.upper()  # keep exact form (ARE, DO, etc.)
 
             elif lemmatize:
                 lemma = (t.lemma_ or "").strip()

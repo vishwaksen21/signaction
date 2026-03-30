@@ -134,9 +134,9 @@ export default function TranslatorPage() {
 
                 <div className="mt-6 grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Gesture 1', glyph: 'H', src: '/assets/alphabet/H.jpg' },
-                    { label: 'Gesture 2', glyph: 'W', src: '/assets/alphabet/W.jpg', active: true },
-                    { label: 'Gesture 3', glyph: 'P', src: '/assets/alphabet/P.jpg' },
+                    { label: 'Gesture 1', glyph: 'H' },
+                    { label: 'Gesture 2', glyph: 'W', active: true },
+                    { label: 'Gesture 3', glyph: 'P' },
                   ].map((g, i) => (
                     <div
                       key={g.label}
@@ -151,8 +151,8 @@ export default function TranslatorPage() {
                         <Hand size={12} className={g.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'} />
                       </div>
 
-                      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
-                        <Image src={g.src} alt={g.glyph} fill sizes="120px" className="object-cover" />
+                      <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-800">
+                        <Hand size={40} className="text-slate-300 dark:text-slate-600" />
                       </div>
 
                       <div className="mt-3 text-lg font-bold text-slate-900 dark:text-white">{g.glyph}</div>

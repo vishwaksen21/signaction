@@ -6,7 +6,7 @@ Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 Requires-Dist: streamlit>=1.31
 Requires-Dist: spacy>=3.7
-Requires-Dist: vosk>=0.3.45
+Requires-Dist: vosk>=0.3.38
 Requires-Dist: numpy>=1.24
 Requires-Dist: pillow>=10.0
 Requires-Dist: soundfile>=0.12.1
@@ -30,6 +30,8 @@ Requires-Dist: ruff>=0.4; extra == "dev"
 # SignAction
 
 Professional suite for translating **typed text** or **spoken speech** into a **sign-language-like “gloss”** and rendering a **visual gesture sequence**.
+
+This system eliminates dataset dependency by introducing AI-generated sign animations, ensuring complete and continuous sign language communication.
 
 This application translates English input into actionable sign language assets, presenting them in an easy-to-use web interface.
 

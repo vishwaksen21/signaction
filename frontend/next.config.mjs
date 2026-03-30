@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+
 const nextConfig = {
   reactStrictMode: true,
   rewrites: async () => {
@@ -6,27 +9,27 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/translate-text',
-          destination: 'http://localhost:8000/translate-text',
+          destination: `${BACKEND_URL}/translate-text`,
         },
         {
           source: '/translate-speech',
-          destination: 'http://localhost:8000/translate-speech',
+          destination: `${BACKEND_URL}/translate-speech`,
         },
         {
           source: '/assets/:path*',
-          destination: 'http://localhost:8000/assets/:path*',
+          destination: `${BACKEND_URL}/assets/:path*`,
         },
         {
           source: '/placeholder/:path*',
-          destination: 'http://localhost:8000/placeholder/:path*',
+          destination: `${BACKEND_URL}/placeholder/:path*`,
         },
         {
           source: '/api/translate/:path*',
-          destination: 'http://localhost:8000/api/translate/:path*',
+          destination: `${BACKEND_URL}/api/translate/:path*`,
         },
         {
           source: '/health',
-          destination: 'http://localhost:8000/health',
+          destination: `${BACKEND_URL}/health`,
         },
       ],
     };

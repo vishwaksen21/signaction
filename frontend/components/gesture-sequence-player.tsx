@@ -17,22 +17,31 @@ export function GestureSequencePlayer({
   const [playing, setPlaying] = useState(false);
 
   const current = useMemo(() => gestures[index] ?? null, [gestures, index]);
+  const isMp4 = current?.toLowerCase().endsWith('.mp4') ?? false;
 
+  // Reset on new translation
   useEffect(() => {
     setIndex(0);
     setPlaying(false);
   }, [gestures.join('|')]);
 
+  // Auto-advance for GIFs only — MP4s fire onEnded themselves
   useEffect(() => {
     if (!playing) return;
     if (gestures.length <= 1) return;
+    if (isMp4) return; // MP4: handled by onEnded
 
     const t = window.setInterval(() => {
       setIndex((i) => (i + 1) % gestures.length);
-    }, 800);
+    }, 2000);
 
     return () => window.clearInterval(t);
-  }, [playing, gestures.length]);
+  }, [playing, gestures.length, isMp4, index]);
+
+  const handleEnded = () => {
+    if (!playing) return;
+    setIndex((i) => (i + 1) % gestures.length);
+  };
 
   if (loading) {
     return <Skeleton className="h-[400px] w-full rounded-xl" />;
@@ -68,7 +77,7 @@ export function GestureSequencePlayer({
                 transition={{ duration: 0.25 }}
                 className="w-full h-full flex items-center justify-center"
               >
-                <SignViewer url={current} />
+                <SignViewer url={current} onEnded={handleEnded} />
               </motion.div>
             ) : (
               <motion.div

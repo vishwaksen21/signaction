@@ -6,10 +6,27 @@ from functools import lru_cache
 import os
 import re
 
+import json
 from .types import SignItem
 
 
 _SUPPORTED_SUFFIXES = {".gif", ".mp4", ".png", ".jpg", ".jpeg"}
+
+
+@lru_cache(maxsize=4)
+def _load_aliases(assets_dir: str) -> dict[str, str]:
+    """Load word aliases from lexicon.json in the assets directory."""
+    lexicon_path = Path(assets_dir) / "lexicon.json"
+    if not lexicon_path.exists():
+        return {}
+    try:
+        with open(lexicon_path) as f:
+            data = json.load(f)
+        raw: dict = data.get("aliases", {})
+        return {k.upper(): v.upper() for k, v in raw.items()}
+    except Exception:
+        return {}
+
 
 
 def _norm_key(s: str) -> str:
@@ -88,8 +105,12 @@ class SignLexicon:
 
         key = _norm_key(token)
 
+        # Apply lexicon aliases (ARE→BE, DOING→DO, etc.)
+        aliases = _load_aliases(str(self.assets_dir))
+        resolved_key = aliases.get(key, key)
+
         # Try a couple common variants
-        candidates = [key, _norm_key(key.replace("_", ""))]
+        candidates = [resolved_key, _norm_key(resolved_key.replace("_", ""))]
 
         # Search structured datasets too. Prefer alphabet folder for single letters.
         dirs = _search_dirs(self.assets_dir)

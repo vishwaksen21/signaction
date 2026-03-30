@@ -10,8 +10,8 @@ __pycache__/
 # Streamlit
 .streamlit/
 
-# Local assets cache
-signaction_assets/
+# Skeleton GIF cache (auto-generated, not needed)
+signaction_assets/*.gif
 
 # Downloaded models / datasets
 models/

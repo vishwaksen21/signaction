@@ -2,6 +2,8 @@
 
 Professional suite for translating **typed text** or **spoken speech** into a **sign-language-like “gloss”** and rendering a **visual gesture sequence**.
 
+This system eliminates dataset dependency by introducing AI-generated sign animations, ensuring complete and continuous sign language communication.
+
 This application translates English input into actionable sign language assets, presenting them in an easy-to-use web interface.
 
 ## Features

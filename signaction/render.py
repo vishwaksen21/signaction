@@ -6,7 +6,7 @@ from functools import lru_cache
 
 from PIL import Image
 
-from .placeholder_assets import generate_placeholder_gif
+from .ai_fallback import generate_ai_fallback_gif
 from .types import SignItem
 
 
@@ -36,10 +36,10 @@ def ensure_item_gif(item: SignItem, assets_dir: Path) -> Path:
     if item.media_type == "gif" and item.media_path.exists():
         return item.media_path
 
-    # If a token doesn't have a real asset yet, create a placeholder GIF.
+    # If a token doesn't have a real asset yet, generate an AI pose animation.
     out_path = assets_dir / f"{item.token.upper()}.gif"
     if not out_path.exists():
-        generate_placeholder_gif(item.token, out_path)
+        generate_ai_fallback_gif(item.token, out_path)
     return out_path
 
 
