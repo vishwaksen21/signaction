@@ -8,16 +8,15 @@ __pycache__
 .mypy_cache
 .ruff_cache
 
-# Local runtime/cache
-signaction_assets/
+# Downloaded datasets / temp files
 models/
 .kaggle_tmp/
 
 # Frontend
 frontend/node_modules
 frontend/dist
+frontend/.next
 
 # Misc
-*.gif
-*.mp4
 *.wav
+*.gif
