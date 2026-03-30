@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: signaction-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: SIGNACTION_ASSETS_DIR
+        value: /app/signaction_assets
+      - key: SIGNACTION_CORS_ORIGINS
+        value: "*"
+      - key: PORT
+        value: "8000"
+    healthCheckPath: /health
+    autoDeploy: true
