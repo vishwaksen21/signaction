@@ -370,5 +370,5 @@ If a token has no matching asset and looks like an alphabetic word (e.g., `PYTHO
 Notes / Limitations
 
 - The NLP “gloss” rules are a baseline and **not a full sign-language translation model**.
-- For production-quality translation, replace `signaction/nlp.py` + `signaction/translate.py` with a learned model and a curated dataset.
+- For production-quality translation, replace `signaction/nlp.py` + `signaction/translate.py` with a learned model and a curated dataset
 
