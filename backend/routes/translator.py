@@ -50,7 +50,7 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
     settings = get_settings()
 
     gloss = glossify(req.text)
-    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=False)
+    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=True)
 
     lex = SignLexicon(assets_dir=settings.assets_dir)
 

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="120" height="140">
+  <defs>
+    <linearGradient id="bodyGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B9BFA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A7CF7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Body -->
+  <ellipse cx="60" cy="95" rx="32" ry="38" fill="url(#bodyGrad2)"/>
+  
+  <!-- Head -->
+  <ellipse cx="60" cy="50" rx="28" ry="25" fill="url(#bodyGrad2)"/>
+  
+  <!-- Ears -->
+  <ellipse cx="35" cy="30" rx="12" ry="20" fill="url(#bodyGrad2)" transform="rotate(-20 35 30)"/>
+  <ellipse cx="85" cy="30" rx="12" ry="20" fill="url(#bodyGrad2)" transform="rotate(20 85 30)"/>
+  <ellipse cx="35" cy="30" rx="7" ry="14" fill="#FFB6C1" transform="rotate(-20 35 30)"/>
+  <ellipse cx="85" cy="30" rx="7" ry="14" fill="#FFB6C1" transform="rotate(20 85 30)"/>
+  
+  <!-- Eyes (happy) -->
+  <path d="M 42 48 Q 48 42 54 48" stroke="#1a1a2e" stroke-width="3" fill="none"/>
+  <path d="M 66 48 Q 72 42 78 48" stroke="#1a1a2e" stroke-width="3" fill="none"/>
+  
+  <!-- Nose -->
+  <ellipse cx="60" cy="56" rx="5" ry="4" fill="#FF69B4"/>
+  
+  <!-- Big smile -->
+  <path d="M 45 62 Q 60 75 75 62" stroke="#1a1a2e" stroke-width="2" fill="none"/>
+  
+  <!-- Thumbs up arm -->
+  <g class="thumb-arm">
+    <ellipse cx="95" cy="80" rx="10" ry="18" fill="url(#bodyGrad2)" transform="rotate(-45 95 80)"/>
+    <!-- Hand -->
+    <circle cx="110" cy="65" r="10" fill="url(#bodyGrad2)"/>
+    <!-- Thumb -->
+    <ellipse cx="115" cy="55" rx="5" ry="10" fill="url(#bodyGrad2)" transform="rotate(-10 115 55)"/>
+  </g>
+  
+  <!-- Other arm -->
+  <ellipse cx="28" cy="90" rx="10" ry="15" fill="url(#bodyGrad2)" transform="rotate(20 28 90)"/>
+  <circle cx="18" cy="100" r="8" fill="url(#bodyGrad2)"/>
+  
+  <!-- Feet -->
+  <ellipse cx="45" cy="130" rx="12" ry="8" fill="url(#bodyGrad2)"/>
+  <ellipse cx="75" cy="130" rx="12" ry="8" fill="url(#bodyGrad2)"/>
+  
+  <!-- Sparkles -->
+  <circle cx="118" cy="50" r="4" fill="#FFD93D" class="sparkle"/>
+  <circle cx="125" cy="60" r="3" fill="#FFD93D" class="sparkle" style="animation-delay: 0.4s"/>
+  <circle cx="115" cy="40" r="2" fill="#FFD93D" class="sparkle" style="animation-delay: 0.8s"/>
+  
+  <style>
+    .thumb-arm {
+      animation: thumbsup 1.2s ease-in-out infinite;
+      transform-origin: 95px 80px;
+    }
+    .sparkle {
+      animation: twinkle 1.2s ease-in-out infinite;
+    }
+    @keyframes thumbsup {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(-10deg) scale(1.1); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.5); }
+    }
+  </style>
+</svg>

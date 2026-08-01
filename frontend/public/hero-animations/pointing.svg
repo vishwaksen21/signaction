@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="pointGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#44A08D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <g class="point-group" transform="translate(35,50)">
+    <!-- Fist -->
+    <ellipse cx="0" cy="10" rx="14" ry="12" fill="url(#pointGrad)"/>
+    <!-- Pointing finger -->
+    <rect x="14" y="-4" width="28" height="8" rx="4" fill="url(#pointGrad)"/>
+    <!-- Motion lines -->
+    <line x1="48" y1="-2" x2="58" y2="-2" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round" class="line l1"/>
+    <line x1="48" y1="4" x2="55" y2="4" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round" class="line l2"/>
+    <line x1="48" y1="10" x2="52" y2="10" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round" class="line l3"/>
+  </g>
+  <style>
+    .point-group {
+      animation: point 1.5s ease-in-out infinite;
+    }
+    .line {
+      animation: dash 1.5s ease-in-out infinite;
+    }
+    .l1 { animation-delay: 0s; }
+    .l2 { animation-delay: 0.2s; }
+    .l3 { animation-delay: 0.4s; }
+    @keyframes point {
+      0%, 100% { transform: translate(35px, 50px); }
+      50% { transform: translate(40px, 50px); }
+    }
+    @keyframes dash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</svg>

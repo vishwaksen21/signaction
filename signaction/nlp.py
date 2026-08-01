@@ -105,7 +105,12 @@ def glossify(
                 if not lemma or lemma == "-PRON-":
                     out = t.text
                 else:
-                    out = lemma
+                    # Keep progressive/continuous forms (doing, eating, etc.) for display
+                    # These map to their base form via lexicon aliases
+                    if lower.endswith("ing") and len(lower) > 4:
+                        out = lower  # Keep "DOING", "EATING", etc.
+                    else:
+                        out = lemma
             else:
                 out = t.text
 

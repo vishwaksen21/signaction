@@ -10,7 +10,7 @@ import json
 from .types import SignItem
 
 
-_SUPPORTED_SUFFIXES = {".gif", ".mp4", ".png", ".jpg", ".jpeg"}
+_SUPPORTED_SUFFIXES = {".gif", ".mp4", ".png", ".jpg", ".jpeg", ".svg"}
 
 
 @lru_cache(maxsize=4)

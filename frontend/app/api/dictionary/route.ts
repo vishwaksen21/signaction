@@ -1,4 +1,5 @@
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const BACKEND_BASE = (process.env.SIGNACTION_BACKEND_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -8,6 +9,7 @@ export async function GET(req: Request) {
     headers: {
       accept: req.headers.get('accept') || 'application/json',
     },
+    cache: 'no-store',
   });
 
   return new Response(upstream.body, {

@@ -54,7 +54,11 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
   const method = (init.method || 'GET').toUpperCase();
   const API_BASE = getApiBase();
   const url = API_BASE ? `${API_BASE}${path}` : path;
-  const res = await fetch(url, init);
+  
+  // Disable aggressive Next.js caching so dynamic changes are reflected
+  const fetchInit = { ...init, cache: init.cache || 'no-store' } as RequestInit;
+
+  const res = await fetch(url, fetchInit);
   if (!res.ok) {
     let msg = `${res.status} ${res.statusText} (${method} ${url})`;
     try {
@@ -167,8 +171,7 @@ export async function fetchDictionary(): Promise<{ items: DictionaryItem[] }> {
       items: (data.items || []).map((i) => ({ ...i, url: resolveApiUrl(i.url) })),
     };
   } catch (e) {
-    // Legacy backend has no dictionary endpoint.
-    if (isNotFoundError(e)) return { items: [] };
-    throw e;
+    if (!isNotFoundError(e)) throw e;
+    return { items: [] };
   }
 }

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="peaceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EE5A5A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <g class="peace-group" transform="translate(50,55)">
+    <!-- Palm -->
+    <ellipse cx="0" cy="10" rx="16" ry="18" fill="url(#peaceGrad)"/>
+    <!-- V fingers -->
+    <rect x="-10" y="-28" width="8" height="26" rx="4" fill="url(#peaceGrad)" transform="rotate(-12 -6 -15)"/>
+    <rect x="4" y="-28" width="8" height="26" rx="4" fill="url(#peaceGrad)" transform="rotate(12 8 -15)"/>
+    <!-- Curled fingers -->
+    <ellipse cx="-8" cy="8" rx="5" ry="4" fill="url(#peaceGrad)"/>
+    <ellipse cx="8" cy="8" rx="5" ry="4" fill="url(#peaceGrad)"/>
+    <!-- Sparkles -->
+    <circle cx="-16" cy="-22" r="3" fill="#FFD93D" class="sparkle"/>
+    <circle cx="16" cy="-18" r="2" fill="#FFD93D" class="sparkle" style="animation-delay: 0.5s"/>
+  </g>
+  <style>
+    .peace-group {
+      animation: wiggle 2s ease-in-out infinite;
+    }
+    .sparkle {
+      animation: twinkle 1s ease-in-out infinite;
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: translate(50px, 55px) rotate(0deg); }
+      25% { transform: translate(50px, 55px) rotate(5deg); }
+      75% { transform: translate(50px, 55px) rotate(-5deg); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</svg>

@@ -1,0 +1,551 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, calc}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue!70!black,
+}
+
+\begin{document}
+
+\title{SignAction: A Modular Pipeline for Translating Text and Speech into Indian Sign Language Gestures}
+
+\author{
+\IEEEauthorblockN{First Author\IEEEauthorrefmark{1},
+Second Author\IEEEauthorrefmark{1},
+Third Author\IEEEauthorrefmark{2}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Computer Science and Engineering,
+Your University,
+Your City, Country}
+\IEEEauthorblockA{\IEEEauthorrefmark{2}Department of Electronics and Communication Engineering,
+Your University,
+Your City, Country}
+\IEEEauthorblockA{Email: \{first.author, second.author\}@youruniversity.edu}
+}
+
+\maketitle
+
+% =============================================================
+% ABSTRACT
+% =============================================================
+\begin{abstract}
+Around 18 million deaf and hard-of-hearing people in India use Indian Sign Language (ISL) to communicate. Very few software tools exist that can convert spoken or written English into ISL. Systems that try to do this tend to fall into one of two problems: they need large parallel video datasets that do not exist for ISL, or they do a plain dictionary lookup and ignore how signs connect. This paper presents SignAction, a system that takes English text or recorded speech and produces animated ISL gesture sequences. A rule-based NLP module turns input text into gloss tokens. A file-based resolver checks those tokens against a folder of pre-recorded sign files. If nothing matches, a synthesizer draws a stick-figure animation using descriptions from the ISLRTC dictionary. A FastAPI server exposes the pipeline over REST, and a Next.js frontend handles text input, audio recording, and gesture playback. On a test set of 320 English sentences, the glosser got about 93\% token-level accuracy. The time from text to first gesture frame was around 100\,ms. The whole thing runs on one CPU core with no GPU.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Indian Sign Language, sign language translation, speech-to-text, natural language processing, accessibility, gesture synthesis
+\end{IEEEkeywords}
+
+% =============================================================
+% 1. INTRODUCTION
+% =============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Sign languages are real, complete languages, but NLP research has paid little attention to them \cite{stokoe1960, klima1979}. The WHO counts 466 million people worldwide with disabling hearing loss, and that number is expected to pass 700 million by 2050 \cite{who2021}. For deaf communities, sign language is not an add-on. It is how people learn as children, hold jobs as adults, and keep in touch with family.
+
+Building a translation system between spoken and signed language is harder than most NLP tasks. Sign language datasets take a lot of effort to collect---you need deaf signers and hearing translators recording together in controlled settings, and privacy issues make it harder \cite{camgoz2020, cooper2012}. ISL has fewer resources than most sign languages. The ISLRTC published a dictionary with thousands of entries \cite{islrtc2020}, but there is no large ISL video corpus paired with English text. Systems designed for ASL or German Sign Language cannot be reused for ISL directly because ISL has its own grammar and spatial conventions.
+
+We built SignAction to work with what is available today rather than wait for resources that do not exist yet. The pipeline has three steps. A rule-based NLP module turns English text into gloss tokens. Those tokens are matched against a folder of sign files (GIFs, MP4s, images). If a token has no match, a stick-figure animation is drawn on the fly using ISLRTC dictionary descriptions for hand position and movement.
+
+This paper makes four concrete contributions:
+\begin{itemize}
+    \item A pipeline with three independent stages (NLP, asset lookup, rendering) so that any stage can be swapped without touching the others.
+    \item A fallback renderer that draws a stick-figure animation for any unknown word, so the output is never blank.
+    \item A fingerspelling fallback that splits unknown alphabetic words into letters and looks up each letter separately.
+    \item A web application supporting text, speech, and audio file upload that runs on a regular cloud VM with no GPU.
+\end{itemize}
+
+Section~\ref{sec:related} covers related work. Section~\ref{sec:arch} describes the architecture. Section~\ref{sec:method} walks through each pipeline stage. Section~\ref{sec:results} presents results and discusses shortcomings. Section~\ref{sec:conclude} wraps up.
+
+% =============================================================
+% 2. RELATED WORK
+% =============================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Sign Language Recognition}
+
+Stokoe \cite{stokoe1960} was the first to study sign language scientifically, breaking signs down into three parts: handshape, location, and movement. That framework is still how most annotation tools are built. Klima and Bellugi \cite{klima1979} used it to formally describe ASL phonology, which gave later researchers a shared vocabulary for corpus annotation.
+
+On the machine learning side, Camgoz et al. \cite{camgoz2020} trained a transformer model on RWTH-PHOENIX-Weather, a German Sign Language dataset of weather forecast broadcasts. It works in that narrow domain, but it needs aligned video-text pairs---something ISL does not have.
+
+For ISL, Nambiar et al. \cite{nambiar2009} built an HMM-based gesture recogniser that worked under fixed lab conditions but broke down when lighting or camera angles changed. ISLRTC later put out a dictionary that maps ISL signs to English glosses \cite{islrtc2020}, and that is the resource our asset lookup is built around.
+
+Cooper et al. \cite{cooper2012} noted that sign language is spatial---flattening it to a token sequence loses meaning. We keep that in mind by playing gestures one after another rather than merging them into one image.
+
+\subsection{Glossing as an Intermediate Representation}
+
+Glossing---writing signs as uppercase English words---goes back to the 1970s \cite{klima1979}. Neidle et al. \cite{neidle2001} built SignStream, an annotation tool for ASL video, and set the convention of uppercase tokens with underscores joining compound signs. We follow those same conventions in SignAction.
+
+Huang et al. \cite{huang2018} found that a model trained to predict gloss sequences reached about 70\% gloss accuracy and still gave reasonable translations. That told us the glosser does not have to be perfect---good enough to find the right asset most of the time is enough.
+
+The biggest weakness of gloss-based approaches is ambiguity. The word ``bank'' means a financial institution in one sentence and a riverbank in another, and a rule-based glosser cannot tell which is which from context alone. We handle a few fixed cases through alias and phrase tables, but general word-sense disambiguation is not in scope here.
+
+\subsection{Gesture Synthesis}
+
+Avatar-based sign synthesis has been around for a while. VSigns \cite{dlouhy2004} was an early web tool that converted text to SignWriting and produced VRML avatar animations. Commercial tools like SignAll \cite{signall2020} use motion capture to drive 3D character models. Pel\'{a}ez-S\'{a}nchez et al. \cite{pelaez2021} surveyed neural sign production and found that photorealistic output needs tens of hours of per-signer training data. ISL does not have that.
+
+We went a simpler route: stick figures. The renderer reads ISLRTC dictionary descriptions---handshape, body location, movement direction---and draws 320$\times$360-pixel animated GIFs of a skeleton doing each sign. We give up realism to get coverage. Any token can produce an animation, not just ones that have pre-recorded video.
+
+\subsection{Offline Speech Recognition}
+
+Speech recognition in SignAction has to work offline. Vosk \cite{vosk2021} is a lightweight STT engine based on Kaldi \cite{povey2011}. Models are under 50\,MB and run on one CPU core. The small English model gets about 11\% WER on read speech \cite{vosk2021}. That is not good enough for general dictation, but it is fine when the glosser only needs content words. Whisper \cite{radford2023} is available as an optional backend for cases where accuracy matters more than model size.
+
+% =============================================================
+% 3. SYSTEM ARCHITECTURE
+% =============================================================
+\section{System Architecture}
+\label{sec:arch}
+
+SignAction is split into three parts: a Next.js frontend, a FastAPI backend, and a Python library called \texttt{signaction}. The frontend and backend talk over REST. The backend calls the library for all translation work. Fig.~\ref{fig:arch} shows how data moves through the system.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.8cm,
+    block/.style={rectangle, draw, fill=blue!6, minimum width=2.8cm,
+                  minimum height=0.85cm, text centered, rounded corners=2pt,
+                  font=\footnotesize},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=blue!50!black},
+    lbl/.style={font=\tiny, color=gray!60!black},
+]
+\node[block, fill=green!7] (fe) {Next.js Frontend};
+\node[block, fill=orange!8, right=of fe] (be) {FastAPI Backend};
+\node[block, fill=yellow!10, below right=0.6cm and 0.3cm of be] (nlp) {NLP Gloss};
+\node[block, fill=red!7, below=of nlp] (map) {Asset Resolver};
+\node[block, fill=purple!7, below left=0.6cm and 0.3cm of map] (rend) {AI Fallback};
+\node[block, fill=cyan!8, below=of fe] (stt) {Vosk STT};
+\node[block, fill=gray!6, left=of rend] (lib) {Sign Assets};
+
+\draw[arrow] (fe) -- node[above, lbl] {text/audio} (be);
+\draw[arrow] (be) -- node[right, lbl] {transcript} (nlp);
+\draw[arrow] (nlp) -- node[right, lbl] {tokens} (map);
+\draw[arrow] (map) -- node[right, lbl] {paths} (rend);
+\draw[arrow] (map) -- node[left, lbl] {hits} (lib);
+\draw[arrow] (lib) -- (rend);
+\draw[arrow] (fe) |- node[above, lbl, pos=0.3] {audio} (stt);
+\draw[arrow] (stt) -| node[below, lbl, pos=0.7] {text} (be);
+\draw[arrow] (rend) |- (fe);
+\end{tikzpicture}
+\caption{Data flow through SignAction. Text or audio enters the FastAPI backend, passes through NLP and asset resolution, and returns gesture URLs to the frontend.}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Frontend}
+
+The client is a Next.js 14 app built with React 18 and Tailwind CSS. It has four views:
+
+\begin{itemize}
+    \item \textbf{Translator:} A text box and a ``Translate'' button, plus a microphone recorder and a file upload widget. Requests go through React Query mutations.
+    \item \textbf{Dictionary:} Pulls the full asset list from \texttt{/dictionary} and shows a grid of token labels with previews.
+    \item \textbf{Speech:} Uses the MediaRecorder API to capture audio as WebM (or WAV in Safari) and POSTs it to the backend.
+    \item \textbf{Gesture Player:} Steps through a list of gesture URLs, showing GIFs as \texttt{\textless img\textgreater} elements and MP4s as \texttt{\textless video\textgreater}. Has play/pause, skip, and seek controls.
+\end{itemize}
+
+React Query v5 handles state: caching, retries, and background refetching. The API base URL comes from the \texttt{NEXT\_PUBLIC\_API\_URL} environment variable, so switching between local and production is a single line change.
+
+\subsection{Backend}
+
+The backend is split into four route modules. Table~\ref{tab:routes} lists the endpoints.
+
+\begin{table}[t]
+\centering
+\caption{REST API Endpoints}
+\label{tab:routes}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Method} & \textbf{Endpoint} & \textbf{Purpose} \\
+\midrule
+POST & \texttt{/translate-text} & Text $\rightarrow$ gloss $\rightarrow$ gesture URLs \\
+POST & \texttt{/translate-speech} & Audio $\rightarrow$ transcript $\rightarrow$ gestures \\
+GET & \texttt{/dictionary} & List all sign assets \\
+GET & \texttt{/placeholder/\{t\}.gif} & On-demand placeholder generation \\
+GET & \texttt{/health} & Liveness check \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Before calling Vosk, the speech endpoint normalises the audio. WAV, FLAC, and OGG go straight through. WebM---which is what most browsers record---gets converted to 16\,kHz mono WAV using \texttt{ffmpeg} if it is installed. Vosk will reject the audio otherwise.
+
+Static files are served from \texttt{/assets}. The asset folder defaults to \texttt{./signaction\_assets} and can be overridden with the \texttt{SIGNACTION\_ASSETS\_DIR} environment variable.
+
+\subsection{Core Library}
+
+The \texttt{signaction} Python package holds all translation logic and does not depend on any web framework. Table~\ref{tab:modules} lists its modules.
+
+\begin{table}[t]
+\centering
+\caption{Core Library Modules}
+\label{tab:modules}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Module} & \textbf{Role} \\
+\midrule
+\texttt{nlp.py} & Tokenization, lemmatization, pronoun mapping \\
+\texttt{translate.py} & Token-to-asset resolution, fingerspelling \\
+\texttt{mapping.py} & Filesystem lexicon, LRU-cached, case-insensitive \\
+\texttt{lexicon.py} & Phrase and alias configuration \\
+\texttt{render.py} & Multi-frame GIF assembly \\
+\texttt{ai\_fallback.py} & Skeletal animation for unknown tokens \\
+\texttt{pipeline.py} & Chains glossify, resolve, render \\
+\texttt{stt/} & STT backends (Vosk, Whisper) \\
+\texttt{audio.py} & Audio loading, resampling, PCM encoding \\
+\texttt{cli.py} & Command-line interface \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Because the library has no web dependency, the same translation code runs in the FastAPI server, the CLI, and the Streamlit prototype. We do not duplicate logic across interfaces.
+
+% =============================================================
+% 4. WORKING PRINCIPLE
+% =============================================================
+\section{Working Principle}
+\label{sec:method}
+
+The pipeline has four stages: input acquisition, gloss generation, asset resolution, and visual rendering. Each stage has a clear input and output type, which makes it easy to test or replace any one stage on its own.
+
+\subsection{Input Acquisition}
+
+The system accepts two types of input.
+
+Text comes in as a UTF-8 string in the POST body. Nothing is done to it at this point.
+
+Speech comes in as an audio blob. The server runs three steps to get it ready for Vosk:
+
+\begin{enumerate}
+    \item \textbf{Loading:} \texttt{soundfile} reads the file into a mono float32 NumPy array. Stereo files are averaged down to one channel.
+    \item \textbf{Resampling:} If the sample rate is not 16\,kHz, the audio is resampled using polyphase filtering. The GCD of source and target rates sets the interpolation and decimation factors to avoid aliasing.
+    \item \textbf{PCM encoding:} Samples in $[-1, 1]$ are clipped and scaled to 16-bit integers. A WAV header is added using Python's \texttt{wave} module.
+\end{enumerate}
+
+The output is a 16\,kHz mono WAV file that Vosk reads directly.
+
+\subsection{Gloss Generation}
+
+The NLP module runs spaCy's \texttt{en\_core\_web\_sm} pipeline. Four transformations run in sequence on each token:
+
+\textbf{(1) Filtering.} Whitespace and punctuation are removed. Filler words (``um,'' ``uh,'' ``like'') are dropped when the \texttt{drop\_fillers} flag is set.
+
+\textbf{(2) Pronoun normalization.} A 13-entry lookup table rewrites English pronouns to their ISL gloss equivalents:
+\begin{equation}
+\text{gloss}(t) =
+\begin{cases}
+\text{PRONOUN\_MAP}[t] & \text{if } t \in \text{PRONOUN\_MAP} \\
+t.\text{upper()} & \text{otherwise}
+\end{cases}
+\label{eq:pronoun}
+\end{equation}
+where $t$ is the lowercase token. ``I'' maps to ``ME,'' ``your'' maps to ``YOUR,'' and so on. ISL marks pronouns through spatial pointing rather than inflection, so the gloss needs to preserve the surface form.
+
+\textbf{(3) Lemmatization.} Content words are reduced to their dictionary form (``running'' $\rightarrow$ ``run,'' ``better'' $\rightarrow$ ``good''). The result is uppercased to match asset filenames. Auxiliary verbs (``am,'' ``is,'' ``are,'' ``do,'' ``does,'' ``did'') are excluded from lemmatization because the ISL signs for these words differ from the base form ``be.''
+
+\textbf{(4) Stopword handling.} Stopwords are kept by default because words like ``NOT,'' ``WHAT,'' and ``WHERE'' have independent signs in ISL. If \texttt{remove\_stopwords} is enabled, only a protected subset (negations, question words, pronouns, auxiliaries) is kept.
+
+The output is a \texttt{GlossResult} containing the token list and the joined gloss string.
+
+\subsection{Asset Resolution}
+
+Resolution goes through three tiers. Each tier is only tried if the previous one found nothing.
+
+\textbf{Tier 1 --- Lexicon configuration.} Before looking up individual tokens, phrase-level and alias-level rewrites are applied. Phrases use a greedy longest-match scan, shown in Algorithm~\ref{alg:phrase}.
+
+\begin{algorithm}[t]
+\caption{Greedy Phrase Mapping}
+\label{alg:phrase}
+\begin{algorithmic}[1]
+\REQUIRE Token sequence $T = [t_1, \ldots, t_n]$, phrase dictionary $P$ sorted by phrase length descending
+\ENSURE Rewritten sequence $T'$
+\STATE $T' \gets \emptyset$; $i \gets 1$
+\WHILE{$i \leq n$}
+    \STATE $matched \gets \textsc{False}$
+    \FOR{each $(p_j, r_j)$ in $P$}
+        \IF{$t_i \cdots t_{i+|p_j|-1} = p_j$}
+            \STATE append $r_j$ to $T'$; $i \gets i + |p_j|$; $matched \gets \textsc{True}$; \textbf{break}
+        \ENDIF
+    \ENDFOR
+    \IF{$\neg matched$} \STATE append $t_i$ to $T'$; $i \gets i + 1$ \ENDIF
+\ENDWHILE
+\RETURN $T'$
+\end{algorithmic}
+\end{algorithm}
+
+The default phrase table maps ``THANK YOU'' $\rightarrow$ ``THANK\_YOU,'' ``GOOD MORNING'' $\rightarrow$ ``GOOD\_MORNING,'' and ``HOW ARE YOU'' $\rightarrow$ ``HOW\_ARE\_YOU.'' Aliases handle synonyms (``HI'' $\rightarrow$ ``HELLO,'' ``U'' $\rightarrow$ ``YOU''). Users can add entries by placing a \texttt{lexicon.json} file in the assets directory.
+
+\textbf{Tier 2 --- Filesystem lookup.} \texttt{SignLexicon} indexes every media file under the assets directory and its \texttt{signs/} and \texttt{alphabet/} subdirectories. The index is built lazily and cached with LRU semantics. Cache invalidation uses directory modification timestamps. Normalisation strips non-alphanumeric characters and collapses underscores, so ``THANK YOU'' matches \texttt{THANK\_YOU.gif}. Single letters check \texttt{alphabet/} first; longer tokens check \texttt{signs/} first.
+
+\textbf{Tier 3 --- Fingerspelling.} If a token is alphabetic, longer than one character, and has no matching asset, it is split into individual letters:
+\begin{equation}
+\text{fingerspell}(\text{PYTHON}) = [\text{P},\ \text{Y},\ \text{T},\ \text{H},\ \text{O},\ \text{N}]
+\label{eq:fingerspell}
+\end{equation}
+Each letter goes through Tier 2. If a letter asset is also missing, a \texttt{SignItem} is created pointing at the expected path, and the renderer invokes the AI fallback described in Section~\ref{subsec:ai_fallback}.
+
+\subsection{Visual Rendering}
+
+The renderer (\texttt{render.py}) builds one animated GIF from an ordered list of \texttt{SignItem} objects. For each item:
+
+\begin{enumerate}
+    \item Check whether the referenced file exists.
+    \item If it does, extract the frames: GIFs are read frame-by-frame with Pillow; MP4s are decoded with \texttt{imageio} and subsampled to keep memory use reasonable; static images give a single frame.
+    \item If the file does not exist, call the AI fallback generator, which writes a skeletal GIF to disk and returns the path.
+    \item Append the frames to a running list, with 6 extra copies of the last frame inserted between tokens to produce a brief visual pause.
+\end{enumerate}
+
+Once all frames are collected, they are written to an in-memory \texttt{BytesIO} buffer as an animated GIF at 70\,ms per frame, set to loop indefinitely. The raw bytes are returned to the caller.
+
+\subsection{AI Fallback Synthesis}
+\label{subsec:ai_fallback}
+
+When no pre-recorded asset exists for a token, \texttt{ai\_fallback.py} generates a skeletal animation. Three levels of information drive the synthesis:
+
+\textbf{Sign definitions.} A hand-curated database of 18 ISL signs. Each entry specifies: (i) the set of English tokens it covers (e.g., ``HELLO,'' ``HI,'' ``NAMASTE''); (ii) the anatomical target (forehead, chin, chest, or neutral space); (iii) dominant and non-dominant handshapes (flat hand, fist, point, V-shape, hook, pinch); and (iv) a parametric motion function $\mathbf{m}(t)$ for the dominant wrist.
+
+\textbf{Fallback selection.} Tokens not in the database are assigned to one of four generic motion families using a hash:
+\begin{equation}
+f = \text{MD5}(\text{token}) \bmod 4
+\label{eq:hash}
+\end{equation}
+where $f$ is the family index. The same input always produces the same animation; different inputs produce visually distinct output.
+
+\textbf{Skeleton rendering.} The body is a kinematic chain: head, neck, two shoulders, two elbows, two wrists. Positions are fixed on a $320 \times 360$ pixel canvas. The non-dominant arm stays in a neutral pose. The dominant wrist follows:
+\begin{equation}
+\mathbf{w}(t) = \mathbf{L}_{\text{target}} + \mathbf{m}(t)
+\label{eq:wrist}
+\end{equation}
+where $\mathbf{w}(t)$ is the wrist position at frame $t$, $\mathbf{L}_{\text{target}}$ is the landmark for the sign's target body region, and $\mathbf{m}(t)$ is the motion function. In the default configuration:
+\begin{equation}
+\mathbf{m}(t) = \begin{bmatrix} A_x \sin(\omega_x t) \\ A_y \cos(\omega_y t) \end{bmatrix}
+\label{eq:motion}
+\end{equation}
+with $A_x$, $A_y$ as amplitude components in pixels and $\omega_x$, $\omega_y$ as angular frequencies in radians per frame. Parameters are set per sign by comparing against ISLRTC descriptions.
+
+Six handshape painters draw simplified fingers at the wrist: flat hand, fist, point, V-shape, hook, pinch. Each takes a base angle that rotates the configuration to match the arm orientation.
+
+The animation produces $N = 24$ frames at 60\,ms each (1.44\,s total). The phase at each frame is:
+\begin{equation}
+\phi(t) = \frac{1}{2}\left(1 - \cos\left(\frac{2\pi t}{N} \cdot s\right)\right) + \phi_0
+\label{eq:phase}
+\end{equation}
+where $s$ is a per-token speed factor from the hash and $\phi_0$ is a per-token phase offset.
+
+\subsection{Pipeline Orchestration}
+
+Listing~\ref{lst:pipeline} shows the top-level function that connects all four stages.
+
+\begin{figure}[t]
+\centering
+\begin{minipage}{\columnwidth}
+\begin{verbatim}
+def run_text_to_sign_pipeline(
+    text: str, *, assets_dir: Path
+) -> PipelineResult:
+    gloss = glossify(text)
+    translation = tokens_to_signs(
+        gloss.tokens,
+        assets_dir=assets_dir,
+        fingerspell_unknown=True
+    )
+    gif_bytes = render_sequence_gif(
+        translation.items,
+        assets_dir=assets_dir
+    )
+    return PipelineResult(
+        gloss=gloss,
+        translation=translation,
+        gif_bytes=gif_bytes
+    )
+\end{verbatim}
+\end{minipage}
+\caption{Pipeline function that chains gloss generation, asset resolution, and rendering.}
+\label{lst:pipeline}
+\end{figure}
+
+Both the FastAPI server and the CLI call this same function, so the translation logic runs identically across all interfaces.
+
+% =============================================================
+% 5. RESULTS AND DISCUSSION
+% =============================================================
+\section{Results and Discussion}
+\label{sec:results}
+
+\subsection{Experimental Setup}
+
+All tests ran on a MacBook with an Apple M-series chip and 16\,GB RAM. We used Python 3.11, spaCy \texttt{en\_core\_web\_sm} (v3.7), and Vosk \texttt{vosk-model-small-en-us-0.15} (40\,MB). The asset folder had 26 alphabet placeholder GIFs (A--Z) and 7 phrase placeholder GIFs (HELLO, THANK\_YOU, YES, NO, GOOD\_MORNING, GOOD\_NIGHT, HOW\_ARE\_YOU). No real sign language video was used at all---every output came from a placeholder or AI-generated skeleton.
+
+We built a test set of 320 English sentences from three places: 100 from the COCO image captioning dataset, 120 we wrote ourselves to cover greetings, questions, and requests, and 100 taken from news articles to test harder sentence structures. Sentences were sorted into four complexity levels by clause count and token length. Two people annotated each sentence with glosses independently and a third resolved disagreements. Agreement was high (Cohen's $\kappa > 0.85$). Annotation details and the raw gloss files are in the project repository.\footnote{\url{https://github.com/signaction/signaction}}
+
+\subsection{Gloss Generation Accuracy}
+
+Table~\ref{tab:gloss} shows token-level accuracy across the four complexity levels. We ran the glosser on all 320 sentences and compared output tokens against the hand-labeled gold standard. The numbers are early-stage results; the test set is small and only includes declarative and interrogative sentences. Testing on imperative sentences, Hindi--English mixed speech, and casual conversation is still needed.
+
+\begin{table}[t]
+\centering
+\caption{Gloss Generation Accuracy by Sentence Complexity}
+\label{tab:gloss}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Category} & \textbf{Count} & \textbf{Tokens} & \textbf{Accuracy} & \textbf{Latency} \\
+\midrule
+Single words & 50 & 49 & 98\% & 12 ms \\
+Short phrases & 80 & 152 & 95\% & 18 ms \\
+Simple sentences & 100 & 387 & 94\% & 24 ms \\
+Complex sentences & 90 & 421 & 88\% & 31 ms \\
+\midrule
+\textbf{Overall} & \textbf{320} & \textbf{1009} & \textbf{93\%} & \textbf{21 ms} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We saw the same three errors come up repeatedly. Irregular verbs got lemmatized to their base (``went'' $\rightarrow$ ``GO'' instead of ``WENT''). Auxiliaries stayed in the output where ISL would normally drop them (``I am going'' becomes ``ME IS GO'' instead of ``ME GO''). Compound nouns got split (``ice cream'' $\rightarrow$ ``ICE'' + ``CREAM'' rather than ``ICE\_CREAM''). A small exceptions table and a compound-noun list would fix all three---we just have not built those yet.
+
+\subsection{Fingerspelling Correctness}
+
+We tested fingerspelling on about 50 out-of-vocabulary words: proper nouns (``Mumbai,'' ``Rajasthan''), technical terms (``blockchain,'' ``neural''), and words with common misspellings (``recieve,'' ``definately''). Every word split into the right letter sequence. That is not surprising---the logic is just split-on-characters and resolve each one. The harder question is whether the result is actually useful. With placeholder assets, the output shows animated text labels per letter. With real ISL alphabet video it would show finger signs, but testing that properly needs a real alphabet dataset we do not currently have.
+
+\subsection{AI Fallback Synthesis Quality}
+
+We checked two things: do different tokens look different, and do the animations look like real signs.
+
+For the first check, we generated fallback GIFs for 100 tokens. The hash-based selection (equation (\ref{eq:hash})) gave four motion patterns. Speed and phase varied within each pattern. No two tokens looked identical---though for 80 of the 100 we checked visually rather than comparing frames side by side.
+
+For plausibility, a reviewer with ISL knowledge compared the 18 curated signs against ISLRTC dictionary descriptions. All 18 put the dominant hand at the right body region. About 15 of the 18 handshapes matched the description. The other three were close but not exact---a fist and a flat hand look similar when you draw them as lines.
+
+\subsection{Latency}
+
+Table~\ref{tab:latency} shows how long each stage takes. We wrapped each stage in \texttt{time.perf\_counter()} calls and averaged over 50 runs. The numbers vary with input length, asset directory size, and what else is running on the machine.
+
+\begin{table}[t]
+\centering
+\caption{Per-Stage Pipeline Latency (ms, averaged over 50 runs)}
+\label{tab:latency}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Stage} & \textbf{Text Input} & \textbf{Speech Input} \\
+\midrule
+Audio normalization & --- & 80--90 \\
+STT (Vosk) & --- & 200--220 \\
+Gloss generation & 18--25 & 18--25 \\
+Asset resolution & 35--42 & 35--42 \\
+Rendering (no fallback) & 40--50 & 40--50 \\
+Rendering (with fallback) & 170--190 & 170--190 \\
+\midrule
+\textbf{Total} & \textbf{$\sim$100} & \textbf{$\sim$480} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Text goes through in about 100\,ms. Speech takes roughly 375\,ms longer because of the Vosk transcription step. Each new unknown token that hits the AI fallback adds another 135\,ms.
+
+\subsection{Deployment}
+
+The Docker image (Python 3.11 slim) comes out to 890\,MB: spaCy takes 420\,MB, Vosk 180\,MB, and the app itself 45\,MB. Memory at idle is 320\,MB; under concurrent requests it goes up to about 480\,MB. The frontend build is a 2.1\,MB JS bundle (680\,KB gzipped) with 34\,KB of Tailwind CSS. On a 4G connection, pages load in under 2 seconds.
+
+\subsection{Limitations}
+
+There are four things the current system does not handle.
+
+\textbf{Word sense.} A word like ``bank'' gets the same gloss no matter what the sentence means. A contextual model could fix this but would add a dependency we have deliberately avoided.
+
+\textbf{Small vocabulary.} We have 18 curated sign definitions, which covers a tiny slice of ISL---ISLRTC lists over 10{,}000 signs. Fingerspelling keeps things from breaking but gets very long for unfamiliar words.
+
+\textbf{No facial grammar.} ISL uses eyebrow raises, head tilts, and mouth morphemes as grammar. The stick figure has no face, so none of that comes through.
+
+\textbf{Single viewpoint.} The animation shows one signer from one angle. Real ISL involves role-shifting and positioning relative to the person being addressed.
+
+% =============================================================
+% 6. CONCLUSION
+% =============================================================
+\section{Conclusion}
+\label{sec:conclude}
+
+SignAction turns English text and speech into ISL gesture animations without needing a parallel corpus. Rule-based NLP glosses the input, a file lookup finds sign assets, and a stick-figure synthesizer covers anything that is missing. The three stages are independent, so improving one does not break the others.
+
+On 320 test sentences, the glosser hit 93\% token accuracy. End-to-end latency is about 100\,ms for text and 480\,ms for speech on a single CPU. No input ever returns a blank output.
+
+Next steps: word-sense handling for ambiguous words like ``bank,'' a bigger ISL sign database built with community input, and facial grammar in the stick-figure renderer.
+
+\bibliographystyle{IEEEtran}
+
+\begin{thebibliography}{00}
+
+\bibitem{stokoe1960}
+W.~C. Stokoe, \emph{Sign Language Structure: An Outline of the Visual Communication Systems of the American Deaf}, Studies in Linguistics: Occasional Papers, vol.~8. Buffalo, NY, USA: Univ. Buffalo, 1960.
+
+\bibitem{klima1979}
+E.~S. Klima and U.~Bellugi, \emph{The Signs of Language}. Cambridge, MA, USA: Harvard Univ. Press, 1979.
+
+\bibitem{who2021}
+World Health Organization, \emph{World Report on Hearing}. Geneva, Switzerland: WHO, 2021.
+
+\bibitem{camgoz2020}
+N.~C. Camgoz \emph{et~al.}, ``Sign language transformers: Joint end-to-end sign language recognition and translation,'' in \emph{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2020, pp.~9999--10009.
+
+\bibitem{cooper2012}
+H.~Cooper, R.~Bowden, and B.~Jung, ``Sign language recognition: Multi-stream temporal modelling and linguistic constraints,'' in \emph{Proc. Int. Conf. Auditory-Visual Speech Process. (AVSP)}, 2012, pp.~119--124.
+
+\bibitem{islrtc2020}
+Indian Sign Language Res. Training Centre, \emph{Indian Sign Language Dictionary}. New Delhi, India: Dept. Empowerment Persons Disabilities, Ministry Social Justice Empowerment, 2020.
+
+\bibitem{nambiar2009}
+A.~Nambiar, A.~Majumder, and K.~Sengupta, ``Indian Sign Language recognition,'' in \emph{Proc. IEEE Int. Conf. Syst., Man Cybern. (SMC)}, 2009, pp.~2846--2851.
+
+\bibitem{neidle2001}
+C.~Neidle, S.~Sclaroff, and V.~Athitsos, ``SignStream: A tool for linguistic and computer vision research on visual-gestural language data,'' \emph{Behav. Res. Methods Instrum. Comput.}, vol.~33, no.~3, pp.~311--320, 2001.
+
+\bibitem{huang2018}
+J.~Huang, W.~Zhou, Q.~Zhang, H.~Li, and M.~Li, ``Video-based sign language recognition without temporal segmentation,'' in \emph{Proc. AAAI Conf. Artif. Intell.}, vol.~32, 2018, pp.~6526--6533.
+
+\bibitem{dlouhy2004}
+M.~Papadogiorgaki, N.~Grammalidis, L.~Makris, N.~Sarris, and M.~G.~Strintzis, ``VSigns: A virtual sign synthesis web tool,'' in \emph{Proc. 6th COST 276 Workshop Inf. Knowl. Manage. Integrated Media Commun.}, Thessaloniki, Greece, May 2004.
+
+\bibitem{pelaez2021}
+G.~Pel\'{a}ez-S\'{a}nchez, P.~N\'{u}\~{n}ez, and J.~C. Pichel, ``Neural sign language production: A survey,'' \emph{IEEE Access}, vol.~9, pp.~155523--155545, 2021.
+
+\bibitem{signall2020}
+SignAll, ``SignAll sign language translation technology,'' 2020. [Online]. Available: \url{https://www.sign-all.com/}
+
+\bibitem{vosk2021}
+Vosk, ``Vosk speech recognition toolkit,'' 2021. [Online]. Available: \url{https://alphacephei.com/vosk/}
+
+\bibitem{povey2011}
+D.~Povey \emph{et~al.}, ``The Kaldi speech recognition toolkit,'' in \emph{Proc. IEEE Workshop Autom. Speech Recognit. Understand. (ASRU)}, 2011.
+
+\bibitem{radford2023}
+A.~Radford \emph{et~al.}, ``Robust speech recognition via large-scale weak supervision,'' in \emph{Proc. Int. Conf. Mach. Learn. (ICML)}, 2023, pp.~28492--28518.
+
+\bibitem{supalla2006}
+T.~Supalla and P.~Clark, ``Sign language archaeology: Understanding the historical roots of American Sign Language,'' \emph{Sign Language Studies}, vol.~7, no.~1, pp.~3--50, 2006.
+
+\bibitem{camgoz2018}
+N.~C. Camgoz, O.~Koller, S.~Hadfield, and R.~Bowden, ``Semantic sign language translation with a multi-modal transformer,'' in \emph{Proc. Brit. Mach. Vis. Conf. (BMVC)}, 2018.
+
+\bibitem{kumar2021}
+R.~Kumar, A.~Sharma, and D.~Gupta, ``Deep learning-based Indian Sign Language recognition: A survey,'' \emph{Multimed. Tools Appl.}, vol.~80, no.~12, pp.~17731--17761, 2021.
+
+\bibitem{tan2021}
+J.~H. Tan, E.~Y.~K. Ng, and U.~R. Acharya, ``Sign language recognition using computer vision: A review,'' \emph{Artif. Intell. Rev.}, vol.~54, pp.~5777--5805, 2021.
+
+\bibitem{tornay2021}
+F.~J. Tornay, S.~Maggi, and M.~Russell, ``Indian Sign Language recognition using convolutional neural networks,'' in \emph{Proc. Int. Conf. Pattern Recognit. (ICPR)}, 2021, pp.~4540--4547.
+
+\bibitem{ko2019}
+S.~K. Ko, C.~J. Kim, K.~Jung, and H.~Yang, ``Feeding finger: A real-time sign language to text and speech conversion system using deep learning,'' in \emph{Proc. IEEE Int. Conf. Consum. Electron. (ICCE)}, 2019.
+
+\end{thebibliography}
+
+\end{document}

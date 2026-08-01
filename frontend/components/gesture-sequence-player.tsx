@@ -19,32 +19,27 @@ export function GestureSequencePlayer({
   const current = useMemo(() => gestures[index] ?? null, [gestures, index]);
   const isMp4 = current?.toLowerCase().endsWith('.mp4') ?? false;
 
-  // Reset on new translation
+  // Reset on new translation and auto-play
   useEffect(() => {
     setIndex(0);
-    setPlaying(false);
+    setPlaying(gestures.length > 0);
   }, [gestures.join('|')]);
 
   // Auto-advance for GIFs only — MP4s fire onEnded themselves
-  useEffect(() => {
-    if (!playing) return;
-    if (gestures.length <= 1) return;
-    if (isMp4) return; // MP4: handled by onEnded
-
-    const t = window.setInterval(() => {
-      setIndex((i) => (i + 1) % gestures.length);
-    }, 2000);
-
-    return () => window.clearInterval(t);
-  }, [playing, gestures.length, isMp4, index]);
-
+  // We actually don't need a setInterval here anymore because SignViewer simulates onEnded for GIFs!
+  
   const handleEnded = () => {
     if (!playing) return;
-    setIndex((i) => (i + 1) % gestures.length);
+    if (index < gestures.length - 1) {
+      setIndex((i) => i + 1);
+    } else {
+      setPlaying(false);
+      setIndex(0); // Reset to start after finishing
+    }
   };
 
   if (loading) {
-    return <Skeleton className="h-[400px] w-full rounded-xl" />;
+    return <Skeleton className="h-[400px] w-full rounded-xl bg-apple-surface-pearl" />;
   }
 
   const progress = gestures.length > 0 ? ((index + 1) / gestures.length) * 100 : 0;
@@ -58,15 +53,10 @@ export function GestureSequencePlayer({
   };
 
   return (
-    <motion.div
-      className="space-y-4"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <div className="space-y-4">
       {/* Video/Image Container */}
       <div className="relative group">
-        <div className="aspect-video rounded-xl border border-slate-700 bg-slate-900 overflow-hidden shadow-lg dark:border-slate-700 dark:bg-slate-900 light:border-slate-200 light:bg-white">
+        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center">
           <AnimatePresence mode="wait">
             {current ? (
               <motion.div
@@ -87,11 +77,11 @@ export function GestureSequencePlayer({
                 className="w-full h-full flex items-center justify-center"
               >
                 <div className="text-center">
-                  <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-600/15 text-indigo-300">
+                  <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-apple-surface-pearl text-apple-primary">
                     <Hand size={22} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-200 dark:text-slate-200 light:text-slate-900">No gestures yet</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-600 mt-1">Enter text or speech to start translating</p>
+                  <p className="text-apple-body-strong">No gestures yet</p>
+                  <p className="text-apple-caption text-apple-ink-muted-48 mt-1">Enter text or speech to start translating</p>
                 </div>
               </motion.div>
             )}
@@ -100,15 +90,11 @@ export function GestureSequencePlayer({
 
         {/* Gesture Counter Overlay */}
         {gestures.length > 0 && (
-          <motion.div
-            className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur border border-white/10"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <p className="text-xs font-medium text-white">
-              Gesture {index + 1} <span className="text-slate-400">/ {gestures.length}</span>
+          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-apple-surface-black/50 backdrop-blur border border-apple-hairline">
+            <p className="text-apple-micro-legal text-apple-on-dark">
+              Gesture {index + 1} <span className="text-apple-ink-muted-48">/ {gestures.length}</span>
             </p>
-          </motion.div>
+          </div>
         )}
       </div>
 
@@ -121,11 +107,11 @@ export function GestureSequencePlayer({
             const pct = (e.clientX - rect.left) / rect.width;
             seekFromPercent(pct);
           }}
-          className="h-2 w-full rounded-full bg-slate-800 overflow-hidden dark:bg-slate-800 light:bg-slate-200"
+          className="h-2 w-full rounded-full bg-apple-surface-pearl overflow-hidden"
           aria-label="Playback timeline"
         >
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400"
+            className="h-full rounded-full bg-apple-primary"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -137,57 +123,47 @@ export function GestureSequencePlayer({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {/* Previous Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setIndex((i) => Math.max(0, i - 1))}
             disabled={!gestures.length || index === 0}
-            className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm dark:bg-slate-800/50 dark:hover:bg-slate-700 light:bg-slate-100 light:hover:bg-slate-200"
+            className="p-2 rounded-lg bg-apple-surface-pearl hover:bg-apple-canvas-parchment disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-apple-ink border border-apple-hairline"
             aria-label="Previous gesture"
           >
-            <SkipBack size={18} className="text-slate-300 dark:text-slate-300 light:text-slate-700" />
-          </motion.button>
+            <SkipBack size={18} />
+          </button>
 
           {/* Play/Pause Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setPlaying((p) => !p)}
             disabled={gestures.length <= 1}
-            className="p-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all dark:bg-indigo-600 dark:hover:bg-indigo-500"
+            className="p-2.5 rounded-lg bg-apple-primary hover:bg-apple-ink disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-apple-on-dark"
             aria-label={playing ? 'Pause playback' : 'Play gestures'}
           >
             {playing ? (
-              <Pause size={18} className="text-white fill-white" />
+              <Pause size={18} className="fill-current" />
             ) : (
-              <Play size={18} className="text-white fill-white ml-0.5" />
+              <Play size={18} className="fill-current ml-0.5" />
             )}
-          </motion.button>
+          </button>
 
           {/* Next Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setIndex((i) => Math.min(gestures.length - 1, i + 1))}
             disabled={!gestures.length || index >= gestures.length - 1}
-            className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm dark:bg-slate-800/50 dark:hover:bg-slate-700 light:bg-slate-100 light:hover:bg-slate-200"
+            className="p-2 rounded-lg bg-apple-surface-pearl hover:bg-apple-canvas-parchment disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-apple-ink border border-apple-hairline"
             aria-label="Next gesture"
           >
-            <SkipForward size={18} className="text-slate-300 dark:text-slate-300 light:text-slate-700" />
-          </motion.button>
+            <SkipForward size={18} />
+          </button>
         </div>
 
         {/* Gesture Info */}
         {gestures.length > 0 && (
-          <motion.div
-            className="text-xs text-slate-400 font-medium px-3 py-1.5 rounded-lg bg-slate-800/30 dark:bg-slate-800/30 light:bg-slate-100"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <div className="text-apple-caption text-apple-ink-muted-80 font-medium px-3 py-1.5 rounded-lg bg-apple-surface-pearl border border-apple-hairline">
             {gestures.length === 1 ? '1 gesture' : `${gestures.length} gestures`}
-          </motion.div>
+          </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

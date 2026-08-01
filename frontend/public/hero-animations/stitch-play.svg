@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Stitch playing/dancing with music -->
+  
+  <!-- Body -->
+  <g class="dance-body">
+    <ellipse cx="100" cy="135" rx="45" ry="50" fill="#6B9BFA"/>
+    
+    <!-- Head -->
+    <ellipse cx="100" cy="70" rx="40" ry="35" fill="#6B9BFA"/>
+    
+    <!-- Ears -->
+    <ellipse cx="55" cy="40" rx="15" ry="28" fill="#6B9BFA" transform="rotate(-30 55 40)"/>
+    <ellipse cx="145" cy="40" rx="15" ry="28" fill="#6B9BFA" transform="rotate(30 145 40)"/>
+    <ellipse cx="55" cy="40" rx="9" ry="20" fill="#FFB6C1" transform="rotate(-30 55 40)"/>
+    <ellipse cx="145" cy="40" rx="9" ry="20" fill="#FFB6C1" transform="rotate(30 145 40)"/>
+    
+    <!-- Eyes (excited) -->
+    <circle cx="82" cy="68" r="8" fill="white"/>
+    <circle cx="118" cy="68" r="8" fill="white"/>
+    <circle cx="82" cy="68" r="5" fill="#1a1a2e"/>
+    <circle cx="118" cy="68" r="5" fill="#1a1a2e"/>
+    <circle cx="84" cy="66" r="2" fill="white"/>
+    <circle cx="120" cy="66" r="2" fill="white"/>
+    
+    <!-- Nose -->
+    <ellipse cx="100" cy="80" rx="6" ry="5" fill="#FF69B4"/>
+    
+    <!-- Open happy mouth -->
+    <ellipse cx="100" cy="92" rx="12" ry="8" fill="#1a1a2e"/>
+    <ellipse cx="100" cy="89" rx="8" ry="4" fill="#FF69B4"/>
+    
+    <!-- Arms up dancing -->
+    <g class="left-arm">
+      <ellipse cx="45" cy="100" rx="12" ry="22" fill="#6B9BFA" transform="rotate(60 45 100)"/>
+      <circle cx="25" cy="80" r="10" fill="#6B9BFA"/>
+    </g>
+    <g class="right-arm">
+      <ellipse cx="155" cy="100" rx="12" ry="22" fill="#6B9BFA" transform="rotate(-60 155 100)"/>
+      <circle cx="175" cy="80" r="10" fill="#6B9BFA"/>
+    </g>
+    
+    <!-- Feet -->
+    <ellipse cx="75" cy="180" rx="15" ry="10" fill="#6B9BFA"/>
+    <ellipse cx="125" cy="180" rx="15" ry="10" fill="#6B9BFA"/>
+  </g>
+  
+  <!-- Play button in center -->
+  <g class="play-btn">
+    <circle cx="100" cy="130" r="25" fill="white" opacity="0.95"/>
+    <polygon points="92,118 92,142 115,130" fill="#6B9BFA"/>
+  </g>
+  
+  <!-- Musical notes -->
+  <text x="20" y="60" font-size="24" fill="#FFD93D" class="note n1">♪</text>
+  <text x="170" y="50" font-size="20" fill="#FF6B6B" class="note n2">♫</text>
+  <text x="15" y="90" font-size="18" fill="#4ECDC4" class="note n3">♪</text>
+  <text x="180" y="100" font-size="16" fill="#9B59B6" class="note n4">♫</text>
+  
+  <!-- Sparkles -->
+  <circle cx="30" cy="70" r="4" fill="#FFD93D" class="sparkle"/>
+  <circle cx="170" cy="65" r="3" fill="#FF6B6B" class="sparkle" style="animation-delay: 0.3s"/>
+  <circle cx="100" cy="25" r="4" fill="#4ECDC4" class="sparkle" style="animation-delay: 0.6s"/>
+  <circle cx="50" cy="30" r="3" fill="#9B59B6" class="sparkle" style="animation-delay: 0.9s"/>
+  
+  <style>
+    .dance-body {
+      animation: bounce 0.5s ease-in-out infinite;
+      transform-origin: 100px 135px;
+    }
+    .left-arm {
+      animation: armDance 0.5s ease-in-out infinite;
+      transform-origin: 45px 100px;
+    }
+    .right-arm {
+      animation: armDance 0.5s ease-in-out infinite reverse;
+      transform-origin: 155px 100px;
+    }
+    .play-btn {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .note {
+      animation: float 2s ease-in-out infinite;
+    }
+    .n1 { animation-delay: 0s; }
+    .n2 { animation-delay: 0.5s; }
+    .n3 { animation-delay: 1s; }
+    .n4 { animation-delay: 1.5s; }
+    .sparkle {
+      animation: twinkle 1s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-8px) rotate(-5deg); }
+      75% { transform: translateY(-8px) rotate(5deg); }
+    }
+    @keyframes armDance {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-20deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-15px) rotate(15deg); opacity: 0.6; }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.5); }
+    }
+  </style>
+</svg>

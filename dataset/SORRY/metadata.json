@@ -1,0 +1,24 @@
+{
+  "word": "SORRY",
+  "gloss": "SORRY",
+  "sentence_type": "",
+  "handshape": "",
+  "movement": "",
+  "location": "",
+  "orientation": "",
+  "dominant_hand": "",
+  "handedness": "",
+  "non_manual_features": {
+    "eyebrows": "neutral",
+    "mouth": "neutral",
+    "head": "neutral"
+  },
+  "fps": 60,
+  "duration_ms": 0,
+  "num_frames": 0,
+  "start_pose": "neutral",
+  "end_pose": "neutral",
+  "keyframes": [],
+  "difficulty": "",
+  "frames": []
+}

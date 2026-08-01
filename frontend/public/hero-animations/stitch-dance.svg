@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="120" height="140">
+  <defs>
+    <linearGradient id="bodyGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B9BFA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A7CF7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Body -->
+  <g class="dance-body">
+    <ellipse cx="60" cy="95" rx="32" ry="38" fill="url(#bodyGrad3)"/>
+    
+    <!-- Head -->
+    <ellipse cx="60" cy="50" rx="28" ry="25" fill="url(#bodyGrad3)"/>
+    
+    <!-- Ears -->
+    <ellipse cx="35" cy="30" rx="12" ry="20" fill="url(#bodyGrad3)" transform="rotate(-20 35 30)"/>
+    <ellipse cx="85" cy="30" rx="12" ry="20" fill="url(#bodyGrad3)" transform="rotate(20 85 30)"/>
+    <ellipse cx="35" cy="30" rx="7" ry="14" fill="#FFB6C1" transform="rotate(-20 35 30)"/>
+    <ellipse cx="85" cy="30" rx="7" ry="14" fill="#FFB6C1" transform="rotate(20 85 30)"/>
+    
+    <!-- Eyes (excited) -->
+    <circle cx="48" cy="48" r="6" fill="white"/>
+    <circle cx="72" cy="48" r="6" fill="white"/>
+    <circle cx="48" cy="48" r="4" fill="#1a1a2e"/>
+    <circle cx="72" cy="48" r="4" fill="#1a1a2e"/>
+    <circle cx="50" cy="46" r="1.5" fill="white"/>
+    <circle cx="74" cy="46" r="1.5" fill="white"/>
+    
+    <!-- Nose -->
+    <ellipse cx="60" cy="56" rx="5" ry="4" fill="#FF69B4"/>
+    
+    <!-- Open mouth (singing) -->
+    <ellipse cx="60" cy="65" rx="8" ry="5" fill="#1a1a2e"/>
+    <ellipse cx="60" cy="63" rx="6" ry="3" fill="#FF69B4"/>
+    
+    <!-- Arms up dancing -->
+    <g class="left-arm">
+      <ellipse cx="25" cy="70" rx="10" ry="18" fill="url(#bodyGrad3)" transform="rotate(45 25 70)"/>
+      <circle cx="12" cy="55" r="8" fill="url(#bodyGrad3)"/>
+    </g>
+    <g class="right-arm">
+      <ellipse cx="95" cy="70" rx="10" ry="18" fill="url(#bodyGrad3)" transform="rotate(-45 95 70)"/>
+      <circle cx="108" cy="55" r="8" fill="url(#bodyGrad3)"/>
+    </g>
+    
+    <!-- Feet -->
+    <ellipse cx="45" cy="130" rx="12" ry="8" fill="url(#bodyGrad3)"/>
+    <ellipse cx="75" cy="130" rx="12" ry="8" fill="url(#bodyGrad3)"/>
+  </g>
+  
+  <!-- Musical notes -->
+  <text x="15" y="40" font-size="16" fill="#FFD93D" class="note n1">♪</text>
+  <text x="100" y="35" font-size="14" fill="#FF69B4" class="note n2">♫</text>
+  <text x="8" y="55" font-size="12" fill="#4ECDC4" class="note n3">♪</text>
+  
+  <!-- Sparkles -->
+  <circle cx="20" cy="48" r="3" fill="#FFD93D" class="sparkle"/>
+  <circle cx="105" cy="45" r="2" fill="#FF69B4" class="sparkle" style="animation-delay: 0.5s"/>
+  
+  <style>
+    .dance-body {
+      animation: dance 0.6s ease-in-out infinite;
+      transform-origin: 60px 95px;
+    }
+    .left-arm {
+      animation: armUp 0.6s ease-in-out infinite;
+      transform-origin: 25px 70px;
+    }
+    .right-arm {
+      animation: armUp 0.6s ease-in-out infinite reverse;
+      transform-origin: 95px 70px;
+    }
+    .note {
+      animation: float 2s ease-in-out infinite;
+    }
+    .n1 { animation-delay: 0s; }
+    .n2 { animation-delay: 0.7s; }
+    .n3 { animation-delay: 1.4s; }
+    .sparkle {
+      animation: twinkle 1s ease-in-out infinite;
+    }
+    @keyframes dance {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-5px) rotate(-3deg); }
+      75% { transform: translateY(-5px) rotate(3deg); }
+    }
+    @keyframes armUp {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-15deg); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-10px) rotate(10deg); opacity: 0.7; }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.5); }
+    }
+  </style>
+</svg>

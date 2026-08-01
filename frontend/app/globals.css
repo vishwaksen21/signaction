@@ -2,71 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  @apply transition-colors duration-300;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-/* Dark mode (default) */
-body {
-  @apply bg-slate-950 text-slate-100;
-  color-scheme: dark;
-}
-
-/* Light mode */
-html.light body {
-  @apply bg-slate-50 text-slate-900;
-  color-scheme: light;
-}
-
-/* Smooth scrolling */
-html {
-  @apply scroll-smooth;
-}
-
-/* Selection styling */
-::selection {
-  @apply bg-indigo-600/50 text-slate-100;
-}
-
-html.light ::selection {
-  @apply bg-indigo-200 text-slate-900;
+@layer base {
+  html,
+  body {
+    height: 100%;
+    @apply scroll-smooth text-[17px] font-sans antialiased text-apple-ink bg-apple-canvas selection:bg-apple-primary selection:text-apple-on-primary;
+  }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   @apply w-2 h-2;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  @apply bg-transparent;
 }
-
-html.light ::-webkit-scrollbar-track {
-  @apply bg-slate-100;
-}
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-700 hover:bg-slate-600 rounded-full;
+  @apply bg-apple-surface-chip hover:bg-apple-ink-muted-48 rounded-full;
 }
 
-html.light ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 hover:bg-slate-400;
+/* Focus styles (Web Interface Guidelines) */
+@layer utilities {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-apple-primary-focus focus-visible:ring-offset-2 focus-visible:ring-offset-apple-canvas;
+  }
+  
+  .focus-ring-dark {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-apple-primary-focus focus-visible:ring-offset-2 focus-visible:ring-offset-apple-surface-tile-1;
+  }
 }
 
-/* Button focus styles */
 @layer components {
-  .btn-focus {
-    @apply outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 focus:ring-offset-slate-950;
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-apple-primary text-apple-on-primary text-apple-body rounded-pill px-[22px] py-[11px] transition-transform active:scale-95 focus-ring;
   }
 
-  html.light .btn-focus {
-    @apply focus:ring-offset-slate-50;
+  .btn-secondary-pill {
+    @apply inline-flex items-center justify-center bg-transparent text-apple-primary border border-apple-primary text-apple-body rounded-pill px-[22px] py-[11px] transition-transform active:scale-95 focus-ring;
+  }
+  
+  .btn-dark-utility {
+    @apply inline-flex items-center justify-center bg-apple-ink text-apple-on-dark text-apple-button-utility rounded-sm px-[15px] py-[8px] transition-transform active:scale-95 focus-ring;
+  }
+  
+  .btn-pearl-capsule {
+    @apply inline-flex items-center justify-center bg-apple-surface-pearl text-apple-ink-muted-80 text-apple-caption border-[3px] border-apple-divider-soft rounded-md px-[14px] py-[8px] transition-transform active:scale-95 focus-ring;
+  }
+
+  .btn-store-hero {
+    @apply inline-flex items-center justify-center bg-apple-primary text-apple-on-primary text-apple-button-large rounded-pill px-[28px] py-[14px] transition-transform active:scale-95 focus-ring;
+  }
+
+  /* Structural Components */
+  .store-utility-card {
+    @apply bg-apple-canvas text-apple-ink border border-apple-hairline rounded-lg p-lg;
+  }
+  
+  .configurator-chip {
+    @apply inline-flex items-center justify-center bg-apple-canvas text-apple-ink text-apple-caption rounded-pill px-[16px] py-[12px] border border-transparent cursor-pointer transition-colors focus-ring;
+  }
+  
+  .configurator-chip[aria-selected="true"] {
+    @apply border-apple-primary-focus border-2;
+  }
+  
+  .search-input {
+    @apply bg-apple-canvas text-apple-ink text-apple-body rounded-pill px-[20px] py-[12px] h-[44px] border border-apple-divider-soft focus-ring;
   }
 
   /* Fade entrance animation */
@@ -83,32 +85,5 @@ html.light ::-webkit-scrollbar-thumb {
 
   .animate-fade-in {
     animation: fade-in 0.4s ease-out;
-  }
-
-  /* Glow effect */
-  .glow {
-    @apply shadow-lg shadow-indigo-500/20;
-  }
-
-  .glow-lg {
-    @apply shadow-xl shadow-indigo-500/30;
-  }
-
-  /* Gradient text */
-  .gradient-text {
-    @apply bg-gradient-to-r from-indigo-400 via-indigo-500 to-indigo-600 bg-clip-text text-transparent;
-  }
-
-  /* Glass effect */
-  .glass {
-    @apply backdrop-blur-xl bg-white/10 border border-white/20;
-  }
-
-  html.light .glass {
-    @apply bg-white/50 border-slate-200/50;
-  }
-
-  html:not(.light) .glass {
-    @apply bg-slate-900/40 border-slate-700;
   }
 }

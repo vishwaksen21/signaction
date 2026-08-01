@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const BACKEND_URL = process.env.SIGNACTION_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const nextConfig = {
   reactStrictMode: true,
@@ -22,6 +22,10 @@ const nextConfig = {
         {
           source: '/placeholder/:path*',
           destination: `${BACKEND_URL}/placeholder/:path*`,
+        },
+        {
+          source: '/api/dictionary',
+          destination: `${BACKEND_URL}/dictionary`,
         },
         {
           source: '/api/translate/:path*',

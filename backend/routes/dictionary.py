@@ -14,7 +14,7 @@ from ..settings import get_settings
 router = APIRouter()
 
 
-_SUPPORTED = {".gif", ".mp4", ".png", ".jpg", ".jpeg"}
+_SUPPORTED = {".gif", ".mp4", ".png", ".jpg", ".jpeg", ".svg"}
 
 
 class DictionaryItem(BaseModel):

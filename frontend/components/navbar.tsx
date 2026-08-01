@@ -4,7 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/lib/theme-context';
-import { Moon, Sun, Github } from 'lucide-react';
+import { Moon, Sun, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 const links = [
   { href: '/', label: 'Home' },
@@ -17,76 +19,117 @@ const links = [
 export function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md dark:bg-slate-950/80 dark:border-slate-800 light:bg-white/80 light:border-slate-200">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-apple-surface-black border-b border-apple-hairline text-apple-ink h-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full">
+        <div className="flex items-center justify-between h-full">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 rounded-sm p-1.5 transition-opacity hover:opacity-80">
             <Image
               src="/logo1.png"
               alt="SignAction Logo"
-              width={32}
-              height={32}
+              width={28}
+              height={28}
               className="rounded-md"
               priority
             />
-            <span className="font-semibold text-lg bg-gradient-to-r from-indigo-400 to-indigo-600 bg-clip-text text-transparent">
+            <span className="font-semibold text-lg tracking-tight">
               SignAction
             </span>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-6">
             {links.map((link) => {
               const isActive = pathname === link.href;
 
               return (
-                <Link
+                <motion.div
                   key={link.href}
-                  href={link.href}
-                  className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    isActive
-                      ? 'text-indigo-300 light:text-indigo-700'
-                      : 'text-slate-400 hover:text-slate-200 light:text-slate-700 light:hover:text-slate-900'
-                  } after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-indigo-400 after:transition-transform after:duration-200 hover:after:scale-x-100 ${
-                    isActive ? 'after:scale-x-100' : ''
-                  }`}
+                  className="relative flex flex-col items-center justify-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {link.label}
-                </Link>
+                  <Link
+                    href={link.href}
+                    className={`text-sm font-medium transition-all duration-200 px-4 py-1.5 rounded-full ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                        : 'text-apple-ink-muted-80 hover:text-apple-ink hover:bg-apple-surface-pearl'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-indicator"
+                      className="absolute -bottom-3 w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"
+                    />
+                  )}
+                </motion.div>
               );
             })}
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-2">
-
-            {/* GitHub */}
-            <a
-              href="https://github.com/vishwaksen21/signaction"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors dark:hover:bg-slate-800/50 light:text-slate-700 light:hover:text-slate-900 light:hover:bg-slate-100"
-              aria-label="GitHub repository"
-            >
-              <Github size={20} />
-            </a>
-
+          <div className="flex items-center gap-3">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors dark:hover:bg-slate-800/50 light:text-slate-700 light:hover:text-slate-900 light:hover:bg-slate-100"
+              className="text-apple-ink-muted-80 hover:text-apple-ink bg-apple-surface-pearl border border-apple-hairline transition-colors rounded-full p-2"
               aria-label="Toggle theme"
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              <Sun size={18} className="dark:hidden" />
+              <Moon size={18} className="hidden dark:block" />
             </button>
 
+            {/* Mobile Hamburger */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden text-apple-ink-muted-80 hover:text-apple-ink bg-apple-surface-pearl border border-apple-hairline transition-colors rounded-full p-2"
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t border-apple-hairline bg-white dark:bg-apple-surface-black overflow-hidden"
+          >
+            <div className="px-4 py-4 flex flex-col gap-1">
+              {links.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                        : 'text-apple-ink-muted-80 hover:bg-apple-surface-pearl'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

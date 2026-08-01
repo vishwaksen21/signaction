@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, BookOpen } from 'lucide-react';
 import { useDictionary } from '../../hooks/use-dictionary';
 import { SignCard } from '../../components/sign-card';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -27,176 +27,141 @@ export default function DictionaryPage() {
     });
   }, [data, query, letter]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.3 },
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        
         {/* Header */}
-        <motion.div
-          className="mb-10"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Sign Dictionary
-          </h1>
-          <p className="text-slate-400 text-lg">
-            Browse and explore all available gesture assets in the database
-          </p>
-        </motion.div>
+        <div className="mb-12 text-center max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-6">
+              <BookOpen size={32} />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Sign Dictionary
+            </h1>
+            <p className="text-lg text-slate-500 dark:text-slate-400">
+              Browse and explore all available gesture assets in the database
+            </p>
+          </motion.div>
+        </div>
 
         {/* Search & Filter Bar */}
-        <motion.div
-          className="mb-8 space-y-4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="mb-12 max-w-4xl mx-auto bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
+          
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative mb-6">
             <Search
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search gestures by name…"
-              className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-700 bg-slate-800/50 text-slate-100 placeholder-slate-500 outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 light:border-slate-200 light:bg-white light:text-slate-900 light:placeholder-slate-400"
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
             />
           </div>
 
           {/* Letter Filter */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Filter size={16} />
+          <div className="space-y-4">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <Filter size={16} className="text-blue-500" />
               Filter by letter
             </label>
-            <motion.div
-              className="flex flex-wrap gap-2"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {/* Clear button */}
-              <motion.button
-                variants={itemVariants}
+            <div className="flex flex-wrap gap-2">
+              <button
                 onClick={() => setLetter('')}
-                className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   letter === ''
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200 dark:bg-slate-800/50 light:bg-slate-100 light:text-slate-700'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 All
-              </motion.button>
+              </button>
 
-              {/* Letter buttons */}
               {ALPHABET.map((l) => (
-                <motion.button
+                <button
                   key={l}
-                  variants={itemVariants}
                   onClick={() => setLetter(l)}
-                  className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                  className={`w-9 h-9 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
                     letter === l
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200 dark:bg-slate-800/50 light:bg-slate-100 light:text-slate-700'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
                   {l}
-                </motion.button>
+                </button>
               ))}
-            </motion.div>
+            </div>
           </div>
+        </div>
 
-          {/* Result count */}
-          {!isLoading && (
-            <motion.p
-              className="text-sm text-slate-400"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              Showing <span className="font-semibold text-indigo-400">{filtered.length}</span> gesture
-              {filtered.length !== 1 ? 's' : ''}
-              {query && ` matching "${query}"`}
-            </motion.p>
-          )}
-        </motion.div>
+        {/* Result count */}
+        {!isLoading && !error && (
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 text-center mb-8">
+            Showing <span className="text-slate-900 dark:text-white font-bold">{filtered.length}</span> gesture{filtered.length !== 1 ? 's' : ''}
+            {query && ` matching "${query}"`}
+          </p>
+        )}
 
         {/* Error */}
         {error && (
-          <motion.div
-            className="mb-8 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <div className="mb-8 max-w-4xl mx-auto p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-400 text-sm flex justify-center">
             {(error as Error).message}
-          </motion.div>
+          </div>
         )}
 
         {/* Grid */}
         {isLoading ? (
-          <motion.div
-            className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
-              <motion.div key={i} variants={itemVariants}>
-                <Skeleton className="h-48 w-full rounded-xl" />
-              </motion.div>
+              <div key={i}>
+                <Skeleton className="h-56 w-full rounded-2xl bg-slate-200 dark:bg-slate-800" />
+              </div>
             ))}
-          </motion.div>
+          </div>
         ) : filtered.length > 0 ? (
-          <motion.div
-            className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            variants={containerVariants}
+          <motion.div 
             initial="hidden"
             animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.05
+                }
+              }
+            }}
+            className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
           >
             {filtered.map((item) => (
-              <motion.div
+              <motion.div 
                 key={item.token + item.url}
-                variants={itemVariants}
-                whileHover={{ y: -5 }}
-                className="group"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.97 }}
+                className="group cursor-pointer"
               >
                 <SignCard token={item.token} url={item.url} mediaType={item.media_type} />
               </motion.div>
             ))}
           </motion.div>
-        ) : (
-          <motion.div
-            className="text-center py-20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <div className="inline-block p-8 rounded-2xl bg-slate-800/30 border border-slate-700">
-              <p className="text-slate-400 mb-2 font-medium">No gestures found</p>
-              <p className="text-sm text-slate-500">Try adjusting your search or filter</p>
+        ) : !error && (
+          <div className="text-center py-20">
+            <div className="inline-flex flex-col items-center justify-center p-12 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <Search size={48} className="text-slate-300 dark:text-slate-600 mb-4" />
+              <p className="text-lg font-bold text-slate-900 dark:text-white mb-2">No gestures found</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search or filter</p>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

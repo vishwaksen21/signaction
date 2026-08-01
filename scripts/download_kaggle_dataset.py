@@ -24,6 +24,10 @@ from typing import Optional
 
 
 KAGGLE_DATASETS = {
+    "wlasl": {
+        "name": "sttaseen/wlasl2000-resized",
+        "description": "WLASL Complete 2000 signs (Resized)",
+    },
     "asl-alphabet": {
         "name": "grassknoted/asl-alphabet",
         "description": "ASL Alphabet dataset (A-Z fingerspellings) - Most reliable",
@@ -134,7 +138,12 @@ def extract_wlasl_videos(dataset_dir: Path, output_dir: Path) -> None:
     """
     json_file = dataset_dir / "WLASL_v0.3.json"
     if not json_file.exists():
-        print(f"WLASL JSON index not found: {json_file}")
+        json_file = dataset_dir / "wlasl-complete" / "WLASL_v0.3.json"
+        if json_file.exists():
+            dataset_dir = dataset_dir / "wlasl-complete"
+            
+    if not json_file.exists():
+        print(f"WLASL JSON index not found in {dataset_dir}")
         print("Tip: WLASL is available on GitHub: https://github.com/dxli94/WLASL")
         return
 
@@ -148,7 +157,7 @@ def extract_wlasl_videos(dataset_dir: Path, output_dir: Path) -> None:
 
         count = 0
         err_count = 0
-        for entry in entries[:500]:  # Limit to first 500 for MVP
+        for entry in entries:  # Extract all available signs
             gloss = entry.get("gloss", "").upper()
             if not gloss:
                 continue
@@ -163,16 +172,22 @@ def extract_wlasl_videos(dataset_dir: Path, output_dir: Path) -> None:
                 continue
 
             # Video is typically at: url/download/<video_id>/mp4
-            # For now, create a token mapping file
+            # For kaggle datasets, it might be in videos/ or root
             video_path = dataset_dir / f"{video_id}.mp4"
+            if not video_path.exists():
+                video_path = dataset_dir / "videos" / f"{video_id}.mp4"
+                
             if video_path.exists():
                 output_path = signs_dir / f"{gloss}.mp4"
                 # Create symlink or copy
                 try:
                     output_path.symlink_to(video_path)
                 except (FileExistsError, OSError):
-                    # If symlink fails, note it
-                    pass
+                    # If symlink fails, try copying
+                    try:
+                        shutil.copy2(video_path, output_path)
+                    except:
+                        pass
                 count += 1
 
         print(f"✓ Organized {count} WLASL signs")

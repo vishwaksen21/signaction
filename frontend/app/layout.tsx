@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <style>{`html { scroll-behavior: smooth; }`}</style>
         <link rel="icon" href="/logo1.png" />
       </head>
-      <body className="bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors duration-300">
+      <body className="transition-colors duration-300">
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar />

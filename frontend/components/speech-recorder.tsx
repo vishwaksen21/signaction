@@ -128,8 +128,13 @@ export function SpeechRecorder({
   const pulseVariants = {
     initial: { scale: 1, opacity: 1 },
     animate: {
-      scale: [1, 1.2, 1],
-      opacity: [1, 0.7, 1],
+      scale: [1, 1.3, 1],
+      opacity: [1, 0.5, 1],
+      boxShadow: [
+        "0px 0px 0px 0px rgba(220, 38, 38, 0.4)",
+        "0px 0px 0px 6px rgba(220, 38, 38, 0)",
+        "0px 0px 0px 0px rgba(220, 38, 38, 0)"
+      ],
       transition: {
         duration: 1.5,
         repeat: Infinity,
@@ -142,39 +147,35 @@ export function SpeechRecorder({
       {/* Buttons */}
       <div className="flex gap-2">
         {/* Start Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={start}
           disabled={disabled || recording}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium shadow-lg hover:shadow-xl transition-all dark:bg-indigo-600 dark:hover:bg-indigo-500"
+          className="btn-primary flex-1 flex items-center justify-center gap-2"
         >
           <Mic size={18} />
           Start Recording
-        </motion.button>
+        </button>
 
         {/* Stop Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={stop}
           disabled={disabled || !recording}
-          className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-100 font-medium shadow-lg hover:shadow-xl transition-all dark:bg-slate-800/50 dark:hover:bg-slate-700"
+          className="btn-secondary-pill flex items-center justify-center gap-2"
         >
           <Square size={18} />
           Stop
-        </motion.button>
+        </button>
       </div>
 
       {/* Recording Indicator */}
       {recording && (
         <motion.div
-          className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/30 px-3 py-2 rounded-lg"
+          className="flex items-center gap-2 text-apple-caption text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="w-2 h-2 rounded-full bg-red-500"
+            className="w-2 h-2 rounded-full bg-red-600"
             variants={pulseVariants}
             initial="initial"
             animate="animate"
@@ -186,7 +187,7 @@ export function SpeechRecorder({
       {/* Last Recording Status */}
       {last && !recording && (
         <motion.div
-          className="flex items-center gap-2 text-sm text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-3 py-2 rounded-lg"
+          className="flex items-center gap-2 text-apple-caption text-apple-primary bg-apple-surface-pearl border border-apple-hairline px-3 py-2 rounded-lg"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
