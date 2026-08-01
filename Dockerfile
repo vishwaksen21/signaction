@@ -6,7 +6,15 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ffmpeg \
+    wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Download Vosk speech model
+RUN mkdir -p /app/models \
+ && wget -q https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip -O /tmp/vosk-model.zip \
+ && unzip -q /tmp/vosk-model.zip -d /app/models \
+ && rm /tmp/vosk-model.zip
 
 # Copy ALL source first (needed for editable install to find the signaction package)
 COPY pyproject.toml ./
@@ -21,6 +29,7 @@ RUN pip install --no-cache-dir --upgrade pip \
  && python -m spacy download en_core_web_sm
 
 ENV SIGNACTION_ASSETS_DIR=/app/signaction_assets
+ENV VOSK_MODEL_PATH=/app/models/vosk-model-small-en-us-0.15
 ENV PORT=8000
 
 EXPOSE 8000
