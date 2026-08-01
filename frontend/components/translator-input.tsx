@@ -5,6 +5,78 @@ import { motion } from 'framer-motion';
 import { Send, Mic2, Upload } from 'lucide-react';
 import { SpeechRecorder } from './speech-recorder';
 
+const TARGET_SAMPLE_RATE = 16000;
+
+function encodeWavPCM16(monoSamples: Float32Array, sampleRate: number): Blob {
+  const numChannels = 1;
+  const bytesPerSample = 2;
+  const blockAlign = numChannels * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = monoSamples.length * bytesPerSample;
+
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  function writeString(offset: number, s: string) {
+    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
+  }
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < monoSamples.length; i++) {
+    const s = Math.max(-1, Math.min(1, monoSamples[i]!));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    offset += 2;
+  }
+
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+async function convertToWav16kHz(file: File): Promise<File> {
+  if (file.type.includes('wav') || file.name.toLowerCase().endsWith('.wav')) return file;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const AudioCtx = window.AudioContext;
+  if (!AudioCtx) throw new Error('AudioContext not available');
+
+  const ctx = new AudioCtx();
+  try {
+    const decoded = await ctx.decodeAudioData(arrayBuffer.slice(0));
+
+    const length = Math.max(1, Math.ceil(decoded.duration * TARGET_SAMPLE_RATE));
+    const offline = new OfflineAudioContext(1, length, TARGET_SAMPLE_RATE);
+    const src = offline.createBufferSource();
+    src.buffer = decoded;
+    src.connect(offline.destination);
+    src.start(0);
+    const rendered = await offline.startRendering();
+
+    const mono = rendered.getChannelData(0);
+    const wavBlob = encodeWavPCM16(mono, TARGET_SAMPLE_RATE);
+    const wavName = file.name.replace(/\.[^.]+$/, '') + '.wav';
+    return new File([wavBlob], wavName, { type: 'audio/wav' });
+  } finally {
+    try {
+      await ctx.close();
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export function TranslatorInput({
   text,
   onTextChange,
@@ -21,6 +93,17 @@ export function TranslatorInput({
   error?: string | null;
 }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.files?.[0];
+    if (!raw) return;
+    try {
+      const wav = await convertToWav16kHz(raw);
+      setAudioFile(wav);
+    } catch {
+      setAudioFile(raw);
+    }
+  }
 
   return (
     <div className="store-utility-card h-full flex flex-col justify-between">
@@ -97,7 +180,7 @@ export function TranslatorInput({
               className="block w-full text-apple-body text-apple-ink file:mr-4 file:rounded-full file:border-0 file:bg-apple-primary file:px-4 file:py-2 file:text-apple-body-strong file:text-apple-on-dark file:cursor-pointer transition-colors hover:file:opacity-90"
               type="file"
               accept="audio/wav,audio/flac,audio/ogg,audio/webm,.wav,.flac,.ogg,.webm"
-              onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+              onChange={handleFileUpload}
               disabled={loading}
             />
             <p className="text-apple-micro-legal text-apple-ink-muted-48">

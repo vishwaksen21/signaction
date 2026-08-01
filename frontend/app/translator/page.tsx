@@ -124,6 +124,7 @@ export default function TranslatorPage() {
                       loop
                       muted
                       playsInline
+                      preload="auto"
                     />
                   </div>
                   <div className={`text-center font-bold text-lg ${g.active ? 'text-white' : 'text-slate-900 dark:text-white'}`}>{g.token}</div>

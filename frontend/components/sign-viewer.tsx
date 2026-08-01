@@ -35,6 +35,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000 }: SignViewerProps)
           src={url}
           className="max-h-[360px] w-auto rounded-lg object-contain"
           playsInline
+          preload="auto"
           autoPlay
           muted
           onEnded={onEnded}

@@ -24,16 +24,56 @@
 \title{SignAction: A Modular Pipeline for Translating Text and Speech into Indian Sign Language Gestures}
 
 \author{
-\IEEEauthorblockN{First Author\IEEEauthorrefmark{1},
-Second Author\IEEEauthorrefmark{1},
-Third Author\IEEEauthorrefmark{2}}
-\IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Computer Science and Engineering,
-Your University,
-Your City, Country}
-\IEEEauthorblockA{\IEEEauthorrefmark{2}Department of Electronics and Communication Engineering,
-Your University,
-Your City, Country}
-\IEEEauthorblockA{Email: \{first.author, second.author\}@youruniversity.edu}
+\makebox[\textwidth][c]{%
+\begin{tabular}{@{}c@{\hspace{1.1cm}}c@{\hspace{1.1cm}}c@{}}
+\begin{minipage}[t]{0.29\textwidth}
+\centering
+{\normalsize $1^{\mathrm{st}}$ Roma Kudale}\\
+{\normalsize\textit{Dept of AI\&DS}}\\
+\textit{CMR Institute of Technology}\\
+Banagalore. India\\
+\href{mailto:roma.k@cmrit.ac.in}{roma.k@cmrit.ac.in}
+\end{minipage}
+&
+\begin{minipage}[t]{0.29\textwidth}
+\centering
+{\normalsize $2^{\mathrm{nd}}$ C Vishwak Sena}\\
+{\normalsize\textit{Dept of CS\&DS}}\\
+\textit{CMR Institute of Technology}\\
+Banagalore. India\\
+\href{mailto:chilukurvishwak21@gmail.com}{chilukurvishwak21@gmail.com}
+\end{minipage}
+&
+\begin{minipage}[t]{0.29\textwidth}
+\centering
+{\normalsize $3^{\mathrm{rd}}$ Ananya U}\\
+{\normalsize\textit{Dept of AI\&DS}}\\
+\textit{CMR Institute of Technology}\\
+Banagalore. India\\
+\href{mailto:uananya324@gmail.com}{uananya324@gmail.com}
+\end{minipage}
+\\
+\noalign{\vskip 1.2em}
+\begin{minipage}[t]{0.29\textwidth}
+\centering
+{\normalsize $4^{\mathrm{th}}$ Ashirwad}\\
+{\normalsize\textit{Dept of AI\&DS}}\\
+\textit{CMR Institute of Technology}\\
+Banagalore. India\\
+\href{mailto:ashirwads813@gmail.com}{ashirwads813@gmail.com}
+\end{minipage}
+&
+\begin{minipage}[t]{0.29\textwidth}
+\centering
+{\normalsize $5^{\mathrm{th}}$ Aditya Mule}\\
+{\normalsize\textit{Dept of AI\&DS}}\\
+\textit{CMR Institute of Technology}\\
+Banagalore. India\\
+\href{mailto:adityamule79@gmail.com}{adityamule79@gmail.com}
+\end{minipage}
+& {}
+\end{tabular}%
+}
 }
 
 \maketitle
@@ -42,7 +82,7 @@ Your City, Country}
 % ABSTRACT
 % =============================================================
 \begin{abstract}
-Around 18 million deaf and hard-of-hearing people in India use Indian Sign Language (ISL) to communicate. Very few software tools exist that can convert spoken or written English into ISL. Systems that try to do this tend to fall into one of two problems: they need large parallel video datasets that do not exist for ISL, or they do a plain dictionary lookup and ignore how signs connect. This paper presents SignAction, a system that takes English text or recorded speech and produces animated ISL gesture sequences. A rule-based NLP module turns input text into gloss tokens. A file-based resolver checks those tokens against a folder of pre-recorded sign files. If nothing matches, a synthesizer draws a stick-figure animation using descriptions from the ISLRTC dictionary. A FastAPI server exposes the pipeline over REST, and a Next.js frontend handles text input, audio recording, and gesture playback. On a test set of 320 English sentences, the glosser got about 93\% token-level accuracy. The time from text to first gesture frame was around 100\,ms. The whole thing runs on one CPU core with no GPU.
+A 2016 annual-report estimate from the National Association of the Deaf put India's deaf population at 18 million, although national estimates vary considerably \cite{sharma2025}. Continuous English--Indian Sign Language (ISL) resources have grown, but annotated parallel data remain limited, while dictionary-only systems cannot represent how signs connect in a sentence. This paper presents SignAction, a system that takes English text or recorded speech and produces animated ISL gesture sequences. A rule-based NLP module turns input text into gloss tokens. A file-based resolver checks those tokens against a folder of pre-recorded sign files. We gathered these sign files from free animated ISL video datasets online. If nothing matches, a synthesizer draws a stick-figure animation using sign parameters manually derived by the authors from ISLRTC dictionary videos. A FastAPI server exposes the pipeline over REST, and a Next.js frontend handles text input, audio recording, and gesture playback. On a test set of 320 English sentences, the glosser got about 93\% token-level accuracy. The time from text to first gesture frame was around 100\,ms. The whole thing runs on one CPU core with no GPU.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -55,11 +95,11 @@ Indian Sign Language, sign language translation, speech-to-text, natural languag
 \section{Introduction}
 \label{sec:intro}
 
-Sign languages are real, complete languages, but NLP research has paid little attention to them \cite{stokoe1960, klima1979}. The WHO counts 466 million people worldwide with disabling hearing loss, and that number is expected to pass 700 million by 2050 \cite{who2021}. For deaf communities, sign language is not an add-on. It is how people learn as children, hold jobs as adults, and keep in touch with family.
+Linguistic research established signed languages as structured natural languages \cite{stokoe1960, klima1979}, yet sign-language recognition, generation, and translation remain comparatively underrepresented in language technology research \cite{bragg2019}. The WHO estimated in 2021 that 430 million people had disabling hearing loss and projected that more than 700 million would have disabling hearing loss by 2050 \cite{who2021}. For many deaf people, sign language is a primary means of learning, work, and social communication \cite{bragg2019}.
 
-Building a translation system between spoken and signed language is harder than most NLP tasks. Sign language datasets take a lot of effort to collect---you need deaf signers and hearing translators recording together in controlled settings, and privacy issues make it harder \cite{camgoz2020, cooper2012}. ISL has fewer resources than most sign languages. The ISLRTC published a dictionary with thousands of entries \cite{islrtc2020}, but there is no large ISL video corpus paired with English text. Systems designed for ASL or German Sign Language cannot be reused for ISL directly because ISL has its own grammar and spatial conventions.
+Building a translation system between spoken and signed language is interdisciplinary: it combines linguistics, computer vision, human--computer interaction, and Deaf-community considerations \cite{bragg2019}. Large data-driven systems require aligned and annotated visual-language corpora \cite{camgoz2020}, and ISL remains resource-limited compared with several better-studied sign languages \cite{joshi2024isign}. The third edition of the ISLRTC dictionary contained 10{,}000 terms \cite{islrtc2021}; INCLUDE and CISLR provide isolated or word-level sign videos \cite{sridhar2020, joshi2022cislr}, while ISLTranslate and iSign introduced continuous ISL--English pairs and broader processing benchmarks \cite{joshi2023isltranslate, joshi2024isign}. These resources are important, but models trained for ASL or German Sign Language cannot be transferred to ISL without adaptation to its linguistic and spatial conventions \cite{joshi2024isign}.
 
-We built SignAction to work with what is available today rather than wait for resources that do not exist yet. The pipeline has three steps. A rule-based NLP module turns English text into gloss tokens. Those tokens are matched against a folder of sign files (GIFs, MP4s, images). If a token has no match, a stick-figure animation is drawn on the fly using ISLRTC dictionary descriptions for hand position and movement.
+We built SignAction to work without training on a large parallel corpus. The pipeline has three steps. A rule-based NLP module turns English text into gloss tokens. Those tokens are matched against a folder of sign files (GIFs, MP4s, images). If a token has no match, a stick-figure animation is drawn on the fly using hand-position and movement parameters that we manually derived from ISLRTC dictionary videos.
 
 This paper makes four concrete contributions:
 \begin{itemize}
@@ -79,31 +119,31 @@ Section~\ref{sec:related} covers related work. Section~\ref{sec:arch} describes 
 
 \subsection{Sign Language Recognition}
 
-Stokoe \cite{stokoe1960} was the first to study sign language scientifically, breaking signs down into three parts: handshape, location, and movement. That framework is still how most annotation tools are built. Klima and Bellugi \cite{klima1979} used it to formally describe ASL phonology, which gave later researchers a shared vocabulary for corpus annotation.
+Stokoe \cite{stokoe1960} published the first modern linguistic analysis of a signed language and represented ASL signs through location, handshape, and movement. These parameters remain influential in computational descriptions of signs \cite{cooper2012}. Klima and Bellugi \cite{klima1979} provided a broader linguistic account of ASL and demonstrated systematic structure beyond isolated gestures.
 
-On the machine learning side, Camgoz et al. \cite{camgoz2020} trained a transformer model on RWTH-PHOENIX-Weather, a German Sign Language dataset of weather forecast broadcasts. It works in that narrow domain, but it needs aligned video-text pairs---something ISL does not have.
+On the machine learning side, Camgoz et al. \cite{camgoz2020} trained a transformer model on RWTH-PHOENIX-Weather, a German Sign Language dataset of weather forecast broadcasts. It works in that narrow domain, but it needs aligned video--text pairs and substantial training data.
 
-For ISL, Nambiar et al. \cite{nambiar2009} built an HMM-based gesture recogniser that worked under fixed lab conditions but broke down when lighting or camera angles changed. ISLRTC later put out a dictionary that maps ISL signs to English glosses \cite{islrtc2020}, and that is the resource our asset lookup is built around.
+For ISL, Sridhar et al. \cite{sridhar2020} introduced INCLUDE, a dataset for isolated-sign recognition, and Joshi et al. \cite{joshi2022cislr} introduced CISLR for word-level recognition. ISLTranslate later supplied approximately 31{,}000 continuous ISL--English sentence or phrase pairs \cite{joshi2023isltranslate}, while iSign expanded the available data and benchmarked several recognition, translation, and sign-production tasks \cite{joshi2024isign}. ISLRTC also publishes a dictionary that maps ISL signs to English terms \cite{islrtc2021}, and that is the resource our asset lookup is built around.
 
-Cooper et al. \cite{cooper2012} noted that sign language is spatial---flattening it to a token sequence loses meaning. We keep that in mind by playing gestures one after another rather than merging them into one image.
+Cooper et al. \cite{cooper2012} describe manual sub-units for handshape, location, hand arrangement, motion, and orientation, while also noting non-manual features. Many of these sub-units occur in parallel. A gloss sequence therefore cannot encode every visual distinction. We keep that in mind by playing gestures one after another rather than merging them into one image.
 
 \subsection{Glossing as an Intermediate Representation}
 
-Glossing---writing signs as uppercase English words---goes back to the 1970s \cite{klima1979}. Neidle et al. \cite{neidle2001} built SignStream, an annotation tool for ASL video, and set the convention of uppercase tokens with underscores joining compound signs. We follow those same conventions in SignAction.
+Glossing---representing signs with spoken-language labels---has long been used in sign-language research \cite{klima1979}. Neidle et al. \cite{neidle2001} built SignStream, a tool for detailed annotation and analysis of ASL video. As an implementation convention, SignAction represents glosses as uppercase tokens and uses underscores to join multiword lexical items.
 
-Huang et al. \cite{huang2018} found that a model trained to predict gloss sequences reached about 70\% gloss accuracy and still gave reasonable translations. That told us the glosser does not have to be perfect---good enough to find the right asset most of the time is enough.
+Huang et al. \cite{huang2018} showed that continuous sign sequences can be recognised without first segmenting a video into isolated signs. In SignAction, the gloss sequence is therefore used as a practical token-level interface, not as a complete representation of sign timing or simultaneous features.
 
 The biggest weakness of gloss-based approaches is ambiguity. The word ``bank'' means a financial institution in one sentence and a riverbank in another, and a rule-based glosser cannot tell which is which from context alone. We handle a few fixed cases through alias and phrase tables, but general word-sense disambiguation is not in scope here.
 
 \subsection{Gesture Synthesis}
 
-Avatar-based sign synthesis has been around for a while. VSigns \cite{dlouhy2004} was an early web tool that converted text to SignWriting and produced VRML avatar animations. Commercial tools like SignAll \cite{signall2020} use motion capture to drive 3D character models. Pel\'{a}ez-S\'{a}nchez et al. \cite{pelaez2021} surveyed neural sign production and found that photorealistic output needs tens of hours of per-signer training data. ISL does not have that.
+Avatar-based sign synthesis has been around for a while, and Rastgoo et al. \cite{rastgoo2021} survey the progression from rule-based avatars to deep sign-production models. VSigns \cite{papadogiorgaki2004} was an early web tool that converted text to SignWriting and produced VRML avatar animations. More recent neural systems include Text2Sign, which combines neural translation, motion graphs, and video generation \cite{stoll2020}, and Progressive Transformers, which learn continuous 3D skeletal pose sequences from paired spoken-language and sign-language data \cite{saunders2020}. Such methods are promising, but they depend on parallel training data that SignAction is designed not to require.
 
-We went a simpler route: stick figures. The renderer reads ISLRTC dictionary descriptions---handshape, body location, movement direction---and draws 320$\times$360-pixel animated GIFs of a skeleton doing each sign. We give up realism to get coverage. Any token can produce an animation, not just ones that have pre-recorded video.
+We went a simpler route: stick figures. For the AI fallback signs, we manually viewed the corresponding ISLRTC dictionary videos and encoded simplified handshape, body-location, and movement parameters. The renderer reads these author-created definitions and draws 320$\times$360-pixel animated GIFs of a skeleton doing each sign. We give up realism to get coverage. Any token can produce an animation, not just ones that have pre-recorded video.
 
 \subsection{Offline Speech Recognition}
 
-Speech recognition in SignAction has to work offline. Vosk \cite{vosk2021} is a lightweight STT engine based on Kaldi \cite{povey2011}. Models are under 50\,MB and run on one CPU core. The small English model gets about 11\% WER on read speech \cite{vosk2021}. That is not good enough for general dictation, but it is fine when the glosser only needs content words. Whisper \cite{radford2023} is available as an optional backend for cases where accuracy matters more than model size.
+Speech recognition in SignAction has to work offline. Vosk \cite{vosk2021} is a lightweight STT engine based on Kaldi \cite{povey2011}. Its 40\,MB small English model is listed at 9.85\% WER on LibriSpeech test-clean and 10.38\% on TED-LIUM \cite{vosk2021}. These benchmark results do not guarantee general dictation accuracy, but the model is adequate when the glosser mainly needs content words. Whisper \cite{radford2023} is available as an optional backend for cases where accuracy matters more than model size.
 
 % =============================================================
 % 3. SYSTEM ARCHITECTURE
@@ -116,30 +156,35 @@ SignAction is split into three parts: a Next.js frontend, a FastAPI backend, and
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.2cm and 1.8cm,
-    block/.style={rectangle, draw, fill=blue!6, minimum width=2.8cm,
-                  minimum height=0.85cm, text centered, rounded corners=2pt,
-                  font=\footnotesize},
-    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=blue!50!black},
-    lbl/.style={font=\tiny, color=gray!60!black},
+    x=1cm,
+    y=1cm,
+    block/.style={rectangle, draw, fill=blue!6, minimum width=2.25cm,
+                  minimum height=0.68cm, align=center, rounded corners=2pt,
+                  inner sep=2pt, font=\scriptsize},
+    arrow/.style={-{Stealth[length=2mm]}, semithick, color=blue!55!black},
+    lbl/.style={font=\tiny, fill=white, inner sep=1pt,
+                text=gray!70!black},
 ]
-\node[block, fill=green!7] (fe) {Next.js Frontend};
-\node[block, fill=orange!8, right=of fe] (be) {FastAPI Backend};
-\node[block, fill=yellow!10, below right=0.6cm and 0.3cm of be] (nlp) {NLP Gloss};
-\node[block, fill=red!7, below=of nlp] (map) {Asset Resolver};
-\node[block, fill=purple!7, below left=0.6cm and 0.3cm of map] (rend) {AI Fallback};
-\node[block, fill=cyan!8, below=of fe] (stt) {Vosk STT};
-\node[block, fill=gray!6, left=of rend] (lib) {Sign Assets};
+\node[block, fill=green!7]  (fe)   at (0,0)     {Next.js Frontend};
+\node[block, fill=orange!8] (be)   at (3,0)     {FastAPI Backend};
+\node[block, fill=yellow!10](nlp)  at (6,0)     {NLP Gloss};
+\node[block, fill=cyan!8]   (stt)  at (0,-1.35) {Vosk STT};
+\node[block, fill=red!7]    (map)  at (6,-1.35) {Asset Resolver};
+\node[block, fill=gray!6]   (lib)  at (3,-2.70) {Sign Assets};
+\node[block, fill=purple!7] (rend) at (6,-2.70) {AI Fallback};
 
-\draw[arrow] (fe) -- node[above, lbl] {text/audio} (be);
-\draw[arrow] (be) -- node[right, lbl] {transcript} (nlp);
-\draw[arrow] (nlp) -- node[right, lbl] {tokens} (map);
-\draw[arrow] (map) -- node[right, lbl] {paths} (rend);
-\draw[arrow] (map) -- node[left, lbl] {hits} (lib);
-\draw[arrow] (lib) -- (rend);
-\draw[arrow] (fe) |- node[above, lbl, pos=0.3] {audio} (stt);
-\draw[arrow] (stt) -| node[below, lbl, pos=0.7] {text} (be);
-\draw[arrow] (rend) |- (fe);
+\draw[arrow] (fe.east) -- node[above, lbl] {text} (be.west);
+\draw[arrow] (be.east) -- node[above, lbl] {transcript} (nlp.west);
+\draw[arrow] (fe.south) -- node[right, lbl] {audio} (stt.north);
+\draw[arrow] (stt.north east) to[out=25, in=-155]
+    node[pos=0.50, below, lbl] {text} (be.south west);
+\draw[arrow] (nlp.south) -- node[right, lbl] {tokens} (map.north);
+\draw[arrow] (map.south west) -- node[sloped, above, lbl] {hit}
+    (lib.north east);
+\draw[arrow] (map.south) -- node[right, lbl] {miss} (rend.north);
+\draw[arrow] (lib.east) -- node[above, lbl] {asset} (rend.west);
+\draw[arrow] (rend.south) -- ++(0,-0.45) -| node[pos=0.28, below, lbl]
+    {gesture URLs} ([xshift=-0.35cm]fe.west) -- (fe.west);
 \end{tikzpicture}
 \caption{Data flow through SignAction. Text or audio enters the FastAPI backend, passes through NLP and asset resolution, and returns gesture URLs to the frontend.}
 \label{fig:arch}
@@ -250,11 +295,11 @@ t.\text{upper()} & \text{otherwise}
 \end{cases}
 \label{eq:pronoun}
 \end{equation}
-where $t$ is the lowercase token. ``I'' maps to ``ME,'' ``your'' maps to ``YOUR,'' and so on. ISL marks pronouns through spatial pointing rather than inflection, so the gloss needs to preserve the surface form.
+where $t$ is the lowercase token. ``I'' maps to ``ME,'' ``your'' maps to ``YOUR,'' and so on. This table is an implementation-level lexical normalization; it does not model spatial reference in ISL.
 
-\textbf{(3) Lemmatization.} Content words are reduced to their dictionary form (``running'' $\rightarrow$ ``run,'' ``better'' $\rightarrow$ ``good''). The result is uppercased to match asset filenames. Auxiliary verbs (``am,'' ``is,'' ``are,'' ``do,'' ``does,'' ``did'') are excluded from lemmatization because the ISL signs for these words differ from the base form ``be.''
+\textbf{(3) Lemmatization.} Content words are reduced to their dictionary form (``better'' $\rightarrow$ ``good''). The result is uppercased to match asset filenames. Auxiliary verbs (``am,'' ``is,'' ``are,'' ``do,'' ``does,'' ``did'') are excluded from lemmatization. Progressive and continuous verb forms (``doing,'' ``eating,'' ``going'') are also kept as-is so the alias table can map them directly to the matching sign (e.g., ``DOING'' $\rightarrow$ ``DO'').
 
-\textbf{(4) Stopword handling.} Stopwords are kept by default because words like ``NOT,'' ``WHAT,'' and ``WHERE'' have independent signs in ISL. If \texttt{remove\_stopwords} is enabled, only a protected subset (negations, question words, pronouns, auxiliaries) is kept.
+\textbf{(4) Stopword handling.} Stopwords are kept by default because the asset lexicon may contain entries such as ``NOT,'' ``WHAT,'' and ``WHERE.'' If \texttt{remove\_stopwords} is enabled, only a protected subset (negations, question words, pronouns, auxiliaries) is kept.
 
 The output is a \texttt{GlossResult} containing the token list and the joined gloss string.
 
@@ -313,7 +358,7 @@ Once all frames are collected, they are written to an in-memory \texttt{BytesIO}
 
 When no pre-recorded asset exists for a token, \texttt{ai\_fallback.py} generates a skeletal animation. Three levels of information drive the synthesis:
 
-\textbf{Sign definitions.} A hand-curated database of 18 ISL signs. Each entry specifies: (i) the set of English tokens it covers (e.g., ``HELLO,'' ``HI,'' ``NAMASTE''); (ii) the anatomical target (forehead, chin, chest, or neutral space); (iii) dominant and non-dominant handshapes (flat hand, fist, point, V-shape, hook, pinch); and (iv) a parametric motion function $\mathbf{m}(t)$ for the dominant wrist.
+\textbf{Sign definitions.} A hand-made database of ISL signs. Each entry has a set of English tokens it covers (e.g., ``HELLO,'' ``HI,'' ``NAMASTE''), the body area it targets (forehead, chin, chest, or neutral space), dominant and non-dominant handshapes (flat hand, fist, point, V-shape, hook, pinch), and a math-based motion function $\mathbf{m}(t)$ for the dominant wrist.
 
 \textbf{Fallback selection.} Tokens not in the database are assigned to one of four generic motion families using a hash:
 \begin{equation}
@@ -332,7 +377,7 @@ where $\mathbf{w}(t)$ is the wrist position at frame $t$, $\mathbf{L}_{\text{tar
 \mathbf{m}(t) = \begin{bmatrix} A_x \sin(\omega_x t) \\ A_y \cos(\omega_y t) \end{bmatrix}
 \label{eq:motion}
 \end{equation}
-with $A_x$, $A_y$ as amplitude components in pixels and $\omega_x$, $\omega_y$ as angular frequencies in radians per frame. Parameters are set per sign by comparing against ISLRTC descriptions.
+with $A_x$, $A_y$ as amplitude components in pixels and $\omega_x$, $\omega_y$ as angular frequencies in radians per frame. Parameters are set per sign by manually inspecting the corresponding ISLRTC dictionary video and encoding a simplified approximation of its visible motion.
 
 Six handshape painters draw simplified fingers at the wrist: flat hand, fist, point, V-shape, hook, pinch. Each takes a base angle that rotates the configuration to match the arm orientation.
 
@@ -385,7 +430,7 @@ Both the FastAPI server and the CLI call this same function, so the translation 
 
 \subsection{Experimental Setup}
 
-All tests ran on a MacBook with an Apple M-series chip and 16\,GB RAM. We used Python 3.11, spaCy \texttt{en\_core\_web\_sm} (v3.7), and Vosk \texttt{vosk-model-small-en-us-0.15} (40\,MB). The asset folder had 26 alphabet placeholder GIFs (A--Z) and 7 phrase placeholder GIFs (HELLO, THANK\_YOU, YES, NO, GOOD\_MORNING, GOOD\_NIGHT, HOW\_ARE\_YOU). No real sign language video was used at all---every output came from a placeholder or AI-generated skeleton.
+All tests ran on a MacBook with an Apple M-series chip and 16\,GB RAM. We used Python 3.11, spaCy \texttt{en\_core\_web\_sm} (v3.7), and Vosk \texttt{vosk-model-small-en-us-0.15} (40\,MB). The asset folder contained 36 alphabet sign videos (A--Z and 0--9) and 182 word-level sign videos that we gathered from free animated ISL datasets online. All videos were re-encoded to H.264 with \texttt{yuv420p} pixel format and the \texttt{+faststart} flag so they play in browsers. Words without a pre-recorded video fell through to the AI fallback synthesizer.
 
 We built a test set of 320 English sentences from three places: 100 from the COCO image captioning dataset, 120 we wrote ourselves to cover greetings, questions, and requests, and 100 taken from news articles to test harder sentence structures. Sentences were sorted into four complexity levels by clause count and token length. Two people annotated each sentence with glosses independently and a third resolved disagreements. Agreement was high (Cohen's $\kappa > 0.85$). Annotation details and the raw gloss files are in the project repository.\footnote{\url{https://github.com/signaction/signaction}}
 
@@ -411,11 +456,11 @@ Complex sentences & 90 & 421 & 88\% & 31 ms \\
 \end{tabular}
 \end{table}
 
-We saw the same three errors come up repeatedly. Irregular verbs got lemmatized to their base (``went'' $\rightarrow$ ``GO'' instead of ``WENT''). Auxiliaries stayed in the output where ISL would normally drop them (``I am going'' becomes ``ME IS GO'' instead of ``ME GO''). Compound nouns got split (``ice cream'' $\rightarrow$ ``ICE'' + ``CREAM'' rather than ``ICE\_CREAM''). A small exceptions table and a compound-noun list would fix all three---we just have not built those yet.
+We saw the same three errors come up repeatedly. Irregular verbs got lemmatized to their base (``went'' $\rightarrow$ ``GO'' instead of ``WENT''). Auxiliaries stayed in the output where the reference annotations dropped them (``I am going'' becomes ``ME IS GO'' instead of ``ME GO''). Compound nouns got split (``ice cream'' $\rightarrow$ ``ICE'' + ``CREAM'' rather than ``ICE\_CREAM''). A small exceptions table and a compound-noun list would fix all three---we just have not built those yet.
 
 \subsection{Fingerspelling Correctness}
 
-We tested fingerspelling on about 50 out-of-vocabulary words: proper nouns (``Mumbai,'' ``Rajasthan''), technical terms (``blockchain,'' ``neural''), and words with common misspellings (``recieve,'' ``definately''). Every word split into the right letter sequence. That is not surprising---the logic is just split-on-characters and resolve each one. The harder question is whether the result is actually useful. With placeholder assets, the output shows animated text labels per letter. With real ISL alphabet video it would show finger signs, but testing that properly needs a real alphabet dataset we do not currently have.
+We tested fingerspelling on about 50 out-of-vocabulary words: proper nouns (``Mumbai,'' ``Rajasthan''), technical terms (``blockchain,'' ``neural''), and words with common misspellings (``recieve,'' ``definately''). Every word split into the right letter sequence. That is not surprising---the logic is just split-on-characters and resolve each one. The harder question is whether the result is actually useful. With the current alphabet sign videos, the output shows animated ISL finger signs per letter. Testing that properly requires a continuous fingerspelling dataset. A recently published ISL fingerspelling dataset could help, but we have not added it yet \cite{kirandevraj2025}.
 
 \subsection{AI Fallback Synthesis Quality}
 
@@ -423,7 +468,7 @@ We checked two things: do different tokens look different, and do the animations
 
 For the first check, we generated fallback GIFs for 100 tokens. The hash-based selection (equation (\ref{eq:hash})) gave four motion patterns. Speed and phase varied within each pattern. No two tokens looked identical---though for 80 of the 100 we checked visually rather than comparing frames side by side.
 
-For plausibility, a reviewer with ISL knowledge compared the 18 curated signs against ISLRTC dictionary descriptions. All 18 put the dominant hand at the right body region. About 15 of the 18 handshapes matched the description. The other three were close but not exact---a fist and a flat hand look similar when you draw them as lines.
+For plausibility, a reviewer with ISL knowledge compared the AI fallback signs against the corresponding ISLRTC dictionary videos. The dominant hand was placed at the right body region in each case. The simplified handshapes matched the hand position shown in the video in most cases. A few were close but not exact---a fist and a flat hand look similar when you draw them as lines.
 
 \subsection{Latency}
 
@@ -461,11 +506,11 @@ There are four things the current system does not handle.
 
 \textbf{Word sense.} A word like ``bank'' gets the same gloss no matter what the sentence means. A contextual model could fix this but would add a dependency we have deliberately avoided.
 
-\textbf{Small vocabulary.} We have 18 curated sign definitions, which covers a tiny slice of ISL---ISLRTC lists over 10{,}000 signs. Fingerspelling keeps things from breaking but gets very long for unfamiliar words.
+\textbf{Small vocabulary.} The current asset folder covers 182 word-level signs plus 36 alphabet signs. That is still a small part of ISL---the third edition of the ISLRTC dictionary contains 10{,}000 terms \cite{islrtc2021}. Fingerspelling keeps things from breaking but gets very long for unfamiliar words.
 
-\textbf{No facial grammar.} ISL uses eyebrow raises, head tilts, and mouth morphemes as grammar. The stick figure has no face, so none of that comes through.
+\textbf{No non-manual grammar.} ISL uses facial expression, head movement, and body movement at lexical and grammatical levels \cite{joshi2024isign}. The stick figure has no face, so these cues do not come through.
 
-\textbf{Single viewpoint.} The animation shows one signer from one angle. Real ISL involves role-shifting and positioning relative to the person being addressed.
+\textbf{Single viewpoint.} The animation shows one signer from one angle and does not represent the use of signing space to establish and revisit referents \cite{joshi2024isign}.
 
 % =============================================================
 % 6. CONCLUSION
@@ -483,8 +528,11 @@ Next steps: word-sense handling for ambiguous words like ``bank,'' a bigger ISL 
 
 \begin{thebibliography}{00}
 
+\bibitem{sharma2025}
+A.~Sharma, ``India's language policy for deaf and hard-of-hearing people,'' \emph{Lang. Policy}, vol.~24, no.~3, pp.~451--473, 2025, doi: 10.1007/s10993-025-09729-7.
+
 \bibitem{stokoe1960}
-W.~C. Stokoe, \emph{Sign Language Structure: An Outline of the Visual Communication Systems of the American Deaf}, Studies in Linguistics: Occasional Papers, vol.~8. Buffalo, NY, USA: Univ. Buffalo, 1960.
+W.~C. Stokoe, \emph{Sign Language Structure: An Outline of the Visual Communication Systems of the American Deaf}, Studies in Linguistics: Occasional Papers, no.~8. Buffalo, NY, USA: Dept. Anthropology and Linguistics, Univ. Buffalo, 1960.
 
 \bibitem{klima1979}
 E.~S. Klima and U.~Bellugi, \emph{The Signs of Language}. Cambridge, MA, USA: Harvard Univ. Press, 1979.
@@ -492,59 +540,59 @@ E.~S. Klima and U.~Bellugi, \emph{The Signs of Language}. Cambridge, MA, USA: Ha
 \bibitem{who2021}
 World Health Organization, \emph{World Report on Hearing}. Geneva, Switzerland: WHO, 2021.
 
+\bibitem{bragg2019}
+D.~Bragg \emph{et~al.}, ``Sign language recognition, generation, and translation: An interdisciplinary perspective,'' in \emph{Proc. 21st Int. ACM SIGACCESS Conf. Comput. Accessibility (ASSETS)}, 2019, pp.~16--31, doi: 10.1145/3308561.3353774.
+
 \bibitem{camgoz2020}
-N.~C. Camgoz \emph{et~al.}, ``Sign language transformers: Joint end-to-end sign language recognition and translation,'' in \emph{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2020, pp.~9999--10009.
+N.~C. Camgoz, O.~Koller, S.~Hadfield, and R.~Bowden, ``Sign language transformers: Joint end-to-end sign language recognition and translation,'' in \emph{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2020, pp.~10023--10033.
 
 \bibitem{cooper2012}
-H.~Cooper, R.~Bowden, and B.~Jung, ``Sign language recognition: Multi-stream temporal modelling and linguistic constraints,'' in \emph{Proc. Int. Conf. Auditory-Visual Speech Process. (AVSP)}, 2012, pp.~119--124.
+H.~Cooper, E.-J. Ong, N.~Pugeault, and R.~Bowden, ``Sign language recognition using sub-units,'' \emph{J. Mach. Learn. Res.}, vol.~13, pp.~2205--2231, 2012.
 
-\bibitem{islrtc2020}
-Indian Sign Language Res. Training Centre, \emph{Indian Sign Language Dictionary}. New Delhi, India: Dept. Empowerment Persons Disabilities, Ministry Social Justice Empowerment, 2020.
+\bibitem{islrtc2021}
+Press Information Bureau, Government of India, ``Shri Thaawarchand Gehlot virtually releases 3rd edition of Indian Sign Language Dictionary with 10,000 terms,'' Feb.~17, 2021. [Online]. Available: \url{https://www.pib.gov.in/PressReleasePage.aspx?PRID=1698739}. Accessed: Aug.~1, 2026.
 
-\bibitem{nambiar2009}
-A.~Nambiar, A.~Majumder, and K.~Sengupta, ``Indian Sign Language recognition,'' in \emph{Proc. IEEE Int. Conf. Syst., Man Cybern. (SMC)}, 2009, pp.~2846--2851.
+\bibitem{sridhar2020}
+A.~Sridhar, R.~G.~Ganesan, P.~Kumar, and M.~M.~Khapra, ``INCLUDE: A large scale dataset for Indian Sign Language recognition,'' in \emph{Proc. 28th ACM Int. Conf. Multimedia}, 2020, pp.~1366--1375, doi: 10.1145/3394171.3413528.
+
+\bibitem{joshi2022cislr}
+A.~Joshi, A.~Bhat, P.~S, P.~Gole, S.~Gupta, S.~Agarwal, and A.~Modi, ``CISLR: Corpus for Indian Sign Language recognition,'' in \emph{Proc. 2022 Conf. Empirical Methods Natural Language Process. (EMNLP)}, 2022, pp.~10357--10366, doi: 10.18653/v1/2022.emnlp-main.707.
+
+\bibitem{joshi2023isltranslate}
+A.~Joshi, S.~Agrawal, and A.~Modi, ``ISLTranslate: Dataset for translating Indian Sign Language,'' in \emph{Findings Assoc. Comput. Linguistics: ACL 2023}, 2023, pp.~10466--10475, doi: 10.18653/v1/2023.findings-acl.665.
+
+\bibitem{joshi2024isign}
+A.~Joshi, R.~Mohanty, M.~Kanakanti, A.~Mangla, S.~Choudhary, M.~Barbate, and A.~Modi, ``iSign: A benchmark for Indian Sign Language processing,'' in \emph{Findings Assoc. Comput. Linguistics: ACL 2024}, 2024, pp.~10827--10844, doi: 10.18653/v1/2024.findings-acl.643.
 
 \bibitem{neidle2001}
-C.~Neidle, S.~Sclaroff, and V.~Athitsos, ``SignStream: A tool for linguistic and computer vision research on visual-gestural language data,'' \emph{Behav. Res. Methods Instrum. Comput.}, vol.~33, no.~3, pp.~311--320, 2001.
+C.~Neidle, S.~Sclaroff, and V.~Athitsos, ``SignStream: A tool for linguistic and computer vision research on visual-gestural language data,'' \emph{Behav. Res. Methods Instrum. Comput.}, vol.~33, no.~3, pp.~311--320, 2001, doi: 10.3758/BF03195384.
 
 \bibitem{huang2018}
-J.~Huang, W.~Zhou, Q.~Zhang, H.~Li, and M.~Li, ``Video-based sign language recognition without temporal segmentation,'' in \emph{Proc. AAAI Conf. Artif. Intell.}, vol.~32, 2018, pp.~6526--6533.
+J.~Huang, W.~Zhou, Q.~Zhang, H.~Li, and W.~Li, ``Video-based sign language recognition without temporal segmentation,'' in \emph{Proc. AAAI Conf. Artif. Intell.}, vol.~32, 2018, pp.~2257--2264, doi: 10.1609/aaai.v32i1.11903.
 
-\bibitem{dlouhy2004}
-M.~Papadogiorgaki, N.~Grammalidis, L.~Makris, N.~Sarris, and M.~G.~Strintzis, ``VSigns: A virtual sign synthesis web tool,'' in \emph{Proc. 6th COST 276 Workshop Inf. Knowl. Manage. Integrated Media Commun.}, Thessaloniki, Greece, May 2004.
+\bibitem{rastgoo2021}
+R.~Rastgoo, K.~Kiani, S.~Escalera, and M.~Sabokrou, ``Sign language production: A review,'' in \emph{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. Workshops (CVPRW)}, 2021, pp.~3451--3461.
 
-\bibitem{pelaez2021}
-G.~Pel\'{a}ez-S\'{a}nchez, P.~N\'{u}\~{n}ez, and J.~C. Pichel, ``Neural sign language production: A survey,'' \emph{IEEE Access}, vol.~9, pp.~155523--155545, 2021.
+\bibitem{papadogiorgaki2004}
+M.~Papadogiorgaki, N.~Grammalidis, L.~Makris, N.~Sarris, and M.~G.~Strintzis, ``VSigns: A virtual sign synthesis web tool,'' in \emph{Proc. 6th COST 276 Workshop Inf. Knowl. Manage. Integrated Media Commun.}, Thessaloniki, Greece, May 2004, pp.~25--31.
 
-\bibitem{signall2020}
-SignAll, ``SignAll sign language translation technology,'' 2020. [Online]. Available: \url{https://www.sign-all.com/}
+\bibitem{stoll2020}
+S.~Stoll, N.~C. Camgoz, S.~Hadfield, and R.~Bowden, ``Text2Sign: Towards sign language production using neural machine translation and generative adversarial networks,'' \emph{Int. J. Comput. Vis.}, vol.~128, no.~4, pp.~891--908, 2020, doi: 10.1007/s11263-019-01281-2.
+
+\bibitem{saunders2020}
+B.~Saunders, N.~C. Camgoz, and R.~Bowden, ``Progressive transformers for end-to-end sign language production,'' in \emph{Computer Vision--ECCV 2020}, Lecture Notes in Computer Science, vol.~12356. Cham, Switzerland: Springer, 2020, pp.~687--705, doi: 10.1007/978-3-030-58621-8\_40.
 
 \bibitem{vosk2021}
-Vosk, ``Vosk speech recognition toolkit,'' 2021. [Online]. Available: \url{https://alphacephei.com/vosk/}
+Vosk, ``Vosk models,'' [Online]. Available: \url{https://alphacephei.com/vosk/models}. Accessed: Aug.~1, 2026.
 
 \bibitem{povey2011}
-D.~Povey \emph{et~al.}, ``The Kaldi speech recognition toolkit,'' in \emph{Proc. IEEE Workshop Autom. Speech Recognit. Understand. (ASRU)}, 2011.
+D.~Povey \emph{et~al.}, ``The Kaldi speech recognition toolkit,'' in \emph{Proc. IEEE Workshop Autom. Speech Recognit. Understand. (ASRU)}, 2011, pp.~1--4.
 
 \bibitem{radford2023}
-A.~Radford \emph{et~al.}, ``Robust speech recognition via large-scale weak supervision,'' in \emph{Proc. Int. Conf. Mach. Learn. (ICML)}, 2023, pp.~28492--28518.
+A.~Radford \emph{et~al.}, ``Robust speech recognition via large-scale weak supervision,'' in \emph{Proc. 40th Int. Conf. Mach. Learn. (ICML)}, ser. Proc. Mach. Learn. Res., vol.~202, 2023, pp.~28492--28518.
 
-\bibitem{supalla2006}
-T.~Supalla and P.~Clark, ``Sign language archaeology: Understanding the historical roots of American Sign Language,'' \emph{Sign Language Studies}, vol.~7, no.~1, pp.~3--50, 2006.
-
-\bibitem{camgoz2018}
-N.~C. Camgoz, O.~Koller, S.~Hadfield, and R.~Bowden, ``Semantic sign language translation with a multi-modal transformer,'' in \emph{Proc. Brit. Mach. Vis. Conf. (BMVC)}, 2018.
-
-\bibitem{kumar2021}
-R.~Kumar, A.~Sharma, and D.~Gupta, ``Deep learning-based Indian Sign Language recognition: A survey,'' \emph{Multimed. Tools Appl.}, vol.~80, no.~12, pp.~17731--17761, 2021.
-
-\bibitem{tan2021}
-J.~H. Tan, E.~Y.~K. Ng, and U.~R. Acharya, ``Sign language recognition using computer vision: A review,'' \emph{Artif. Intell. Rev.}, vol.~54, pp.~5777--5805, 2021.
-
-\bibitem{tornay2021}
-F.~J. Tornay, S.~Maggi, and M.~Russell, ``Indian Sign Language recognition using convolutional neural networks,'' in \emph{Proc. Int. Conf. Pattern Recognit. (ICPR)}, 2021, pp.~4540--4547.
-
-\bibitem{ko2019}
-S.~K. Ko, C.~J. Kim, K.~Jung, and H.~Yang, ``Feeding finger: A real-time sign language to text and speech conversion system using deep learning,'' in \emph{Proc. IEEE Int. Conf. Consum. Electron. (ICCE)}, 2019.
+\bibitem{kirandevraj2025}
+Kirandevraj R, V.~K. Kurmi, V.~P. Namboodiri, and C.~V. Jawahar, ``Continuous fingerspelling dataset for Indian Sign Language,'' in \emph{Proc. Workshop Sign Language Process. (WSLP)}, 2025, pp.~37--42, doi: 10.18653/v1/2025.wslp-main.6.
 
 \end{thebibliography}
 
