@@ -1,19 +1,13 @@
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 
-const BACKEND_BASE = (process.env.SIGNACTION_BACKEND_URL || 'http://localhost:8000').replace(/\/$/, '');
-
-export async function GET(req: Request) {
-  const upstream = await fetch(`${BACKEND_BASE}/dictionary`, {
-    method: 'GET',
-    headers: {
-      accept: req.headers.get('accept') || 'application/json',
-    },
-    cache: 'no-store',
-  });
-
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers: upstream.headers,
+export async function GET() {
+  const filePath = join(process.cwd(), 'public', 'dictionary.json');
+  const data = await readFile(filePath, 'utf-8');
+  return new Response(data, {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
   });
 }
