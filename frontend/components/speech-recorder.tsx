@@ -100,16 +100,20 @@ export function SpeechRecorder({
     };
 
     rec.onstop = async () => {
-      const blob = new Blob(chunksRef.current, { type: rec.mimeType });
-      const raw = new File([blob], `recording.${rec.mimeType.includes('webm') ? 'webm' : 'wav'}`, {
-        type: rec.mimeType,
-      });
+      try {
+        const blob = new Blob(chunksRef.current, { type: rec.mimeType });
+        const raw = new File([blob], `recording.${rec.mimeType.includes('webm') ? 'webm' : 'wav'}`, {
+          type: rec.mimeType,
+        });
 
-      const wav = await convertToWav16kHz(raw);
-      setLast(wav);
-      onRecorded(wav);
-
-      stream.getTracks().forEach((t) => t.stop());
+        const wav = await convertToWav16kHz(raw);
+        setLast(wav);
+        onRecorded(wav);
+      } catch {
+        alert('Failed to process recording. Please try again.');
+      } finally {
+        stream.getTracks().forEach((t) => t.stop());
+      }
     };
 
     rec.start();

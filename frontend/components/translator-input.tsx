@@ -93,15 +93,20 @@ export function TranslatorInput({
   error?: string | null;
 }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [converting, setConverting] = useState(false);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.files?.[0];
     if (!raw) return;
+    setConverting(true);
     try {
       const wav = await convertToWav16kHz(raw);
       setAudioFile(wav);
     } catch {
-      setAudioFile(raw);
+      setAudioFile(null);
+      alert('Could not convert this audio file. Please upload a WAV, FLAC, or OGG file instead.');
+    } finally {
+      setConverting(false);
     }
   }
 
