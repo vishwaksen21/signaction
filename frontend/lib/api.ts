@@ -165,13 +165,10 @@ export async function translateSpeechOnce(file: File): Promise<TranslateResponse
 
 export type DictionaryItem = { token: string; url: string; media_type: 'gif' | 'mp4' | 'img' };
 export async function fetchDictionary(): Promise<{ items: DictionaryItem[] }> {
-  try {
-    const data = await http<{ items: DictionaryItem[] }>('/api/dictionary', { method: 'GET' });
-    return {
-      items: (data.items || []).map((i) => ({ ...i, url: resolveApiUrl(i.url) })),
-    };
-  } catch (e) {
-    if (!isNotFoundError(e)) throw e;
-    return { items: [] };
-  }
+  const res = await fetch('/dictionary.json', { cache: 'no-store' });
+  if (!res.ok) return { items: [] };
+  const data = await res.json();
+  return {
+    items: (data.items || []).map((i: DictionaryItem) => ({ ...i, url: resolveApiUrl(i.url) })),
+  };
 }
