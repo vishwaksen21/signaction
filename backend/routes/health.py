@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import os
+import shutil
+from pathlib import Path
+
 from fastapi import APIRouter, Request
 
 router = APIRouter()
@@ -17,6 +21,31 @@ def root() -> dict[str, str]:
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/health/stt")
+def health_stt() -> dict[str, object]:
+    vosk_path = os.environ.get("VOSK_MODEL_PATH", "")
+    model_exists = bool(vosk_path and Path(vosk_path).is_dir())
+
+    # Also check common fallback locations
+    search_dirs = [
+        Path(__file__).resolve().parents[2] / "models",
+        Path("/app/models"),
+    ]
+    found_models: list[str] = []
+    for d in search_dirs:
+        if d.exists():
+            for p in sorted(d.glob("vosk-model-*/")):
+                if p.is_dir():
+                    found_models.append(str(p))
+
+    return {
+        "vosk_model_path_env": vosk_path or "(not set)",
+        "vosk_model_exists": model_exists,
+        "vosk_models_found": found_models,
+        "ffmpeg_available": shutil.which("ffmpeg") is not None,
+    }
 
 
 @router.get("/__routes")

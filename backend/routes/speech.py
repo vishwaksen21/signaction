@@ -30,15 +30,19 @@ def _ensure_local_vosk_autodetect() -> None:
     if os.environ.get("VOSK_MODEL_PATH"):
         return
 
-    repo_root = Path(__file__).resolve().parents[2]
-    models_dir = repo_root / "models"
-    if not models_dir.exists():
-        return
+    search_dirs = [
+        Path(__file__).resolve().parents[2] / "models",
+        Path("/app/models"),
+        Path.home() / "models",
+    ]
 
-    for p in sorted(models_dir.glob("vosk-model-*/")):
-        if p.is_dir() and (p / "conf").exists():
-            os.environ["VOSK_MODEL_PATH"] = str(p)
-            return
+    for models_dir in search_dirs:
+        if not models_dir.exists():
+            continue
+        for p in sorted(models_dir.glob("vosk-model-*/")):
+            if p.is_dir():
+                os.environ["VOSK_MODEL_PATH"] = str(p)
+                return
 
 
 def _infer_upload_suffix(upload: UploadFile) -> str:

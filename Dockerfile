@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /app/models \
  && wget -q https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip -O /tmp/vosk-model.zip \
  && unzip -q /tmp/vosk-model.zip -d /app/models \
- && rm /tmp/vosk-model.zip
+ && rm /tmp/vosk-model.zip \
+ && ls -la /app/models/vosk-model-small-en-us-0.15/
 
 # Copy ALL source first (needed for editable install to find the signaction package)
 COPY pyproject.toml ./

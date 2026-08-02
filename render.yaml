@@ -9,6 +9,8 @@ services:
         value: /app/signaction_assets
       - key: SIGNACTION_CORS_ORIGINS
         value: "*"
+      - key: VOSK_MODEL_PATH
+        value: /app/models/vosk-model-small-en-us-0.15
       - key: PORT
         value: "8000"
     healthCheckPath: /health

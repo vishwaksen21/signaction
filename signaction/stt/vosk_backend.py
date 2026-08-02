@@ -20,11 +20,26 @@ class VoskBackend:
     @classmethod
     def from_env(cls) -> "VoskBackend":
         p = os.environ.get("VOSK_MODEL_PATH")
-        if not p:
-            raise ModelNotConfiguredError(
-                "VOSK_MODEL_PATH is not set. Download a Vosk model and set this env var."
-            )
-        return cls(model_path=Path(p))
+        if p and Path(p).exists():
+            return cls(model_path=Path(p))
+
+        # Fallback: search common locations
+        search_roots = [
+            Path(__file__).resolve().parents[2] / "models",
+            Path("/app/models"),
+            Path(__file__).resolve().parents[3] / "models",
+        ]
+        for root in search_roots:
+            if not root.exists():
+                continue
+            for candidate in sorted(root.glob("vosk-model-*/")):
+                if candidate.is_dir():
+                    os.environ["VOSK_MODEL_PATH"] = str(candidate)
+                    return cls(model_path=candidate)
+
+        raise ModelNotConfiguredError(
+            "VOSK_MODEL_PATH is not set. Download a Vosk model and set this env var."
+        )
 
     def transcribe(self, audio_path: Path) -> str:
         if not self.model_path.exists():
