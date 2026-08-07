@@ -158,7 +158,7 @@ async def translate_speech(file: UploadFile = File(...)) -> TranslateSpeechRespo
                 pass
 
     gloss = glossify(transcript)
-    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=True)
+    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=False)
 
     lex = SignLexicon(assets_dir=settings.assets_dir)
     tokens_out: list[str] = []

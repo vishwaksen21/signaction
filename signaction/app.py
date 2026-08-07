@@ -47,7 +47,7 @@ def main() -> None:
         if model_path.strip():
             os.environ["VOSK_MODEL_PATH"] = model_path.strip()
 
-        backend = st.selectbox("Speech backend", options=["vosk"], index=0)
+        backend = st.selectbox("Speech backend", options=["vosk", "whisper"], index=0)
 
         audio_bytes: bytes | None = None
 

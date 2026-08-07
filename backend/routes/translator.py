@@ -50,7 +50,7 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
     settings = get_settings()
 
     gloss = glossify(req.text)
-    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=True)
+    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=False)
 
     lex = SignLexicon(assets_dir=settings.assets_dir)
 
@@ -65,10 +65,8 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
             tokens_out.append(item.token)
             gestures.append(_asset_url_for(resolved.media_path, assets_dir=settings.assets_dir))
         else:
-            # Fingerspell the word letter by letter using real ISL letter videos
-            spelled = _fingerspell(item.token, lex, settings.assets_dir)
-            for label, url in spelled:
-                tokens_out.append(label)
-                gestures.append(url)
+            # Word has no direct video, use the AI fallback animation generator
+            tokens_out.append(item.token)
+            gestures.append(f"/placeholder/{item.token}.gif")
 
     return TranslateResponse(tokens=tokens_out, gestures=gestures, gloss=gloss.gloss)

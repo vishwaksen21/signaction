@@ -48,11 +48,11 @@ def main(argv: list[str] | None = None) -> int:
 
     p_audio = sub.add_parser("audio", help="Transcribe an audio file then translate")
     p_audio.add_argument("--path", type=Path, required=True)
-    p_audio.add_argument("--backend", choices=["vosk"], default="vosk")
+    p_audio.add_argument("--backend", choices=["vosk", "whisper"], default="vosk")
 
     p_mic = sub.add_parser("mic", help="Record microphone then translate")
     p_mic.add_argument("--seconds", type=float, default=4.0)
-    p_mic.add_argument("--backend", choices=["vosk"], default="vosk")
+    p_mic.add_argument("--backend", choices=["vosk", "whisper"], default="vosk")
 
     parser.add_argument(
         "--out",

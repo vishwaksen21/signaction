@@ -11,8 +11,29 @@ class Settings:
     cors_origins: list[str]
 
 
+def load_env_file(repo_root: Path) -> None:
+    env_path = repo_root / ".env"
+    if env_path.exists():
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k:
+                            os.environ.setdefault(k, v)
+        except Exception:
+            pass
+
+
 def get_settings() -> Settings:
     repo_root = Path(__file__).resolve().parents[1]
+    load_env_file(repo_root)
+
     assets_dir = Path(os.environ.get("SIGNACTION_ASSETS_DIR", repo_root / "signaction_assets"))
 
     cors_raw = os.environ.get("SIGNACTION_CORS_ORIGINS", "*").strip()

@@ -14,6 +14,16 @@ export default function TranslatorPage() {
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
 
+  const handleTranslateText = () => {
+    translateSpeech.reset();
+    translateText.mutate({ text });
+  };
+
+  const handleTranslateSpeech = (file: File) => {
+    translateText.reset();
+    translateSpeech.mutate({ file });
+  };
+
   const active = translateSpeech.data ?? translateText.data;
   const isLoading = translateText.isPending || translateSpeech.isPending;
   const error = (translateText.error ?? translateSpeech.error) as Error | null;
@@ -157,8 +167,8 @@ export default function TranslatorPage() {
               <TranslatorInput
                 text={text}
                 onTextChange={setText}
-                onTranslateText={() => translateText.mutate({ text })}
-                onTranslateSpeech={(file: File) => translateSpeech.mutate({ file })}
+                onTranslateText={handleTranslateText}
+                onTranslateSpeech={handleTranslateSpeech}
                 loading={isLoading}
                 error={error?.message ?? null}
               />

@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from signaction.placeholder_assets import generate_placeholder_gif
+from signaction.ai_fallback import generate_ai_fallback_gif
 
 from ..settings import get_settings
 
@@ -72,7 +72,7 @@ def placeholder_gif(token: str) -> Response:
     # Generate placeholder in-memory.
     tmp_dir = settings.assets_dir / ".placeholders"
     out_path = tmp_dir / f"{safe}.gif"
-    generate_placeholder_gif(safe, out_path)
+    generate_ai_fallback_gif(safe, out_path)
     data = out_path.read_bytes()
 
     return Response(content=data, media_type="image/gif")

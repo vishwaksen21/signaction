@@ -5,14 +5,18 @@ from typing import Literal
 
 from ..exceptions import ModelNotConfiguredError
 from .vosk_backend import VoskBackend
+from .whisper_backend import FasterWhisperBackend
 
 
-BackendName = Literal["vosk"]
+BackendName = Literal["vosk", "whisper"]
 
 
 def transcribe_file(audio_path: Path, *, backend: BackendName = "vosk") -> str:
     if backend == "vosk":
         stt = VoskBackend.from_env()
+        return stt.transcribe(audio_path)
+    elif backend == "whisper":
+        stt = FasterWhisperBackend()
         return stt.transcribe(audio_path)
 
     raise ModelNotConfiguredError(f"Unsupported backend: {backend}")

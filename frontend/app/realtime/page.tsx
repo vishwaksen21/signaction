@@ -48,7 +48,7 @@ export default function RealtimePage() {
           type: rec.mimeType,
         });
         const res = await translateSpeechOnce(file);
-        setTranscript((prev) => (prev ? prev + ' ' : '') + res.transcript);
+        setTranscript(res.transcript);
         setTokens(res.tokens);
         setGestures(res.gestures);
       } catch (err) {
