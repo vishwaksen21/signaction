@@ -17,20 +17,21 @@ RUN mkdir -p /app/models \
  && rm /tmp/vosk-model.zip \
  && ls -la /app/models/vosk-model-small-en-us-0.15/
 
-# Copy ALL source first (needed for editable install to find the signaction package)
+# Copy source files
 COPY pyproject.toml ./
 COPY signaction/ ./signaction/
 COPY backend/ ./backend/
 COPY signaction_assets/ ./signaction_assets/
 
-# Install Python dependencies (now signaction/ exists for pip install -e .)
+# Install Python dependencies (regular install, NOT editable — editable needs .git)
 RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -e ".[video]" \
+ && pip install --no-cache-dir ".[video]" \
  && pip install --no-cache-dir google-genai python-dotenv \
  && python -m spacy download en_core_web_sm
 
 ENV SIGNACTION_ASSETS_DIR=/app/signaction_assets
 ENV VOSK_MODEL_PATH=/app/models/vosk-model-small-en-us-0.15
+ENV PYTHONPATH=/app
 ENV PORT=8000
 
 EXPOSE 8000
