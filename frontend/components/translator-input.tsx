@@ -196,14 +196,20 @@ export function TranslatorInput({
           {/* Transcribe Button */}
           <button
             onClick={() => audioFile && onTranslateSpeech(audioFile)}
-            disabled={loading || !audioFile}
+            disabled={loading || !audioFile || converting}
             className="btn-primary w-full flex items-center justify-center gap-2"
           >
             <Mic2 size={18} />
-            Transcribe & Translate
+            {converting ? 'Converting Audio…' : 'Transcribe & Translate'}
           </button>
 
-          {audioFile && (
+          {converting && (
+            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-apple-caption flex items-center gap-2">
+              <span className="animate-spin">⏳</span> Converting audio to WAV format…
+            </div>
+          )}
+
+          {audioFile && !converting && (
             <div className="p-3 rounded-lg bg-apple-surface-pearl border border-apple-primary text-apple-primary text-apple-caption">
               📁 {audioFile.name}
             </div>
