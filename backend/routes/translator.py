@@ -71,6 +71,14 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
         else:
             clean_token = item.token.lower().strip()
             yt_match = yt_dict.get(clean_token)
+            if not yt_match:
+                from signaction.nlp import _load_nlp
+                nlp = _load_nlp()
+                doc = nlp(clean_token)
+                if len(doc) > 0:
+                    lemma = doc[0].lemma_.lower().strip()
+                    yt_match = yt_dict.get(lemma)
+
             if yt_match:
                 tokens_out.append(item.token)
                 gestures.append(yt_match["youtubeUrl"])

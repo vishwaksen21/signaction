@@ -79,8 +79,50 @@ def placeholder_gif(token: str) -> Response:
 
 
 import json
+import re
+from signaction.nlp import _load_nlp
 
 _YT_DICT_CACHE = None
+
+def _build_semantic_dictionary(raw_dict: dict) -> dict:
+    nlp = _load_nlp()
+    semantic_dict = {}
+
+    for raw_key, record in raw_dict.items():
+        # 1. Clean the key (remove (sign 1), sign 2, numbers, parentheses)
+        clean = raw_key.lower().strip()
+        clean = re.sub(r"\(.*?\)", "", clean)
+        clean = re.sub(r"\bsign\s+\d+\b", "", clean)
+        clean = re.sub(r"\b\d+\b", "", clean)
+        clean = clean.strip()
+        
+        # 2. Split by commas/slashes to find synonyms
+        synonyms = [s.strip() for s in re.split(r"[,/]", clean) if s.strip()]
+        
+        # Add the raw key itself to preserve exact lookups
+        synonyms.append(raw_key.lower().strip())
+        
+        for syn in synonyms:
+            # Map the clean synonym phrase itself
+            semantic_dict[syn] = record
+            
+            # 3. Use SpaCy to extract lemmas for each individual word
+            doc = nlp(syn)
+            for token in doc:
+                if token.is_space or token.is_punct or token.is_stop:
+                    continue
+                lemma = (token.lemma_ or "").strip().lower()
+                if lemma and lemma != "-pron-":
+                    # Map the lemma
+                    if lemma not in semantic_dict:
+                        semantic_dict[lemma] = record
+                
+                # Also map the raw word token
+                word = token.text.strip().lower()
+                if word and word not in semantic_dict:
+                    semantic_dict[word] = record
+
+    return semantic_dict
 
 @router.get("/api/youtube-dictionary")
 def get_youtube_dictionary() -> dict:
@@ -93,7 +135,8 @@ def get_youtube_dictionary() -> dict:
     if json_path.exists():
         try:
             with open(json_path, "r", encoding="utf-8") as f:
-                _YT_DICT_CACHE = json.load(f)
+                raw_dict = json.load(f)
+                _YT_DICT_CACHE = _build_semantic_dictionary(raw_dict)
                 return _YT_DICT_CACHE
         except Exception:
             return {}
