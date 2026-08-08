@@ -188,7 +188,12 @@ async def translate_speech(file: UploadFile = File(...)) -> TranslateSpeechRespo
                 tokens_out.append(item.token)
                 gestures.append(yt_match["youtubeUrl"])
             else:
-                # Omit unmapped tokens (AI fallback is turned off)
-                pass
+                # Word is not found anywhere. Fingerspell it letter by letter!
+                for char in item.token.upper():
+                    if "A" <= char <= "Z":
+                        resolved_char = lex.resolve(char)
+                        if resolved_char and resolved_char.media_path.exists():
+                            tokens_out.append(char)
+                            gestures.append(_asset_url_for(resolved_char.media_path, assets_dir=settings.assets_dir))
 
     return TranslateSpeechResponse(transcript=transcript, tokens=tokens_out, gestures=gestures, gloss=gloss.gloss)

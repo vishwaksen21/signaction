@@ -11,7 +11,6 @@ import { useState } from 'react';
 const links = [
   { href: '/', label: 'Home' },
   { href: '/translator', label: 'Translator' },
-  { href: '/youtube', label: 'YouTube Player' },
   { href: '/realtime', label: 'Real-time' },
   { href: '/dictionary', label: 'Dictionary' },
   { href: '/about', label: 'About' },
