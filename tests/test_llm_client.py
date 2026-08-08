@@ -66,6 +66,66 @@ def test_parse_two_handed_motion_params() -> None:
     assert np.allclose(r_motion(math.pi / 2), [0.0, 10.0])
     assert np.allclose(l_motion(math.pi / 2), [0.0, -10.0])
 
+
+def test_parse_llm_keyframe_pattern_clamps_and_interpolates() -> None:
+    raw_params = {
+        "token": "BIRTHDAY",
+        "description": "Hands rise from chest and open near chin",
+        "confidence": 0.8,
+        "keyframes": [
+            {
+                "t": 0.0,
+                "r_elbow_offset": [200, 10],
+                "l_elbow_offset": [-200, 10],
+                "r_wrist_landmark": "CHEST",
+                "l_wrist_landmark": "CHEST",
+                "r_wrist_offset": [20, 20],
+                "l_wrist_offset": [-20, 20],
+                "r_hand": "fist",
+                "l_hand": "fist",
+                "r_hand_angle_degrees": 90,
+                "l_hand_angle_degrees": 90,
+            },
+            {
+                "t": 0.5,
+                "r_elbow_offset": [20, 0],
+                "l_elbow_offset": [-20, 0],
+                "r_wrist_landmark": "CHIN",
+                "l_wrist_landmark": "CHIN",
+                "r_wrist_offset": [10, 10],
+                "l_wrist_offset": [-10, 10],
+                "r_hand": "flat",
+                "l_hand": "flat",
+                "r_hand_angle_degrees": -45,
+                "l_hand_angle_degrees": -135,
+            },
+            {
+                "t": 1.0,
+                "r_elbow_offset": [20, 10],
+                "l_elbow_offset": [-20, 10],
+                "r_wrist_landmark": "CHIN",
+                "l_wrist_landmark": "CHIN",
+                "r_wrist_offset": [30, -10],
+                "l_wrist_offset": [-30, -10],
+                "r_hand": "flat",
+                "l_hand": "flat",
+                "r_hand_angle_degrees": -20,
+                "l_hand_angle_degrees": -160,
+            },
+        ],
+    }
+
+    parsed = _parse_llm_sign_params(raw_params)
+    assert parsed["uses_keyframes"] is True
+    assert parsed["description"] == "Hands rise from chest and open near chin"
+    assert parsed["r_elbow_offset"][0] == 80.0
+    assert parsed["l_elbow_offset"][0] == -80.0
+
+    start = parsed["r_motion"](0.0)
+    end = parsed["r_motion"](1.0)
+    assert np.allclose(start, [180.0, 140.0])
+    assert np.allclose(end, [190.0, 65.0])
+
 def test_generate_ai_fallback_gif_falls_back_without_key(tmp_path: Path) -> None:
     # Temporarily remove keys if present
     old_gemini = os.environ.get("GEMINI_API_KEY")
@@ -134,6 +194,11 @@ def test_call_openai_api_keypoint_params(mock_urlopen) -> None:
     assert res["target_landmark"] == "FOREHEAD"
     assert res["description"] == "OpenAI description"
 
+    request = mock_urlopen.call_args.args[0]
+    body = json.loads(request.data.decode("utf-8"))
+    assert body["response_format"]["type"] == "json_schema"
+    assert body["response_format"]["json_schema"]["strict"] is True
+
 
 @patch("urllib.request.urlopen")
 def test_call_llm_sign_params_fallback_flow(mock_urlopen) -> None:
@@ -156,4 +221,3 @@ def test_call_llm_sign_params_fallback_flow(mock_urlopen) -> None:
     assert res is not None
     assert res["target_landmark"] == "CHEST"
     assert res["description"] == "Fallback to OpenAI"
-

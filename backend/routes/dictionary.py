@@ -76,3 +76,25 @@ def placeholder_gif(token: str) -> Response:
     data = out_path.read_bytes()
 
     return Response(content=data, media_type="image/gif")
+
+
+import json
+
+_YT_DICT_CACHE = None
+
+@router.get("/api/youtube-dictionary")
+def get_youtube_dictionary() -> dict:
+    global _YT_DICT_CACHE
+    if _YT_DICT_CACHE is not None:
+        return _YT_DICT_CACHE
+
+    repo_root = Path(__file__).resolve().parents[2]
+    json_path = repo_root / "sign_videos.json"
+    if json_path.exists():
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                _YT_DICT_CACHE = json.load(f)
+                return _YT_DICT_CACHE
+        except Exception:
+            return {}
+    return {}

@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import math
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Any
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -142,6 +142,136 @@ HANDSHAPES: dict[str, Callable] = {
     "hook":  draw_hook,
     "pinch": draw_pinch,
 }
+
+LANDMARKS: dict[str, np.ndarray] = {
+    "FOREHEAD": FOREHEAD,
+    "CHIN": CHIN,
+    "CHEST": CHEST,
+    "CHEEK_R": CHEEK_R,
+    "CHEEK_L": CHEEK_L,
+    "NEUTRAL": NEUTRAL,
+}
+
+ALLOWED_HANDS = set(HANDSHAPES)
+
+
+def _clamp_float(value: Any, low: float, high: float, default: float) -> float:
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        n = default
+    return max(low, min(high, n))
+
+
+def _pair(value: Any, *, low: float, high: float, default: tuple[float, float]) -> np.ndarray:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return np.array(default, dtype=float)
+    return np.array(
+        [
+            _clamp_float(value[0], low, high, default[0]),
+            _clamp_float(value[1], low, high, default[1]),
+        ],
+        dtype=float,
+    )
+
+
+def _hand(value: Any, default: str = "flat") -> str:
+    name = str(value or default).lower()
+    return name if name in ALLOWED_HANDS else default
+
+
+def _landmark(value: Any) -> np.ndarray:
+    return LANDMARKS.get(str(value or "NEUTRAL").upper(), NEUTRAL)
+
+
+def _lerp(a: np.ndarray, b: np.ndarray, amount: float) -> np.ndarray:
+    return a + (b - a) * amount
+
+
+def _normalize_keyframes(params: dict) -> list[dict]:
+    raw_keyframes = params.get("keyframes")
+    if not isinstance(raw_keyframes, list):
+        return []
+
+    normalized: list[dict] = []
+    for idx, raw in enumerate(raw_keyframes[:6]):
+        if not isinstance(raw, dict):
+            continue
+
+        fallback_t = 0.0 if len(raw_keyframes) <= 1 else idx / max(1, len(raw_keyframes) - 1)
+        frame = {
+            "t": _clamp_float(raw.get("t"), 0.0, 1.0, fallback_t),
+            "r_elbow_offset": _pair(
+                raw.get("r_elbow_offset"),
+                low=-60.0,
+                high=80.0,
+                default=(30.0, 10.0),
+            ),
+            "l_elbow_offset": _pair(
+                raw.get("l_elbow_offset"),
+                low=-80.0,
+                high=80.0,
+                default=(-25.0, 35.0),
+            ),
+            "r_wrist": _landmark(raw.get("r_wrist_landmark"))
+            + _pair(raw.get("r_wrist_offset"), low=-80.0, high=80.0, default=(0.0, 0.0)),
+            "l_wrist": _landmark(raw.get("l_wrist_landmark"))
+            + _pair(raw.get("l_wrist_offset"), low=-80.0, high=80.0, default=(0.0, 35.0)),
+            "r_hand": _hand(raw.get("r_hand")),
+            "l_hand": _hand(raw.get("l_hand")),
+            "r_hand_angle": _clamp_float(raw.get("r_hand_angle_degrees"), -180.0, 180.0, -30.0),
+            "l_hand_angle": _clamp_float(raw.get("l_hand_angle_degrees"), -180.0, 180.0, -90.0),
+        }
+        normalized.append(frame)
+
+    if len(normalized) < 3:
+        return []
+
+    normalized.sort(key=lambda frame: frame["t"])
+    normalized[0]["t"] = 0.0
+    normalized[-1]["t"] = 1.0
+    return normalized
+
+
+def _sample_keyframes(keyframes: list[dict], progress: float) -> dict:
+    progress = _clamp_float(progress, 0.0, 1.0, 0.0)
+    prev_frame = keyframes[0]
+    next_frame = keyframes[-1]
+
+    for idx in range(1, len(keyframes)):
+        if progress <= keyframes[idx]["t"]:
+            prev_frame = keyframes[idx - 1]
+            next_frame = keyframes[idx]
+            break
+
+    span = max(0.001, next_frame["t"] - prev_frame["t"])
+    local = _clamp_float((progress - prev_frame["t"]) / span, 0.0, 1.0, 0.0)
+    eased = 0.5 - 0.5 * math.cos(local * math.pi)
+
+    # Handshapes change discretely at the midpoint so fingers do not morph into odd hybrids.
+    hand_frame = next_frame if local >= 0.5 else prev_frame
+    return {
+        "r_elbow_offset": _lerp(prev_frame["r_elbow_offset"], next_frame["r_elbow_offset"], eased),
+        "l_elbow_offset": _lerp(prev_frame["l_elbow_offset"], next_frame["l_elbow_offset"], eased),
+        "r_wrist": _lerp(prev_frame["r_wrist"], next_frame["r_wrist"], eased),
+        "l_wrist": _lerp(prev_frame["l_wrist"], next_frame["l_wrist"], eased),
+        "r_hand": hand_frame["r_hand"],
+        "l_hand": hand_frame["l_hand"],
+        "r_hand_angle": _clamp_float(
+            prev_frame["r_hand_angle"]
+            + (next_frame["r_hand_angle"] - prev_frame["r_hand_angle"]) * eased,
+            -180.0,
+            180.0,
+            -30.0,
+        ),
+        "l_hand_angle": _clamp_float(
+            prev_frame["l_hand_angle"]
+            + (next_frame["l_hand_angle"] - prev_frame["l_hand_angle"]) * eased,
+            -180.0,
+            180.0,
+            -90.0,
+        ),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -847,21 +977,35 @@ def _draw_skeleton(draw: ImageDraw.ImageDraw,
 
 
 def _parse_llm_sign_params(params: dict) -> dict:
-    landmark_map = {
-        "FOREHEAD": FOREHEAD,
-        "CHIN": CHIN,
-        "CHEST": CHEST,
-        "CHEEK_R": CHEEK_R,
-        "CHEEK_L": CHEEK_L,
-        "NEUTRAL": NEUTRAL
-    }
+    keyframes = _normalize_keyframes(params)
+    if "keyframes" in params and not keyframes:
+        raise ValueError("Invalid LLM keyframe animation pattern")
+
+    if keyframes:
+        first = _sample_keyframes(keyframes, 0.0)
+        return {
+            "uses_keyframes": True,
+            "keyframes": keyframes,
+            "target": np.array([0.0, 0.0], dtype=float),
+            "r_motion": lambda progress: _sample_keyframes(keyframes, progress)["r_wrist"],
+            "l_motion": lambda progress: _sample_keyframes(keyframes, progress)["l_wrist"],
+            "r_elbow_offset": first["r_elbow_offset"],
+            "l_elbow_offset": first["l_elbow_offset"],
+            "l_wrist_offset": np.array([0.0, 0.0], dtype=float),
+            "r_hand": first["r_hand"],
+            "l_hand": first["l_hand"],
+            "r_hand_angle": first["r_hand_angle"],
+            "l_hand_angle": first["l_hand_angle"],
+            "description": params.get("description", "OpenAI keyframe animation"),
+        }
+
     target_name = params.get("target_landmark", "NEUTRAL").upper()
-    target = landmark_map.get(target_name, NEUTRAL)
+    target = LANDMARKS.get(target_name, NEUTRAL)
     
     # Right-hand motion
     motion_type = params.get("motion_type", "none").lower()
-    amp = float(params.get("motion_amplitude", 10.0))
-    freq = float(params.get("motion_frequency", 1.0))
+    amp = _clamp_float(params.get("motion_amplitude"), 0.0, 40.0, 10.0)
+    freq = _clamp_float(params.get("motion_frequency"), 0.0, 4.0, 1.0)
     
     if motion_type == "vertical_wave":
         r_motion = lambda p: np.array([0.0, _osc(p, amp, freq)])
@@ -876,8 +1020,8 @@ def _parse_llm_sign_params(params: dict) -> dict:
         
     # Left-hand motion (defaults to mirroring right-hand or separate sines)
     l_motion_type = params.get("l_motion_type", "none").lower()
-    l_amp = float(params.get("l_motion_amplitude", amp))
-    l_freq = float(params.get("l_motion_frequency", freq))
+    l_amp = _clamp_float(params.get("l_motion_amplitude"), 0.0, 40.0, amp)
+    l_freq = _clamp_float(params.get("l_motion_frequency"), 0.0, 4.0, freq)
     
     if l_motion_type == "mirror":
         l_motion = lambda p: np.array([-r_motion(p)[0], r_motion(p)[1]])
@@ -896,16 +1040,32 @@ def _parse_llm_sign_params(params: dict) -> dict:
         l_motion = lambda p: np.array([0.0, 0.0])
         
     return {
-        "r_elbow_offset": np.array(params.get("r_elbow_offset", [35, 10]), dtype=float),
-        "l_elbow_offset": np.array(params.get("l_elbow_offset", [-35, 10]), dtype=float),
-        "l_wrist_offset": np.array(params.get("l_wrist_offset", [0, 40]), dtype=float),
+        "uses_keyframes": False,
+        "r_elbow_offset": _pair(
+            params.get("r_elbow_offset"),
+            low=-60.0,
+            high=80.0,
+            default=(35.0, 10.0),
+        ),
+        "l_elbow_offset": _pair(
+            params.get("l_elbow_offset"),
+            low=-80.0,
+            high=80.0,
+            default=(-35.0, 10.0),
+        ),
+        "l_wrist_offset": _pair(
+            params.get("l_wrist_offset"),
+            low=-80.0,
+            high=80.0,
+            default=(0.0, 40.0),
+        ),
         "target": target,
         "r_motion": r_motion,
         "l_motion": l_motion,
-        "r_hand": params.get("r_hand", "flat"),
-        "l_hand": params.get("l_hand", "flat"),
-        "r_hand_angle": float(params.get("r_hand_angle_degrees", -30.0)),
-        "l_hand_angle": float(params.get("l_hand_angle_degrees", -90.0)),
+        "r_hand": _hand(params.get("r_hand")),
+        "l_hand": _hand(params.get("l_hand")),
+        "r_hand_angle": _clamp_float(params.get("r_hand_angle_degrees"), -180.0, 180.0, -30.0),
+        "l_hand_angle": _clamp_float(params.get("l_hand_angle_degrees"), -180.0, 180.0, -90.0),
         "description": params.get("description", "AI Generated Motion")
     }
 
@@ -980,6 +1140,7 @@ def generate_ai_fallback_gif(
     target      = sign["target"]
     r_motion_fn = sign["r_motion"]
     l_motion_fn = sign.get("l_motion")
+    uses_keyframes = bool(sign.get("uses_keyframes"))
 
     frames: list[Image.Image] = []
 
@@ -987,27 +1148,43 @@ def generate_ai_fallback_gif(
         img  = Image.new("RGB", (W, H), color=BG_COLOR)
         draw = ImageDraw.Draw(img)
 
-        # Smooth phase (ease-in-out via cosine)
-        t      = i / frame_count
-        phase  = 0.5 * (1 - math.cos(t * 2 * math.pi * speed_factor)) + phase_offset
+        if uses_keyframes:
+            progress = i / max(1, frame_count - 1)
+            pose = _sample_keyframes(sign["keyframes"], progress)
+            r_elbow = R_SHOULDER + pose["r_elbow_offset"]
+            l_elbow = L_SHOULDER + pose["l_elbow_offset"]
+            r_wrist = pose["r_wrist"]
+            l_wrist = pose["l_wrist"]
+            r_hand = pose["r_hand"]
+            l_hand = pose["l_hand"]
+            r_angle = pose["r_hand_angle"]
+            l_angle = pose["l_hand_angle"]
+        else:
+            # Smooth phase (ease-in-out via cosine)
+            t = i / frame_count
+            phase = 0.5 * (1 - math.cos(t * 2 * math.pi * speed_factor)) + phase_offset
 
-        r_elbow = R_SHOULDER + r_elbow_off
-        l_elbow = L_SHOULDER + l_elbow_off
-        
-        # Calculate left wrist with optional dynamic movement
-        l_wrist = l_elbow + l_wrist_off
-        if l_motion_fn is not None:
-            l_wrist = l_wrist + l_motion_fn(phase)
+            r_elbow = R_SHOULDER + r_elbow_off
+            l_elbow = L_SHOULDER + l_elbow_off
 
-        # Dominant wrist = target landmark + sign-specific oscillation
-        r_wrist = target + r_motion_fn(phase)
+            # Calculate left wrist with optional dynamic movement
+            l_wrist = l_elbow + l_wrist_off
+            if l_motion_fn is not None:
+                l_wrist = l_wrist + l_motion_fn(phase)
+
+            # Dominant wrist = target landmark + sign-specific oscillation
+            r_wrist = target + r_motion_fn(phase)
+            r_hand = sign["r_hand"]
+            l_hand = sign["l_hand"]
+            r_angle = sign["r_hand_angle"]
+            l_angle = sign["l_hand_angle"]
 
         _draw_skeleton(
             draw,
             r_elbow=r_elbow, r_wrist=r_wrist,
             l_elbow=l_elbow, l_wrist=l_wrist,
-            r_hand=sign["r_hand"], l_hand=sign["l_hand"],
-            r_angle=sign["r_hand_angle"], l_angle=sign["l_hand_angle"],
+            r_hand=r_hand, l_hand=l_hand,
+            r_angle=r_angle, l_angle=l_angle,
         )
 
         # Label overlay

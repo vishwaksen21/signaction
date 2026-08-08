@@ -1,64 +1,164 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface SignViewerProps {
   url: string;
   onEnded?: () => void;
   /** Display duration in ms for static images/SVGs. Defaults to 3000. */
   durationMs?: number;
+  playing?: boolean;
 }
 
-export function SignViewer({ url, onEnded, durationMs = 3000 }: SignViewerProps) {
+function extractYoutubeVideoId(url: string): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2]?.length === 11) ? match[2] : null;
+}
+
+export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }: SignViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Auto-play and restart when URL changes
-  useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = 0;
-    videoRef.current.play().catch(() => {}); // ignore autoplay policy errors silently
-  }, [url]);
-
-  if (!url) {
-    return <div className="py-8 text-sm text-slate-400">No gesture URL</div>;
-  }
-
-  const lower = url.toLowerCase();
-
-  // For video files, use native playback with onEnded
-  if (lower.endsWith('.mp4')) {
-    return (
-      <div className="w-full h-full flex items-center justify-center relative">
-        <video
-          ref={videoRef}
-          src={url}
-          className="max-h-[360px] w-auto rounded-lg object-contain"
-          playsInline
-          preload="auto"
-          autoPlay
-          muted
-          onEnded={onEnded}
-          onError={(e) => setError(`Video error: ${e.currentTarget.error?.message || 'Unknown'}`)}
-        />
-        {error && <div className="text-xs text-red-400 absolute bottom-2">{error}</div>}
-      </div>
-    );
-  }
-
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const ytPlayerRef = useRef<any>(null);
+  
   // Keep latest onEnded in a ref to avoid resetting the timer if the function identity changes
   const onEndedRef = useRef(onEnded);
+  
+  const lower = url ? url.toLowerCase() : '';
+  const isYoutube = lower.includes('youtube.com') || lower.includes('youtu.be');
+  const youtubeVideoId = isYoutube ? extractYoutubeVideoId(url) : null;
+  const uniqueId = useMemo(() => {
+    return youtubeVideoId ? `yt-player-${youtubeVideoId}-${Math.random().toString(36).substring(2, 9)}` : '';
+  }, [youtubeVideoId]);
+
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
 
+  // Auto-play and restart when URL changes or playing state changes
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || isYoutube) return;
+    if (playing) {
+      if (el.ended) {
+        el.currentTime = 0;
+      }
+      el.play().catch(() => {}); // ignore autoplay policy errors silently
+    } else {
+      el.pause();
+    }
+  }, [url, isYoutube, playing]);
+
+  // YouTube API Integration for auto-advance on playback end
+  useEffect(() => {
+    if (!youtubeVideoId || !iframeRef.current) return;
+
+    let cancelled = false;
+    let player: any;
+    let interval: ReturnType<typeof setInterval>;
+
+    const onPlayerReady = () => {
+      if (!iframeRef.current || cancelled) return;
+      player = new (window as any).YT.Player(iframeRef.current, {
+        events: {
+          onReady: (event: any) => {
+            if (cancelled) return;
+            ytPlayerRef.current = event.target;
+            if (playing) {
+              event.target.playVideo();
+            } else {
+              event.target.pauseVideo();
+            }
+          },
+          onStateChange: (event: any) => {
+            // YT.PlayerState.ENDED is 0
+            if (event.data === 0 && !cancelled) {
+              onEndedRef.current?.();
+            }
+          },
+          onError: () => {
+            if (!cancelled) {
+              setTimeout(() => {
+                if (!cancelled) onEndedRef.current?.();
+              }, 1500);
+            }
+          },
+        },
+      });
+    };
+
+    const checkYTApi = () => {
+      if ((window as any).YT && (window as any).YT.Player) {
+        onPlayerReady();
+        if (interval) clearInterval(interval);
+      }
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      onPlayerReady();
+    } else {
+      interval = setInterval(checkYTApi, 100);
+      if (!document.getElementById('youtube-iframe-api-script')) {
+        const tag = document.createElement('script');
+        tag.id = 'youtube-iframe-api-script';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      }
+    }
+
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+      ytPlayerRef.current = null;
+    };
+  }, [youtubeVideoId]);
+
+  // Play/Pause YouTube video dynamically on playing prop change
+  useEffect(() => {
+    const player = ytPlayerRef.current;
+    if (!player || !isYoutube) return;
+    try {
+      if (playing) {
+        // If the video has already ended, seek to start before playing
+        if (player.getPlayerState && player.getPlayerState() === 0) {
+          player.seekTo(0);
+        }
+        player.playVideo();
+      } else {
+        player.pauseVideo();
+      }
+    } catch (e) {
+      // ignore player state lookup errors before API is fully ready
+    }
+  }, [playing, isYoutube]);
+
+  // Native video event listener with unmount check
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || isYoutube) return;
+
+    let cancelled = false;
+    const handleVideoEnded = () => {
+      if (!cancelled) {
+        onEndedRef.current?.();
+      }
+    };
+
+    el.addEventListener('ended', handleVideoEnded);
+    return () => {
+      cancelled = true;
+      el.removeEventListener('ended', handleVideoEnded);
+    };
+  }, [url, isYoutube]);
+
   // For GIFs: try to detect actual duration by loading the GIF metadata
   // For SVGs/static images: use the specified duration
   useEffect(() => {
-    if (!onEndedRef.current || lower.endsWith('.mp4')) return;
+    if (!url || !onEndedRef.current || lower.endsWith('.mp4') || isYoutube || !playing) return;
 
-    // For GIFs, we attempt to read frame count from the GIF header
-    // to calculate actual duration. Falls back to durationMs.
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
 
@@ -122,7 +222,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000 }: SignViewerProps)
         }
 
         if (frameCount > 0 && totalDelay > 0) {
-          return totalDelay;
+          return totalDelay + 300; // Add 300ms buffer to offset browser decode delay and slide crossfade duration
         }
       } catch {
         // If GIF parsing fails, use default
@@ -142,7 +242,47 @@ export function SignViewer({ url, onEnded, durationMs = 3000 }: SignViewerProps)
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [url, lower, durationMs]);
+  }, [url, lower, durationMs, isYoutube]);
+
+  // Now, place conditional renders AFTER all hook calls
+  if (!url) {
+    return <div className="py-8 text-sm text-slate-400">No gesture URL</div>;
+  }
+
+  // For YouTube embeds
+  if (isYoutube && youtubeVideoId) {
+    return (
+      <div className="w-full h-full relative">
+        <iframe
+          ref={iframeRef}
+          id={uniqueId}
+          src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=1&mute=1&controls=1&rel=0`}
+          className="w-full h-full border-0 rounded-lg"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  // For video files, use native playback
+  if (lower.endsWith('.mp4')) {
+    return (
+      <div className="w-full h-full flex items-center justify-center relative">
+        <video
+          ref={videoRef}
+          src={url}
+          className="max-h-[360px] w-auto rounded-lg object-contain"
+          playsInline
+          preload="auto"
+          autoPlay
+          muted
+          onError={(e) => setError(`Video error: ${e.currentTarget.error?.message || 'Unknown'}`)}
+        />
+        {error && <div className="text-xs text-red-400 absolute bottom-2">{error}</div>}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2 w-full h-full flex items-center justify-center relative">
