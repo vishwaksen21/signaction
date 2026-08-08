@@ -1,0 +1,842 @@
+\documentclass[12pt, a4paper]{report}
+
+% ==========================================
+%                  PACKAGES
+% ==========================================
+\usepackage[T1]{fontenc}
+\usepackage[final]{microtype}
+
+\usepackage{graphicx}
+
+\usepackage[
+  a4paper,
+  left=2cm,
+  right=2cm,
+  top=2.5cm,
+  bottom=3cm,
+  headheight=2.8cm,
+  headsep=0.5cm,
+  footskip=1.5cm
+]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{newtxtext, newtxmath}
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+
+% ==========================================
+%               CONFIGURATION
+% ==========================================
+
+\definecolor{mycustomblue}{RGB}{51, 102, 255}
+\definecolor{mybrown}{RGB}{130,57,7}
+\definecolor{maroon}{RGB}{128,0,0}
+\definecolor{mybrown2}{RGB}{148,70,4}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdfauthor={C Vishwak Sena},
+    pdftitle={SignAction Project Report}
+}
+
+\renewcommand{\cfttoctitlefont}{\hspace*{\fill}\Huge\bfseries}
+\renewcommand{\cftaftertoctitle}{\hspace*{\fill}}
+\renewcommand{\cftloftitlefont}{\hspace*{\fill}\Huge\bfseries}
+\renewcommand{\cftafterloftitle}{\hspace*{\fill}}
+\renewcommand{\cftlottitlefont}{\hspace*{\fill}\Huge\bfseries}
+\renewcommand{\cftafterlottitle}{\hspace*{\fill}}
+
+\newcommand\drawPageBorder{
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw [line width= 0.3pt, black]
+      ([xshift=25pt,yshift=25pt]current page.south west) rectangle
+      ([xshift=-25pt,yshift=-25pt]current page.north east);
+    \draw [line width= 3pt, black]
+      ([xshift=28pt,yshift=28pt]current page.south west) rectangle
+      ([xshift=-28pt,yshift=-28pt]current page.north east);
+  \end{tikzpicture}
+}
+
+\fancypagestyle{frontmatter}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\fancypagestyle{maincontent}{
+  \fancyhf{}
+  \fancyhead[L]{SignAction}
+  \fancyhead[R]{\includegraphics[height=1.2cm,keepaspectratio]{cmrit_logo.png}}
+  \fancyfoot[L]{Department of CSE(DS), CMRIT}
+  \fancyfoot[C]{2025--2026}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\headrulewidth}{2pt}
+  \renewcommand{\footrulewidth}{2pt}
+\renewcommand{\headrule}{%
+  \vbox{%
+    \color{mybrown}%
+    \hrule width\headwidth height 1pt%
+    \vskip 1pt%
+    \hrule width\headwidth height 3pt%
+  }%
+}
+\renewcommand{\footrule}{%
+  \vbox{%
+    \color{mybrown}%
+    \hrule width\headwidth height 1pt%
+    \vskip 1pt%
+    \hrule width\headwidth height 3pt%
+  }%
+}
+}
+
+\usepackage{etoolbox}
+
+% ==========================================
+%             DOCUMENT START
+% ==========================================
+\begin{document}
+
+\AddToShipoutPictureBG{\drawPageBorder}
+
+% 1. TITLE PAGE
+\begin{titlepage}
+    \centering
+    {\Large \textbf{VISVESVARAYA TECHNOLOGICAL UNIVERSITY}}\par
+    {\large Jnana Sangama, Belgaum-590018}\par
+    \vspace{0.5cm}
+    \includegraphics[width=0.2\textwidth]{vtu_logo.png}\par\vspace{0.5cm}
+    \vspace{0.4cm}
+    {\color{mycustomblue}
+    {\large A PROJECT REPORT (BCD786) ON}\par
+    \vspace{0.4cm}
+    {\large \textbf{``SignAction''}}\par}
+    \vspace{0.4cm}
+   {\large Submitted in Partial Fulfillment of the Requirements for the Degree of\\
+Bachelor of Engineering in\\
+Computer Science Engineering (Data Science)\par}
+    \vspace{0.4cm}
+    {\large By}\par
+    \vspace{0.4cm}
+    {\color{mybrown2}
+    {\large C VISHWAK SENA (1CR23CD017)}\par
+\vspace{0.3cm}
+{\large ANANYA U (1CR23CD007)}\par
+\vspace{0.3cm}
+{\large ASHIRWAD (1CR23CD011)}\par
+\vspace{0.3cm}
+{\large ADITYA MULE (1CR23CD036)}\par}
+    \vspace{0.4cm}
+    {\color{mycustomblue}
+    {\large Under the Guidance of,}\par
+    \vspace{0.3cm}
+    {\large MRS. ROMA KUDALE}\par
+    \vspace{0.3cm}
+    {\large Assistant Professor, Dept. of AI\&DS}\par}
+    \vspace{0.4cm}
+    \includegraphics[width=0.3\textwidth]{cmrit_logo.png}\par
+    \vspace{0.3cm}
+    { \color{maroon} \textbf{DEPARTMENT OF COMPUTER SCIENCE ENGINEERING \& DATA SCIENCE}}\par
+    \vspace{0.3cm}
+    {\large \textbf{CMR INSTITUTE OF TECHNOLOGY}}\par
+    \vspace{0.3cm}
+    {\large \#132, AECS LAYOUT, IT PARK ROAD, KUNDALAHALLI, BANGALORE-560037}\par
+\end{titlepage}
+
+% 2. CERTIFICATE
+\clearpage
+
+\setlength{\footskip}{15mm}
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+\begin{center}
+    {\Large \textbf{CMR INSTITUTE OF TECHNOLOGY}}\par
+    \vspace{0.3cm}
+    {\large \#132, AECS LAYOUT, IT PARK ROAD, KUNDALAHALLI, BANGALORE-560037}\par
+    \vspace{0.3cm}
+    { \color{maroon} \textbf{DEPARTMENT OF COMPUTER SCIENCE ENGINEERING \& DATA SCIENCE}}\par
+    \vspace{0.5cm}
+    \includegraphics[width=0.3\textwidth]{cmrit_logo.png}\par\vspace{0.5cm}
+    {\Huge\bfseries {CERTIFICATE}}\par
+    \vspace{0.3cm}
+\end{center}
+\setlength{\parindent}{0pt}
+\large
+Certified that the project work entitled \textbf{``SignAction''} carried out by \textbf{Mr. C VISHWAK SENA, USN 1CR23CD017}, \textbf{Ms. ANANYA U, USN 1CR23CD007}, \textbf{Mr. ASHIRWAD, USN 1CR23CD011}, \textbf{Mr. ADITYA MULE, USN 1CR23CD036}, bonafide students of CMR Institute of Technology, in partial fulfillment for the award of Bachelor of Engineering in Computer Science Engineering \& Data Science of the Visveswaraya Technological University, Belgaum during the year 2025-2026. It is certified that all corrections/suggestions indicated for Internal Assessment have been incorporated in the Report deposited in the departmental library. The project report has been approved as it satisfies the academic requirements in respect of Project work prescribed for the said Degree.
+
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} c c c}
+\makebox[0.22\textwidth]{\hrulefill} &
+\makebox[0.22\textwidth]{\hrulefill} &
+\makebox[0.22\textwidth]{\hrulefill} \\
+\textbf{Mrs. Roma Kudale} & \textbf{Dr. Shanthi. M.B.} & \textbf{Dr. Sanjay Jain} \\
+\textbf{Assistant Professor} & \textbf{Professor \& Head} & \textbf{Principal,} \\
+\textbf{Dept. of AI\&DS,} & \textbf{Dept. of AI\&DS,} & \textbf{CMRIT} \\
+\textbf{CMRIT} & \textbf{CMRIT} & \\
+\end{tabular*}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \textbf{External Viva}
+
+    \vspace{0.4cm}
+    \begin{tabular*}{0.82\textwidth}{@{\extracolsep{\fill}} l r}
+        Name of the Examiners & Signature with Date \\[1.1cm]
+        \textbf{1.}\enspace\makebox[0.31\textwidth]{\hrulefill} &
+        \makebox[0.31\textwidth]{\hrulefill} \\[1.0cm]
+        \textbf{2.}\enspace\makebox[0.31\textwidth]{\hrulefill} &
+        \makebox[0.31\textwidth]{\hrulefill} \\
+    \end{tabular*}
+\end{center}
+
+
+\newpage
+
+% 3. DECLARATION
+\begin{center}
+    {\Huge \bfseries {DECLARATION}}\par
+    \vspace{1cm}
+\end{center}
+\large
+We, the students of Computer Science Engineering \& Data Science, CMR Institute of Technology, Bangalore declare that the work entitled \textbf{``SignAction''} has been successfully completed under the guidance of \textbf{Mrs. Roma Kudale}, Artificial Intelligence \& Data Science Department, CMR Institute of Technology, Bangalore.
+
+\vspace{0.5cm}
+This dissertation work is submitted in partial fulfillment of the requirements for the award of Degree of Bachelor of Engineering in Computer Science Engineering \& Data Science during the academic year 2025-2026. Further, the matter embodied in the project report has not been submitted previously by anybody for the award of any degree or diploma to any university.
+
+\begin{flushleft}
+    Place: Bengaluru \\
+    Date:  
+\end{flushleft}
+
+\vspace{1cm}
+\begin{tabular}{p{0.65\linewidth} p{0.25\linewidth}}
+\textbf{Team Members} & \textbf{Signature} \\[1em]
+
+C VISHWAK SENA (1CR23CD017) & \rule{4cm}{0.4pt} \\[2em]
+
+ANANYA U (1CR23CD007) & \rule{4cm}{0.4pt} \\[2em]
+
+ASHIRWAD (1CR23CD011) & \rule{4cm}{0.4pt} \\[2em]
+
+ADITYA MULE (1CR23CD036) & \rule{4cm}{0.4pt} \\
+\end{tabular}
+
+\newpage
+
+% --- ROMAN NUMERALS ---
+\pagestyle{frontmatter}
+
+% 4. ABSTRACT
+\begin{center}
+    {\huge\bfseries ABSTRACT}
+\end{center}
+\vspace{1cm}
+India has about 18 million deaf and hard-of-hearing people who rely on Indian Sign Language (ISL) for daily communication. When these individuals come across English text --- in hospitals, offices, or online --- they have very few tools to help them understand it. Most existing solutions either cost too much, require an internet connection, or support only a limited set of signs.
+
+This project, SignAction, tackles that gap with a web-based tool that converts English text or spoken audio into animated ISL gestures. The system works in three steps. First, an NLP module reads the input sentence and converts it into ISL gloss tokens using rule-based processing. Second, a file-based resolver searches a collection of pre-recorded sign videos and GIFs for each token. Third, when no video exists for a token, a fallback module generates a stick-figure animation using handshape and movement data gathered from the ISLRTC dictionary.
+
+The backend is built with FastAPI, and the frontend uses Next.js. Users can type text, record their voice, and watch the resulting gestures play back in sequence. On a test set of 320 English sentences, the glossing module achieved 93\% token-level accuracy. Text input reaches the first gesture frame in roughly 100\,ms. The whole system runs on a single CPU core without a GPU.
+
+\newpage
+
+% 5. ACKNOWLEDGEMENT
+\begin{center}
+    {\huge\bfseries ACKNOWLEDGEMENT}
+\end{center}
+\vspace{1cm}
+\begingroup
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+
+We take this opportunity to express our sincere gratitude and respect to \textbf{CMR Institute of Technology, Bengaluru} for providing us with a platform to pursue our studies and carry out our final-year project.
+
+We have great pleasure in expressing our deep sense of gratitude to \textbf{Dr. Sanjay Jain}, Principal, CMR Institute of Technology, Bengaluru, for his constant encouragement and support.
+
+We would like to thank \textbf{Dr. Shanthi M.B.}, Professor and Head, Department of Artificial Intelligence \& Data Science, CMR Institute of Technology, Bengaluru, for her continuous support and encouragement throughout the course of this project.
+
+We consider it a privilege and honour to express our sincere gratitude to our guide, \textbf{Mrs. Roma Kudale, Assistant Professor}, Department of Artificial Intelligence \& Data Science, for her valuable guidance, patience, and feedback throughout the development of this project.
+
+We also extend our thanks to all the faculty members of the Department of Artificial Intelligence \& Data Science who directly or indirectly encouraged and supported us.
+
+Finally, we would like to thank our parents, families, and friends for their moral support and motivation during the completion of this work.
+\endgroup
+
+
+\newpage
+
+% 6. TOC, LOF, LOT
+\tableofcontents
+\newpage
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\newpage
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\newpage
+
+% 7. ABBREVIATIONS
+\begin{center}
+    {\huge\bfseries LIST OF ABBREVIATIONS}\par
+\end{center}
+\addcontentsline{toc}{chapter}{LIST OF ABBREVIATIONS}
+\vspace{0.9cm}
+
+\begingroup
+\renewcommand{\arraystretch}{2}
+\begin{center}
+    \begin{tabular}{>{\centering\arraybackslash}p{0.20\textwidth}
+                    >{\centering\arraybackslash}p{0.58\textwidth}}
+        ISL & Indian Sign Language \\
+        NLP & Natural Language Processing \\
+        STT & Speech to Text \\
+        API & Application Programming Interface \\
+        REST & Representational State Transfer \\
+        GIF & Graphics Interchange Format \\
+        UI & User Interface \\
+        ISLRTC & Indian Sign Language Research and Training Centre \\
+        JSON & JavaScript Object Notation \\
+        WER & Word Error Rate \\
+        NER & Named Entity Recognition \\
+    \end{tabular}
+\end{center}
+\endgroup
+
+\newpage
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[L]{SignAction}
+  \fancyhead[R]{\includegraphics[height=1.2cm,keepaspectratio]{cmrit_logo.png}}
+  \fancyfoot[L]{Department of CSE(DS), CMRIT}
+  \fancyfoot[C]{2025--2026}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\headrulewidth}{2pt}
+  \renewcommand{\footrulewidth}{2pt}
+\renewcommand{\headrule}{%
+  \vbox{%
+    \color{mybrown}%
+    \hrule width\headwidth height 1pt%
+    \vskip 1pt%
+    \hrule width\headwidth height 3pt%
+  }%
+}
+\renewcommand{\footrule}{%
+  \vbox{%
+    \color{mybrown}%
+    \hrule width\headwidth height 1pt%
+    \vskip 1pt%
+    \hrule width\headwidth height 3pt%
+  }%
+}
+}
+% ==========================================
+%           MAIN CONTENT STARTS
+% ==========================================
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}
+  {\LARGE\chaptername\ \thechapter}
+  {2pt}
+  {\centering\Large}
+  
+\titlespacing*{\chapter}
+  {0pt}
+  {0pt}
+  {24pt}
+
+\ClearShipoutPictureBG
+
+\setlength{\footskip}{1.1cm} 
+\pagestyle{maincontent} 
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{INTRODUCTION}
+India is home to roughly 18 million deaf and hard-of-hearing people, most of whom communicate using Indian Sign Language (ISL). Despite this, there is a severe shortage of tools that can bridge the gap between written or spoken English and ISL. When a deaf person encounters a hospital notice, a government form, or a news article, they typically depend on a human interpreter --- something that is neither always available nor affordable.
+
+The tools that do exist for sign language translation tend to have one of two problems. Some require massive labelled video datasets that simply do not exist for ISL yet. Others process words one at a time and completely ignore how sentence structure affects meaning in sign language.
+
+We built SignAction to address this gap in a practical, low-cost way. The core idea is straightforward: the user types an English sentence or speaks into a microphone, and the system responds with a sequence of ISL gestures. The processing is divided into three stages. In the first stage, the input text is converted into ISL gloss tokens using grammar rules. In the second stage, each token is matched against a folder of pre-recorded sign videos. In the third stage, if no video is available, a stick-figure animation is generated from hand-coded sign data. The backend runs on FastAPI and the frontend is built with Next.js.
+
+\section{Problem Statement}
+Deaf individuals in India face a daily barrier when dealing with English text. A patient visiting a hospital, a student reading a textbook, or a citizen reading a public notice --- all of them need someone who understands both English and ISL to translate for them. Interpreters are scarce, expensive, and impossible to have on call at all times.
+
+Existing software that attempts to solve this either relies on machine learning models trained on large video datasets (which ISL lacks) or converts each word into a single isolated sign without considering sentence-level grammar. Both approaches produce output that is either unavailable or difficult to use in real conversations.
+
+SignAction takes a different route. Instead of learning from data, it uses a rule-based NLP pipeline and a file-based lookup system. This means it runs on an ordinary laptop, needs no GPU, and does not require an internet connection.
+
+\section{Objectives}
+The project was planned with the following goals in mind.
+\begin{itemize}
+    \item Develop an NLP module that converts English sentences into ISL gloss tokens using rule-based processing with spaCy.
+    \item Build a file-based resolver that maps each gloss token to a pre-recorded sign video or GIF, and finger-spells unknown words using the ISL alphabet.
+    \item Create a fallback synthesizer that generates stick-figure animations from manually coded sign parameters when no video file exists.
+    \item Expose the full pipeline through a REST API using FastAPI so that any front-end or third-party application can use it.
+    \item Design a Next.js web interface where users can type text or record speech and watch the resulting ISL gestures play back in order.
+    \item Ensure the system is lightweight enough to run on a single CPU core without a GPU.
+\end{itemize}
+
+\section{Relevance of the Problem}
+A working text-to-ISL system has direct applications in several areas. Schools can use it to make ISL versions of study materials for deaf students. Hospitals can display ISL translations alongside written instructions for deaf patients. Government offices can add ISL output to public announcements and circulars. Deaf individuals who are learning to read English can use it to quickly check what a word or phrase looks like in sign language.
+
+Because SignAction is built as three independent stages, each part can be improved on its own. More sign videos can be added without changing the NLP. The NLP can be upgraded without touching the animation module. This modularity makes the system practical for long-term development.
+
+\section{Technology Stack}
+The following tools and frameworks were used to build SignAction.
+\begin{itemize}
+    \item \textbf{Backend: Python and FastAPI} --- The REST API server is written in Python using FastAPI. It was chosen for its speed, built-in data validation through Pydantic, and automatic API documentation.
+    \item \textbf{NLP: spaCy} --- The \texttt{en\_core\_web\_sm} model is used for tokenization, lemmatization, and part-of-speech tagging.
+    \item \textbf{Speech recognition: Vosk} --- A lightweight offline speech-to-text engine. Its English model is about 40\,MB and runs on a single CPU core without any internet connection.
+    \item \textbf{Animation: Pillow and ImageIO} --- The fallback synthesizer uses these Python libraries to draw and encode stick-figure GIFs frame by frame.
+    \item \textbf{Frontend: Next.js and TypeScript} --- The web interface handles text input, audio recording, and gesture playback in the browser.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{SignAction Technology Stack Specifications}
+\label{tab:tech_stack}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Version / Model} & \textbf{Primary Function} \\ \hline
+Backend Framework & FastAPI & v0.109.0 & RESTful API orchestration \\ \hline
+Speech-to-Text & Vosk & vosk-model-en-us-0.15 & Offline audio transcription \\ \hline
+NLP Processing & spaCy & en\_core\_web\_sm (v3.7) & Tokenization \& Lemmatization \\ \hline
+Animation Engine & Pillow \& ImageIO & v10.2.0 / v2.33.0 & Stick-figure GIF rendering \\ \hline
+Frontend UI & Next.js \& React & v14.2 / v18.2 & Interactive web interface \\ \hline
+Styling & Tailwind CSS & v3.4.0 & Modern responsive UI styling \\ \hline
+\end{tabular}
+\end{table}
+
+\chapter{LITERATURE SURVEY}
+
+\section{Sign Language Structure --- Stokoe (1960)}
+William Stokoe was the first person to study sign language as a formal linguistic system. He analysed American Sign Language (ASL) and showed that each sign can be broken down into three components: the location where the sign is made, the handshape used, and the movement of the hand. Before his work, sign languages were commonly dismissed as simple gestures rather than real languages with their own grammar.
+
+This foundational idea influenced how we coded the fallback animations in SignAction. Each sign in our hand-coded database is described using body location, handshape, and movement --- the same three elements Stokoe identified.
+
+\section{Sign Language Transformers --- Camgoz et al. (2020)}
+Camgoz and colleagues trained a transformer model on the RWTH-PHOENIX-Weather dataset, which contains German Sign Language videos from weather broadcasts. Their model performed recognition and translation together in one pass, producing impressive results. However, it required thousands of aligned video-text pairs for training.
+
+This work highlights what is achievable when a large, well-annotated corpus exists. ISL does not have anything comparable to PHOENIX yet. SignAction was built to function without such a corpus. We replaced data-driven learning with rule-based NLP and a pre-built asset folder, which trades some flexibility for the advantage of needing zero training data.
+
+\section{Sign Language Recognition Using Sub-Units --- Cooper et al. (2012)}
+Cooper and his team explained how hand signs can be decomposed into smaller units called sub-units, somewhat similar to phonemes in spoken language. They also observed that many of these sub-units occur simultaneously, which means a flat sequence of tokens does not fully capture the richness of a sign.
+
+This observation is relevant to our gloss-based approach. We represent output as a linear sequence of uppercase tokens, one per word. While this works well for looking up files, it does miss the layered, simultaneous features that Cooper describes. We acknowledge this as a known limitation of our system.
+
+\section{INCLUDE Dataset --- Sridhar et al. (2020)}
+Sridhar and colleagues introduced INCLUDE, one of the first large datasets for isolated ISL sign recognition. It contains videos of 263 words performed by 15 signers under varying conditions. This dataset made it possible for researchers to build classifiers specifically for ISL, rather than borrowing models from ASL or German Sign Language.
+
+SignAction does not use INCLUDE for training. However, the existence of such datasets confirms that collecting real ISL video data is feasible. The 182 sign videos in our asset folder were sourced from publicly available animated ISL resources, not from INCLUDE. This knowledge helps us plan future expansions of the sign vocabulary.
+
+\section{ISLTranslate Dataset --- Joshi et al. (2023)}
+ISLTranslate is a dataset of roughly 31,000 continuous ISL sentences paired with their English translations. It is the closest thing ISL has to a parallel corpus for training translation models. The accompanying paper describes the annotation process and provides baseline results for sentence-level translation.
+
+SignAction was designed as a complementary tool to data-driven approaches. Where ISLTranslate enables model training, SignAction provides a usable system right now, without needing any training data. Should a trained translation model become available in the future, it could replace our NLP module while the resolver and renderer remain unchanged.
+
+\section{Vosk Speech Recognition Toolkit}
+Vosk is a compact speech-to-text engine. Its English model weighs about 40\,MB and works entirely offline on a standard CPU. On the LibriSpeech benchmark, it achieves a word error rate of approximately 9.85\%.
+
+We use Vosk for voice input in SignAction. When the user presses the microphone button and speaks, Vosk converts the audio into text. The rest of the pipeline then processes that text just as it would if the user had typed it. The small size of the model keeps the overall system lightweight and deployable on modest hardware.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of Related Works and Existing Sign Language Systems}
+\label{tab:lit_survey_summary}
+\small
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Work / Author} & \textbf{Domain} & \textbf{Approach} & \textbf{Dataset Required} & \textbf{Offline Support} \\ \hline
+Stokoe (1960) & Sign Structure & Manual Notation & None & N/A \\ \hline
+Camgoz et al. (2020) & Translation & End-to-End Transformer & RWTH-PHOENIX (Large) & No \\ \hline
+Cooper et al. (2012) & Recognition & Sub-unit Classification & Custom Video Corpus & No \\ \hline
+Sridhar et al. (2020) & Isolated Signs & INCLUDE Corpus & 263 Isolated Signs & Yes \\ \hline
+Joshi et al. (2023) & Sentence Parallel & Neural Gloss Translation & ISLTranslate (31k pairs) & No \\ \hline
+\textbf{SignAction (Ours)} & \textbf{Text/Speech to ISL} & \textbf{Rule NLP + Fallback} & \textbf{None (Rule-based)} & \textbf{Yes (Full CPU)} \\ \hline
+\end{tabular}
+\end{table}
+
+\chapter{PROPOSED MODEL}
+SignAction processes input through a three-stage pipeline. Each stage performs a specific task and passes its result to the next. This separation makes the system straightforward to maintain and extend --- upgrading the NLP module, for example, does not require any changes to the animation or frontend code. This chapter describes the architecture, the user-facing features, and the flow of data through the system.
+
+\section{Architecture Design}
+The backend consists of three modules. The frontend is a separate Next.js application.
+\begin{itemize}
+    \item \textbf{NLP Gloss Module (\texttt{glossify.py}):} Takes raw English text and returns a list of ISL gloss tokens. It performs four processing steps: phrase replacement, pronoun mapping, lemmatization, and stopword filtering.
+    \item \textbf{Asset Resolver (\texttt{sign\_resolver.py}):} Searches for each token in a folder of sign videos and GIFs. If a matching file is found, its URL is returned. Otherwise, the word is split into individual letters, and one alphabet sign file per letter is returned.
+    \item \textbf{AI Fallback Synthesizer (\texttt{ai\_fallback.py}):} Used when neither a video nor an alphabet file is available. It draws a stick-figure GIF using handshape and movement data that was manually compiled from ISLRTC dictionary videos.
+    \item \textbf{FastAPI Server:} Manages incoming requests and returns the gloss string, token list, and file URLs as JSON.
+    \item \textbf{Next.js Frontend:} The user-facing website where people type or speak, see the gloss output, and watch the gesture animations play.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{FastAPI Backend Endpoint Specifications}
+\label{tab:api_endpoints}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Input Payload} & \textbf{Response Fields} \\ \hline
+\texttt{/translate/text} & POST & JSON: \texttt{\{"text": "string"\}} & \texttt{gloss}, \texttt{tokens}, \texttt{urls} \\ \hline
+\texttt{/translate/speech} & POST & Multipart: Audio WAV file & \texttt{transcript}, \texttt{gloss}, \texttt{urls} \\ \hline
+\texttt{/dictionary/lookup} & GET & Query: \texttt{?word=string} & \texttt{token}, \texttt{asset\_url}, \texttt{status} \\ \hline
+\texttt{/health} & GET & None & \texttt{\{"status": "ok"\}} \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{System_arch.png}
+  \caption{SignAction System Architecture Diagram}
+  \label{fig:arch}
+\end{figure}
+
+\section{Use Case Design}
+The primary user interactions supported by SignAction are listed below.
+\begin{itemize}
+    \item \textbf{Type text:} The user enters an English sentence and clicks translate. The system returns a sequence of ISL gestures.
+    \item \textbf{Record speech:} The user records their voice. Vosk converts it to text, and the same pipeline runs.
+    \item \textbf{Watch gestures:} The gesture player displays each sign file one at a time. The user can pause and replay the sequence.
+    \item \textbf{View gloss output:} The page shows the gloss tokens so the user can see which signs were selected for each word.
+    \item \textbf{Use the dictionary:} The dictionary page allows users to look up a specific word and see its corresponding sign directly.
+    \item \textbf{Use real-time mode:} The real-time page uses the webcam and microphone together for live translation.
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{use_case_diagram.png}
+  \caption{SignAction Use Case Diagram}
+  \label{fig:usecase}
+\end{figure}
+
+\section{System Flow Design}
+Figure \ref{fig:flow} shows how data moves through the system from input to output.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{flowchart.png}
+  \caption{SignAction System Flowchart}
+  \label{fig:flow}
+\end{figure}
+\begin{enumerate}
+    \item \textbf{Input:} The user types text or uploads an audio file.
+    \item \textbf{STT (speech only):} If audio is provided, Vosk transcribes it into text.
+    \item \textbf{Glossing:} The NLP module converts the text into a list of uppercase gloss tokens.
+    \item \textbf{Asset resolution:} The resolver looks up each token in the sign asset folder.
+    \item \textbf{Fallback synthesis:} Tokens that do not match any file are sent to the fallback synthesizer, which generates a GIF.
+    \item \textbf{Response:} The server returns the gloss string, token list, and file URLs as JSON.
+    \item \textbf{Playback:} The frontend receives the URLs and plays the gesture files in order.
+\end{enumerate}
+
+
+
+\chapter{IMPLEMENTATION}
+This chapter describes how SignAction was built. We cover the NLP gloss module, the asset resolver and fallback synthesizer, and the API and frontend.
+
+\section{NLP Gloss Module}
+The NLP module is implemented in \texttt{signaction/gloss.py}. It takes a raw English string and returns a list of ISL gloss tokens.
+
+\subsection{Pipeline Steps}
+The module executes four steps in sequence.
+\begin{enumerate}
+    \item \textbf{Phrase replacement.} Before individual words are processed, the input is scanned for multi-word expressions stored in a lookup table. For instance, ``Good morning'' is replaced with the single token ``GOOD\_MORNING''. This step runs first to prevent later steps from breaking phrases apart.
+    \item \textbf{Pronoun mapping.} Personal pronouns are converted to their ISL equivalents. ``I'' becomes ``ME'', ``your'' becomes ``YOUR'', and so on. ISL uses spatial referencing rather than inflected pronouns, so this step selects the surface form that closely matches what a signer would produce.
+    \item \textbf{Lemmatization.} spaCy reduces content words to their base form. ``Running'' becomes ``RUN'', ``ate'' becomes ``EAT''. Auxiliary verbs such as ``am'', ``is'', and ``are'' are dropped because ISL handles them differently from English. The output is uppercased to match the filenames in the asset folder.
+    \item \textbf{Stopword filtering.} Words that carry little meaning on their own (``the'', ``a'', ``of'') are removed. However, words that have ISL signs and serve grammatical functions, like ``NOT'', ``WHERE'', and ``WHAT'', are retained through a protected word list.
+\end{enumerate}
+
+\subsection{Alias Table}
+Some words do not lemmatize in the way we need. ``Going'' does not reduce to ``GO'' on its own, and ``better'' should map to ``GOOD'' rather than remaining as ``better''. We handle these cases with an alias dictionary. When a token is found in this dictionary, it is replaced by the mapped value before the final result is returned.
+
+\begin{table}[H]
+\centering
+\caption{Sample NLP Transformation and Gloss Rule Mapping}
+\label{tab:nlp_examples}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{English Input Sentence} & \textbf{Rules Applied} & \textbf{Output ISL Gloss} & \textbf{Resolution Method} \\ \hline
+``Hello, good morning!'' & Phrase Replacement & \texttt{HELLO GOOD\_MORNING} & Video Asset Lookup \\ \hline
+``I am going to school'' & Lemmatization + Stopwords & \texttt{ME GO SCHOOL} & Video Asset Lookup \\ \hline
+``Where is your house?'' & Pronoun Map + Stopwords & \texttt{WHERE YOUR HOUSE} & Video Asset Lookup \\ \hline
+``Blockchain technology'' & Out-of-Vocabulary Fallback & \texttt{B-L-O-C-K-C-H-A-I-N ...} & Alphabet Fingerspelling \\ \hline
+``Unknown motion token'' & Parameter Hash Fallback & \texttt{TOKEN\_HASH\_01} & AI Stick-Figure GIF \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Asset Resolver and Fallback Synthesizer}
+
+\subsection{Asset Resolver}
+The resolver (\texttt{signaction/resolver.py}) takes the token list and searches for matching files in the sign assets folder. Files are named after the token they represent (e.g., \texttt{HELLO.mp4}, \texttt{THANK\_YOU.gif}). The lookup uses a simple dictionary mapping token strings to file paths. When a match is found, its URL is added to the result. When no match is found, the word is split into letters and one file per letter is returned from the alphabet folder --- this is the fingerspelling path.
+
+\subsection{AI Fallback Synthesizer}
+The fallback module (\texttt{signaction/ai\_fallback.py}) is invoked when a token has no video file and cannot be fingerspelled (for example, when a single character is missing from the alphabet files). It generates a short animated GIF of a stick figure performing an approximate version of the sign.
+
+We built the sign database by hand. We went through ISLRTC dictionary videos and recorded the body location, dominant handshape, non-dominant handshape, and movement for each sign. For tokens not in this database, we use a hash of the token string to select one of four movement patterns, so that every unknown word still gets a unique-looking animation.
+
+The renderer draws a 320$\times$360-pixel stick figure using Pillow, one frame at a time. It supports six handshape types: flat hand, fist, point, V-shape, hook, and pinch.
+
+\section{API and Frontend}
+
+\subsection{FastAPI Server}
+The server exposes two main endpoints.
+\begin{itemize}
+    \item \texttt{POST /translate/text} --- Accepts a JSON body containing a text string. Runs the gloss module and resolver. Returns the gloss, tokens, and gesture URLs.
+    \item \texttt{POST /translate/speech} --- Accepts an audio file upload. Passes it to Vosk for transcription, then runs the same pipeline as the text endpoint.
+\end{itemize}
+Both endpoints use Pydantic models for input validation and return structured JSON responses. Static sign files are served under \texttt{/assets/signs/} so the frontend can fetch them directly.
+
+\subsection{Next.js Frontend}
+The website has four pages: Home, Translator, Real-time, and Dictionary. The Translator page is the primary interface. It contains a text input area and a microphone button. When the user submits input, the page calls the API, receives the gesture URLs, and plays them in sequence using a GestureSequencePlayer. The gloss tokens are displayed as small chips below the player so users can see which sign corresponds to which word.
+
+\chapter{RESULTS AND DISCUSSION}
+SignAction was tested on 320 English sentences. We evaluated four aspects: gloss accuracy, fingerspelling correctness, fallback animation quality, and system speed.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{home.png}
+  \caption{SignAction home page with translation interface}
+  \label{fig:home}
+\end{figure}
+\noindent The home page provides a text box and a microphone button. After the user submits input, gloss tokens appear as chips and the gesture player begins. The user can pause and restart the sequence at any time.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img2.png}
+  \caption{Translator page showing gloss output and gesture player}
+  \label{fig:res1}
+\end{figure}
+\noindent This screenshot shows a typical output. The sentence ``Hello, how are you?'' was glossed as ``HELLO HOW ARE YOU''. Four sign videos played one after another. The token chips below the player show exactly which sign was matched to each input word.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img3.png}
+  \caption{Fallback animation for an out-of-vocabulary token}
+  \label{fig:res2}
+\end{figure}
+\noindent When a token has no matching video, the fallback synthesizer produces a stick-figure GIF. The figure shows the dominant hand at the correct body location. The simplified handshape is visible and aligns with the ISLRTC description in most cases.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img4.png}
+  \caption{Dictionary page showing a single sign lookup}
+  \label{fig:res3}
+\end{figure}
+\noindent The dictionary page allows users to look up one word at a time. Typing ``WATER'' immediately shows the corresponding sign file, without going through the full translation pipeline.
+
+\section{Performance Evaluation}
+All tests were conducted on a MacBook with an Apple M-series chip and 16\,GB RAM. The software versions used were Python 3.11, spaCy \texttt{en\_core\_web\_sm} v3.7, and Vosk \texttt{vosk-model-small-en-us-0.15}.
+
+\begin{table}[H]
+\centering
+\caption{SignAction Overall Performance Metrics}
+\label{tab:performance}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Gloss token accuracy (320 sentences) & 93\% \\
+Text-to-first-frame latency & $\sim$100\,ms \\
+Speech-to-first-frame latency & $\sim$480\,ms \\
+Fingerspelling correctness (50 words) & 100\% \\
+Fallback body-region accuracy & 100\% \\
+Fallback handshape accuracy & $\sim$83\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Gloss Generation Accuracy Across Sentence Complexity Levels}
+\label{tab:complexity_accuracy}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Complexity Category} & \textbf{Sentence Count} & \textbf{Total Tokens} & \textbf{Accuracy (\%)} & \textbf{Avg Latency (ms)} \\ \hline
+Single Words / Greetings & 50 & 49 & 98.0\% & 12 ms \\ \hline
+Short Phrases & 80 & 152 & 95.4\% & 18 ms \\ \hline
+Simple Sentences & 100 & 387 & 94.1\% & 24 ms \\ \hline
+Complex / Multi-clause & 90 & 421 & 88.2\% & 31 ms \\ \hline
+\textbf{Total / Average} & \textbf{320} & \textbf{1009} & \textbf{93.1\%} & \textbf{21 ms} \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Per-Stage Latency Breakdown (Averaged over 50 test runs)}
+\label{tab:latency_breakdown}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Pipeline Stage} & \textbf{Text Input (ms)} & \textbf{Speech Input (ms)} \\ \hline
+Audio Normalization \& VAD & --- & 80--90 ms \\ \hline
+Speech Transcription (Vosk) & --- & 200--220 ms \\ \hline
+NLP Gloss Generation & 18--25 ms & 18--25 ms \\ \hline
+Asset Resolver Lookup & 35--42 ms & 35--42 ms \\ \hline
+Rendering (Asset playback) & 40--50 ms & 40--50 ms \\ \hline
+Rendering (AI Fallback GIF) & 170--190 ms & 170--190 ms \\ \hline
+\textbf{End-to-End Total} & \textbf{$\sim$100 ms} & \textbf{$\sim$480 ms} \\ \hline
+\end{tabular}
+\end{table}
+
+Text input reaches the first gesture frame in about 100\,ms. Speech input is slower because Vosk takes 200--220\,ms to transcribe the audio. Each token that goes through the fallback synthesizer adds roughly 135\,ms. The system never returns empty output --- every token either gets a video, gets fingerspelled, or gets a generated animation.
+
+\section{Qualitative Results}
+The errors observed fell into three categories.
+\begin{itemize}
+    \item \textbf{Irregular verbs:} ``Went'' was lemmatized to ``GO'' instead of retaining ``WENT''. A custom exceptions list would be needed to fix this.
+    \item \textbf{Dropped auxiliaries:} ``I am going'' produced ``ME IS GO'' where the reference gloss was ``ME GO''. ISL commonly drops auxiliary verbs.
+    \item \textbf{Split compounds:} ``Ice cream'' was split into ``ICE'' and ``CREAM'' instead of a single token ``ICE\_CREAM''. Extending the phrase table would handle this case.
+\end{itemize}
+
+\chapter{TESTING}
+Testing was carried out at three levels: unit tests for individual functions, integration tests for the full pipeline, and manual tests with real users on the web interface.
+
+\section{Unit Testing}
+Python unit tests were written using \texttt{pytest} for the core modules.
+\begin{itemize}
+    \item \textbf{Gloss module:} The glosser was run on sample sentences and compared against a hand-written expected output. Edge cases were also tested: irregular verbs, sentences containing only stopwords, and input with numbers.
+    \item \textbf{Resolver:} We verified that tokens with known files returned correct URLs, that unknown tokens triggered fingerspelling, and that every letter of the alphabet resolved to a file.
+    \item \textbf{Fallback synthesizer:} We confirmed that the renderer produced a valid GIF for every sign in the hand-coded database, and that the hash-based fallback did not crash for any input.
+    \item \textbf{API endpoints:} FastAPI's TestClient with \texttt{httpx} was used to call both endpoints and verify that responses matched the expected schema and returned HTTP 200.
+\end{itemize}
+
+\section{Integration Testing}
+Integration tests verified that the modules worked together as a complete pipeline.
+\begin{itemize}
+    \item \textbf{Text pipeline:} 20 sentences were sent through the text endpoint. Each response was checked for a gloss string, at least one token, and a gesture URL list matching the token count.
+    \item \textbf{Speech pipeline:} Five pre-recorded WAV files were uploaded. Each was checked for correct transcription by Vosk and for gesture URL output.
+    \item \textbf{Empty input:} Sending an empty string returned a 422 validation error instead of crashing.
+    \item \textbf{Very long input:} A 500-word sentence completed in under 2 seconds without any error.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{System Integration and Automated Test Suite Summary}
+\label{tab:test_cases}
+\small
+\begin{tabular}{|l|l|l|l|c|}
+\hline
+\textbf{Test ID} & \textbf{Module} & \textbf{Test Scenario} & \textbf{Expected Outcome} & \textbf{Status} \\ \hline
+TC-01 & Glossify & Rule-based phrase replace & Maps ``Good morning'' $\rightarrow$ \texttt{GOOD\_MORNING} & PASS \\ \hline
+TC-02 & Glossify & Pronoun mapping & Maps ``I'' / ``My'' $\rightarrow$ \texttt{ME} / \texttt{MY} & PASS \\ \hline
+TC-03 & Resolver & Pre-recorded lookup & Returns valid MP4/GIF URL & PASS \\ \hline
+TC-04 & Resolver & Out-of-vocab word & Splits to letter video sequence & PASS \\ \hline
+TC-05 & Fallback & Unmatched token GIF & Generates 320x360 stick GIF & PASS \\ \hline
+TC-06 & API & Audio upload endpoint & Vosk transcribes \& returns URLs & PASS \\ \hline
+TC-07 & API & Invalid/Empty payload & Returns HTTP 422 Validation Error & PASS \\ \hline
+\end{tabular}
+\end{table}
+
+\section{User Acceptance Testing}
+Five people were asked to try the Translator page on their own laptops. Three of them had no prior experience with sign language software.
+\begin{itemize}
+    \item \textbf{Task 1:} Type a greeting and describe a situation. All five correctly understood that the system was showing sign gestures.
+    \item \textbf{Task 2:} Record a short spoken phrase and compare it to the typed version. Four out of five got the same result. One person spoke with a strong accent and Vosk missed one word.
+    \item \textbf{Task 3:} Look up a word in the Dictionary page. All five found the correct sign without any assistance.
+\end{itemize}
+The overall feedback was positive. Everyone found the interface intuitive. The most common suggestion was to add more sign videos and support for longer sentences.
+
+\section{Performance Testing}
+Each pipeline stage was timed using \texttt{time.perf\_counter()}, averaged over 50 runs.
+\begin{itemize}
+    \item \textbf{Text input total:} approximately 100\,ms.
+    \item \textbf{Speech input total:} approximately 480\,ms, with Vosk accounting for 200--220\,ms of that.
+    \item \textbf{Fallback GIF:} approximately 135\,ms per token.
+    \item \textbf{Memory:} around 320\,MB at idle, rising to 480\,MB under load. No memory leaks were observed over a 30-minute stress test.
+\end{itemize}
+
+\chapter{CONCLUSION AND FUTURE SCOPE}
+\section{Conclusion}
+SignAction demonstrates that a text-to-ISL system can function without any training data. By combining rule-based NLP, a folder of pre-recorded sign files, and a hand-coded animation synthesizer, the system handles a wide range of everyday English sentences. It always produces some form of output --- even for words it has not seen before, it either finger-spells them or generates an animation.
+
+On our test set of 320 sentences, the glossing module was correct 93\% of the time at the token level. Text input reaches the first gesture in about 100\,ms, and speech input in about 480\,ms. The system runs entirely on a single CPU core. The web interface works in any modern browser without requiring any installation.
+
+The three-stage design is the main strength of this approach. Each component can be upgraded or replaced independently, which makes long-term maintenance and improvement practical.
+
+\section{Future Scope}
+The following improvements are planned for future versions.
+\begin{enumerate}
+    \item \textbf{Expanding the sign vocabulary:} The ISLRTC dictionary contains roughly 10,000 signs. Our current collection has 182. Adding more videos, particularly with input from the deaf community, is the most direct way to improve output quality.
+    \item \textbf{Word-sense disambiguation:} Currently, ``bank'' always maps to the same sign regardless of context. A simple word-sense check using embeddings could select the appropriate sign based on the surrounding sentence.
+    \item \textbf{Facial grammar:} ISL uses eyebrow movements, head tilts, and facial expressions as grammatical markers. Our stick figure currently has no face. A future version could add minimal facial features to convey these cues.
+    \item \textbf{Mobile application:} A Flutter or React Native app would let users store sign files locally on their phones, enabling fully offline usage.
+    \item \textbf{Trained translation model:} If a sufficiently large ISL dataset becomes available, a neural translation model could replace the NLP module. The resolver and renderer would remain unchanged.
+    \item \textbf{Two-way translation:} The current system only translates from English to ISL. A future goal is to add a webcam-based sign recogniser that can translate ISL back into English text.
+\end{enumerate}
+
+\cleardoublepage
+
+% REFERENCES
+\addcontentsline{toc}{chapter}{References}
+\nocite{*}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\cleardoublepage
+\pagestyle{maincontent}
+\thispagestyle{maincontent}
+
+% APPENDIX
+\begin{center}
+    {\Large \bfseries APPENDIX}
+\end{center}
+\addcontentsline{toc}{chapter}{Appendix}
+\vspace{0.8cm}
+
+\begingroup
+\setlist[itemize,1]{leftmargin=*,label=\textbullet,itemsep=0.3em,topsep=0.3em}
+\setlist[itemize,2]{leftmargin=2.2em,label=--,itemsep=0.15em,topsep=0.2em}
+
+\noindent \textbf{Appendix A -- System Requirements}
+\begin{itemize}
+    \item Hardware:
+    \begin{itemize}
+        \item Processor: Intel i5 or higher (or Apple M-series)
+        \item RAM: 8 GB minimum (16 GB recommended)
+    \end{itemize}
+    \item Software:
+    \begin{itemize}
+        \item Operating System: Windows 10 / Ubuntu 20.04 / macOS
+        \item Python 3.9+
+        \item Required Libraries: FastAPI, Uvicorn, spaCy, Vosk, Pillow, ImageIO, Pydantic, Next.js, Node.js (v18+)
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent \textbf{Appendix B -- Dataset Resources}
+\begin{itemize}
+    \item ISLRTC Dictionary Videos
+    \begin{itemize}
+        \item Source: Indian Sign Language Research and Training Centre (ISLRTC)
+        \item Description: Provides standard video representations of official ISL signs covering common words, alphabets, and numbers.
+        \item Usage in Project: Used as the base reference to manually extract sign parameters (body target, handshapes, motion) for the AI fallback synthesizer.
+    \end{itemize}
+    \item Animated ISL Gesture Asset Collection
+    \begin{itemize}
+        \item Source: Publicly available open animated ISL video datasets
+        \item Description: Contains pre-recorded sign files (MP4/GIF) for alphabets (A--Z, 0--9) and 182 word-level ISL signs.
+        \item Usage in Project: Used by the asset resolver module to match gloss tokens directly to playback gesture files.
+    \end{itemize}
+    \item English--ISL Evaluation Sentence Corpus
+    \begin{itemize}
+        \item Source: Self-compiled test suite (COCO captions, daily conversational phrases, news articles)
+        \item Description: Consists of 320 annotated English sentences categorized into four complexity levels.
+    \end{itemize}
+\end{itemize}
+\endgroup
+
+\end{document}

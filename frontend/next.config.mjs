@@ -4,6 +4,24 @@ const BACKEND_URL = process.env.SIGNACTION_BACKEND_URL || process.env.NEXT_PUBLI
 
 const nextConfig = {
   reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        source: '/manifest.json',
+        headers: [
+          { key: 'Content-Type', value: 'application/manifest+json' },
+          { key: 'Cache-Control', value: 'no-cache' },
+        ],
+      },
+    ];
+  },
   rewrites: async () => {
     return {
       beforeFiles: [

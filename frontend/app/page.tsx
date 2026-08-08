@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Volume2, Lightbulb, Play, Hand } from 'lucide-react';
+import { ArrowRight, Zap, Volume2, Lightbulb, Play, Hand, WifiOff } from 'lucide-react';
 
 export default function LandingPage() {
   const containerVariants = {
@@ -81,6 +81,13 @@ export default function LandingPage() {
                   <Play size={18} />
                   Start Translating
                   <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href="/offline-setup"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/10 px-7 py-3.5 font-semibold text-indigo-300 shadow-sm transition hover:bg-indigo-600/20 hover:shadow-lg dark:border-indigo-500/30 dark:bg-indigo-600/10 dark:text-indigo-300 light:border-indigo-200 light:bg-indigo-50 light:text-indigo-700 light:hover:bg-indigo-100"
+                >
+                  <WifiOff size={18} />
+                  Download for Offline
                 </Link>
                 <Link
                   href="/about"

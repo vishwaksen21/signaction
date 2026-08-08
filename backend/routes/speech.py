@@ -27,7 +27,8 @@ class TranslateSpeechResponse(BaseModel):
 
 
 def _ensure_local_vosk_autodetect() -> None:
-    if os.environ.get("VOSK_MODEL_PATH"):
+    vmp = os.environ.get("VOSK_MODEL_PATH")
+    if vmp and Path(vmp).exists():
         return
 
     search_dirs = [

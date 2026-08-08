@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Hand, Layers, Mic2, Sparkles, Zap } from 'lucide-react';
+import { Hand, Sparkles, Zap, WifiOff } from 'lucide-react';
 import { TranslatorInput } from '../../components/translator-input';
 import { GestureSequencePlayer } from '../../components/gesture-sequence-player';
 import { TokenChips } from '../../components/token-chips';
 import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate';
+import { translateTextOffline } from '../../lib/offline-translate';
+import { OfflineBadge } from '../../components/model-download';
 
 export default function TranslatorPage() {
   const [text, setText] = useState('');
+  const [offlineResult, setOfflineResult] = useState<any>(null);
 
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
@@ -27,6 +30,18 @@ export default function TranslatorPage() {
   const active = translateSpeech.data ?? translateText.data;
   const isLoading = translateText.isPending || translateSpeech.isPending;
   const error = (translateText.error ?? translateSpeech.error) as Error | null;
+
+  const handleTranslateOffline = useCallback(() => {
+    if (!text.trim()) return;
+    const result = translateTextOffline(text);
+    setOfflineResult(result);
+  }, [text]);
+
+  // Clear offline result when text changes
+  const handleTextChange = useCallback((val: string) => {
+    setText(val);
+    setOfflineResult(null);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
@@ -64,17 +79,25 @@ export default function TranslatorPage() {
               Convert your words into beautiful sign language gestures instantly. Enter text, record speech, or upload audio to see the magic happen.
             </motion.p>
             
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-4"
-            >
-              <a href="#translate" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-all hover:scale-105 shadow-md shadow-blue-500/20 w-fit">
-                <Zap size={20} />
-                Start Translating
-              </a>
-            </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-4 flex items-center gap-3"
+              >
+                <a href="#translate" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-all hover:scale-105 shadow-md shadow-blue-500/20 w-fit">
+                  <Zap size={20} />
+                  Start Translating
+                </a>
+                <button
+                  onClick={handleTranslateOffline}
+                  className="inline-flex items-center gap-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-full font-medium transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-sm"
+                >
+                  <WifiOff size={16} />
+                  Offline
+                </button>
+                <OfflineBadge />
+              </motion.div>
           </div>
 
           {/* Right Illustration */}
