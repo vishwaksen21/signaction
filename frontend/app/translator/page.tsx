@@ -124,40 +124,40 @@ export default function TranslatorPage() {
               </div>
 
               <div className="flex-1 flex flex-col">
-                {active ? (
+                {active || offlineResult ? (
                   <div className="space-y-8 flex-1">
                     
                     {/* Transcript */}
-                    {active.transcript && (
+                    {(active?.transcript || offlineResult?.gloss) && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
-                          Transcript
+                          {active?.transcript ? 'Transcript' : 'Input'}
                         </label>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-medium">
-                          "{active.transcript}"
+                          "{active?.transcript || text}"
                         </div>
                       </motion.div>
                     )}
 
                     {/* Gloss & Tokens */}
                     <div className="grid gap-6 sm:grid-cols-2">
-                      {active.gloss && (
+                      {(active?.gloss || offlineResult?.gloss) && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
                           <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
                             Sign Gloss
                           </label>
                           <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/50 rounded-xl font-mono text-blue-700 dark:text-blue-400 text-sm">
-                            {active.gloss}
+                            {active?.gloss || offlineResult?.gloss}
                           </div>
                         </motion.div>
                       )}
 
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
                         <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
-                          Tokens ({active.tokens?.length ?? 0})
+                          Tokens ({(active?.tokens ?? offlineResult?.tokens)?.length ?? 0})
                         </label>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                          <TokenChips tokens={active.tokens ?? []} />
+                          <TokenChips tokens={active?.tokens ?? offlineResult?.tokens ?? []} />
                         </div>
                       </motion.div>
                     </div>
@@ -172,7 +172,7 @@ export default function TranslatorPage() {
                       <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-4">
                         Gesture Playback
                       </label>
-                      <GestureSequencePlayer gestures={active.gestures ?? []} loading={isLoading} />
+                      <GestureSequencePlayer gestures={active?.gestures ?? offlineResult?.gestures ?? []} loading={isLoading} />
                     </motion.div>
                   </div>
                 ) : (
