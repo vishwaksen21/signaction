@@ -144,7 +144,6 @@ export default function RealtimePage() {
         setRunning(true);
       } else {
         // Offline mode: use Vosk WASM in browser
-        // Dynamic import to avoid loading WASM when not needed
         const { createVoskSTT } = await import('../../lib/vosk-stt');
 
         const stt = await createVoskSTT({
@@ -153,7 +152,6 @@ export default function RealtimePage() {
           },
           onResult: (text) => {
             setTranscript((prev) => (prev ? prev + ' ' : '') + text);
-            // Translate the text to gestures
             const result = translateTextOffline(text);
             setTokens(result.tokens);
             setGestures(result.gestures);
@@ -162,16 +160,7 @@ export default function RealtimePage() {
             setError(err.message);
           },
         });
-        const res = await translateSpeechOnce(file);
-        setTranscript(res.transcript);
-        setTokens(res.tokens);
-        setGestures(res.gestures);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
-      }
-    };
 
-        // Store ref for cleanup
         mediaRecorderRef.current = {
           stop: () => {
             stt.stop();

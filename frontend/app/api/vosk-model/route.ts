@@ -1,4 +1,5 @@
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const MODEL_URLS = [
   'https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.tar.gz',
