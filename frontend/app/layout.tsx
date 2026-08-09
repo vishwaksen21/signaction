@@ -4,8 +4,7 @@ import { Providers } from '../components/providers';
 import { Navbar } from '../components/navbar';
 import { Footer } from '../components/footer';
 import { ServiceWorkerRegister } from '../components/sw-register';
-import { OfflineSetupBanner } from '../components/offline-banner';
-import { InstallButton } from '../components/install-button';
+import { ApkDownloadFab } from '../components/apk-download-fab';
 
 export const metadata: Metadata = {
   title: 'SignAction - Text & Speech to Sign Language',
@@ -52,12 +51,11 @@ export default function RootLayout({
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar />
-            <OfflineSetupBanner />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
         </Providers>
-        <InstallButton />
+        <ApkDownloadFab />
       </body>
     </html>
   );
