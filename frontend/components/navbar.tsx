@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/lib/theme-context';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import { Moon, Sun, Menu, X, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
@@ -76,6 +76,16 @@ export function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
+            {/* APK Download */}
+            <a
+              href="/signaction.apk"
+              download="signaction.apk"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-500 transition-colors"
+            >
+              <Smartphone size={14} />
+              Get App
+            </a>
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}

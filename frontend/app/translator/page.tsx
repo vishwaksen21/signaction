@@ -44,128 +44,40 @@ export default function TranslatorPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
       
-      {/* Hero Section */}
-      <section className="w-full py-16 px-4 md:px-8 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Copy */}
-          <div className="flex flex-col gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-sm w-fit border border-blue-100 dark:border-blue-800/50"
-            >
-              <Sparkles size={16} />
-              Text + Speech → Sign Gestures
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white"
-            >
-              Translate words <span className="text-blue-600 dark:text-blue-500">to sign</span>
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-xl text-slate-500 dark:text-slate-400 max-w-xl"
-            >
-              Convert your words into beautiful sign language gestures instantly. Enter text, record speech, or upload audio to see the magic happen.
-            </motion.p>
-            
-              <motion.div 
+      {/* Hero Section - Compact */}
+      <section className="w-full py-8 px-4 md:px-8 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mt-4 flex items-center gap-3"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-xs mb-3"
               >
-                <a href="#translate" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-all hover:scale-105 shadow-md shadow-blue-500/20 w-fit">
-                  <Zap size={20} />
-                  Start Translating
-                </a>
-                <button
-                  onClick={handleTranslateOffline}
-                  className="inline-flex items-center gap-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-full font-medium transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-sm"
-                >
-                  <WifiOff size={16} />
-                  Offline
-                </button>
-                <OfflineBadge />
+                <Sparkles size={14} />
+                Text + Speech → Sign Gestures
               </motion.div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Translate words <span className="text-blue-600 dark:text-blue-500">to sign</span>
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <a href="#translate" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium text-sm transition-all shadow-md">
+                <Zap size={16} />
+                Start Translating
+              </a>
+              <button
+                onClick={handleTranslateOffline}
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-full font-medium text-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <WifiOff size={14} />
+                Offline
+              </button>
+              <OfflineBadge />
+            </div>
           </div>
-
-          {/* Right Illustration */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-slate-50 dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Gesture Pipeline</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Smooth media playback</p>
-              </div>
-              <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm">
-                <Hand size={20} className="text-blue-500" />
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-8">
-              {['HELLO', 'WORLD', 'PLEASE'].map((t, i) => (
-                <span
-                  key={t}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg border ${
-                    i === 0 
-                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400' 
-                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { label: 'Sign 1', token: 'HELLO', glyph: 'H' },
-                { label: 'Sign 2', token: 'WHAT', glyph: 'W', active: true },
-                { label: 'Sign 3', token: 'YOU', glyph: 'Y' },
-              ].map((g) => (
-                <div
-                  key={g.label}
-                  className={`rounded-2xl p-4 transition-all ${
-                    g.active
-                      ? 'bg-blue-600 shadow-lg shadow-blue-500/30 border-blue-500'
-                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  <div className={`flex justify-between text-xs mb-3 font-medium ${g.active ? 'text-blue-100' : 'text-slate-400'}`}>
-                    <span>{g.label}</span>
-                  </div>
-                  <div className={`aspect-square w-full flex items-center justify-center rounded-xl mb-3 overflow-hidden ${g.active ? 'bg-white/20' : 'bg-slate-50 dark:bg-slate-800'}`}>
-                    <video
-                      src={`/assets/signs/${g.token}.mp4`}
-                      className="w-full h-full object-cover"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                    />
-                  </div>
-                  <div className={`text-center font-bold text-lg ${g.active ? 'text-white' : 'text-slate-900 dark:text-white'}`}>{g.token}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
         </div>
       </section>
 

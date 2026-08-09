@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Smartphone } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -26,6 +27,16 @@ export function Footer() {
             <div className="text-apple-dense-link flex flex-col">
               <Link href="/api-status" className="hover:underline focus-ring rounded-xs">API Status</Link>
               <a href="https://github.com/vishwaksen21/signaction" target="_blank" rel="noopener noreferrer" className="hover:underline focus-ring rounded-xs">GitHub Repository</a>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-apple-caption-strong text-apple-ink mb-1">Download</h3>
+            <div className="text-apple-dense-link flex flex-col">
+              <a href="/signaction.apk" download="signaction.apk" className="inline-flex items-center gap-1.5 hover:underline focus-ring rounded-xs">
+                <Smartphone size={14} />
+                Android APK
+              </a>
             </div>
           </div>
         </div>

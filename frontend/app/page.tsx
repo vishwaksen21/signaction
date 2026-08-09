@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Volume2, Lightbulb, Play, Hand, WifiOff, Download, Smartphone } from 'lucide-react';
+import { ArrowRight, Zap, Volume2, Lightbulb, Play, Hand, WifiOff, Download } from 'lucide-react';
 
 export default function LandingPage() {
   const containerVariants = {
@@ -82,21 +82,6 @@ export default function LandingPage() {
                   Start Translating
                   <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                 </Link>
-                <Link
-                  href="/offline-setup"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/10 px-7 py-3.5 font-semibold text-indigo-300 shadow-sm transition hover:bg-indigo-600/20 hover:shadow-lg dark:border-indigo-500/30 dark:bg-indigo-600/10 dark:text-indigo-300 light:border-indigo-200 light:bg-indigo-50 light:text-indigo-700 light:hover:bg-indigo-100"
-                >
-                  <WifiOff size={18} />
-                  Download for Offline
-                </Link>
-                <a
-                  href="/signaction.apk"
-                  download="signaction.apk"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-600/10 px-7 py-3.5 font-semibold text-green-300 shadow-sm transition hover:bg-green-600/20 hover:shadow-lg dark:border-green-500/30 dark:bg-green-600/10 dark:text-green-300 light:border-green-200 light:bg-green-50 light:text-green-700 light:hover:bg-green-100"
-                >
-                  <Smartphone size={18} />
-                  Download APK
-                </a>
                 <Link
                   href="/about"
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-900/40 px-7 py-3.5 font-semibold text-slate-100 shadow-sm transition hover:bg-slate-900 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900/40 light:border-slate-200 light:bg-white light:text-slate-900 light:hover:bg-slate-50"
