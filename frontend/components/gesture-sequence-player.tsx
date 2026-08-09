@@ -6,6 +6,21 @@ import { Play, Pause, SkipBack, SkipForward, Hand } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { SignViewer } from './sign-viewer';
 
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+};
+
 export function GestureSequencePlayer({
   gestures,
   loading,
@@ -15,6 +30,7 @@ export function GestureSequencePlayer({
 }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   const current = useMemo(() => gestures[index] ?? null, [gestures, index]);
   const isMp4 = current?.toLowerCase().endsWith('.mp4') ?? false;
@@ -22,18 +38,18 @@ export function GestureSequencePlayer({
   // Reset on new translation and auto-play
   useEffect(() => {
     setIndex(0);
+    setDirection(1);
     setPlaying(gestures.length > 0);
   }, [gestures.join('|')]);
 
-  // Auto-advance for GIFs only — MP4s fire onEnded themselves
-  // We actually don't need a setInterval here anymore because SignViewer simulates onEnded for GIFs!
-  
   const handleEnded = () => {
     if (!playing) return;
     if (index < gestures.length - 1) {
+      setDirection(1);
       setIndex((i) => i + 1);
     } else {
       setPlaying(false);
+      setDirection(1);
       setIndex(0); // Reset to start after finishing
     }
   };
@@ -48,6 +64,7 @@ export function GestureSequencePlayer({
     if (!gestures.length) return;
     const clamped = Math.max(0, Math.min(1, pct));
     const nextIndex = Math.max(0, Math.min(gestures.length - 1, Math.floor(clamped * gestures.length)));
+    setDirection(nextIndex > index ? 1 : -1);
     setIndex(nextIndex);
     setPlaying(false);
   };
@@ -56,18 +73,23 @@ export function GestureSequencePlayer({
     <div className="space-y-4">
       {/* Video/Image Container */}
       <div className="relative group">
-        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center">
-          <AnimatePresence mode="wait">
+        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative min-h-[300px]">
+          <AnimatePresence mode="wait" custom={direction}>
             {current ? (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25 }}
-                className="w-full h-full flex items-center justify-center"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="w-full h-full flex items-center justify-center absolute inset-0"
               >
-                <SignViewer url={current} onEnded={handleEnded} />
+                <SignViewer url={current} onEnded={handleEnded} playing={playing} />
               </motion.div>
             ) : (
               <motion.div
@@ -124,7 +146,10 @@ export function GestureSequencePlayer({
         <div className="flex items-center gap-2">
           {/* Previous Button */}
           <button
-            onClick={() => setIndex((i) => Math.max(0, i - 1))}
+            onClick={() => {
+              setDirection(-1);
+              setIndex((i) => Math.max(0, i - 1));
+            }}
             disabled={!gestures.length || index === 0}
             className="p-2 rounded-lg bg-apple-surface-pearl hover:bg-apple-canvas-parchment disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-apple-ink border border-apple-hairline"
             aria-label="Previous gesture"
@@ -148,7 +173,10 @@ export function GestureSequencePlayer({
 
           {/* Next Button */}
           <button
-            onClick={() => setIndex((i) => Math.min(gestures.length - 1, i + 1))}
+            onClick={() => {
+              setDirection(1);
+              setIndex((i) => Math.min(gestures.length - 1, i + 1));
+            }}
             disabled={!gestures.length || index >= gestures.length - 1}
             className="p-2 rounded-lg bg-apple-surface-pearl hover:bg-apple-canvas-parchment disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-apple-ink border border-apple-hairline"
             aria-label="Next gesture"

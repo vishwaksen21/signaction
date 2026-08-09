@@ -162,6 +162,14 @@ export default function RealtimePage() {
             setError(err.message);
           },
         });
+        const res = await translateSpeechOnce(file);
+        setTranscript(res.transcript);
+        setTokens(res.tokens);
+        setGestures(res.gestures);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    };
 
         // Store ref for cleanup
         mediaRecorderRef.current = {

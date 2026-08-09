@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from signaction.placeholder_assets import generate_placeholder_gif
+from signaction.ai_fallback import generate_ai_fallback_gif
 
 from ..settings import get_settings
 
@@ -72,7 +72,72 @@ def placeholder_gif(token: str) -> Response:
     # Generate placeholder in-memory.
     tmp_dir = settings.assets_dir / ".placeholders"
     out_path = tmp_dir / f"{safe}.gif"
-    generate_placeholder_gif(safe, out_path)
+    generate_ai_fallback_gif(safe, out_path)
     data = out_path.read_bytes()
 
     return Response(content=data, media_type="image/gif")
+
+
+import json
+import re
+from signaction.nlp import _load_nlp
+
+_YT_DICT_CACHE = None
+
+def _build_semantic_dictionary(raw_dict: dict) -> dict:
+    nlp = _load_nlp()
+    semantic_dict = {}
+
+    for raw_key, record in raw_dict.items():
+        # 1. Clean the key (remove (sign 1), sign 2, numbers, parentheses)
+        clean = raw_key.lower().strip()
+        clean = re.sub(r"\(.*?\)", "", clean)
+        clean = re.sub(r"\bsign\s+\d+\b", "", clean)
+        clean = re.sub(r"\b\d+\b", "", clean)
+        clean = clean.strip()
+        
+        # 2. Split by commas/slashes to find synonyms
+        synonyms = [s.strip() for s in re.split(r"[,/]", clean) if s.strip()]
+        
+        # Add the raw key itself to preserve exact lookups
+        synonyms.append(raw_key.lower().strip())
+        
+        for syn in synonyms:
+            # Map the clean synonym phrase itself
+            semantic_dict[syn] = record
+            
+            # 3. Use SpaCy to extract lemmas for each individual word
+            doc = nlp(syn)
+            for token in doc:
+                if token.is_space or token.is_punct or token.is_stop:
+                    continue
+                lemma = (token.lemma_ or "").strip().lower()
+                if lemma and lemma != "-pron-":
+                    # Map the lemma
+                    if lemma not in semantic_dict:
+                        semantic_dict[lemma] = record
+                
+                # Also map the raw word token
+                word = token.text.strip().lower()
+                if word and word not in semantic_dict:
+                    semantic_dict[word] = record
+
+    return semantic_dict
+
+@router.get("/api/youtube-dictionary")
+def get_youtube_dictionary() -> dict:
+    global _YT_DICT_CACHE
+    if _YT_DICT_CACHE is not None:
+        return _YT_DICT_CACHE
+
+    repo_root = Path(__file__).resolve().parents[2]
+    json_path = repo_root / "sign_videos.json"
+    if json_path.exists():
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                raw_dict = json.load(f)
+                _YT_DICT_CACHE = _build_semantic_dictionary(raw_dict)
+                return _YT_DICT_CACHE
+        except Exception:
+            return {}
+    return {}

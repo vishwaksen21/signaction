@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import math
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Any
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -69,7 +69,7 @@ def _finger_ray(draw: ImageDraw.ImageDraw,
     tip = base + np.array([math.cos(angle) * length,
                             math.sin(angle) * length])
     draw.line([tuple(base.astype(int)), tuple(tip.astype(int))],
-              fill=color, width=2)
+              fill=color, width=3)
 
 
 def draw_flat_hand(draw, wx, wy, base_angle=0.0, scale=1.0):
@@ -142,6 +142,136 @@ HANDSHAPES: dict[str, Callable] = {
     "hook":  draw_hook,
     "pinch": draw_pinch,
 }
+
+LANDMARKS: dict[str, np.ndarray] = {
+    "FOREHEAD": FOREHEAD,
+    "CHIN": CHIN,
+    "CHEST": CHEST,
+    "CHEEK_R": CHEEK_R,
+    "CHEEK_L": CHEEK_L,
+    "NEUTRAL": NEUTRAL,
+}
+
+ALLOWED_HANDS = set(HANDSHAPES)
+
+
+def _clamp_float(value: Any, low: float, high: float, default: float) -> float:
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        n = default
+    return max(low, min(high, n))
+
+
+def _pair(value: Any, *, low: float, high: float, default: tuple[float, float]) -> np.ndarray:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return np.array(default, dtype=float)
+    return np.array(
+        [
+            _clamp_float(value[0], low, high, default[0]),
+            _clamp_float(value[1], low, high, default[1]),
+        ],
+        dtype=float,
+    )
+
+
+def _hand(value: Any, default: str = "flat") -> str:
+    name = str(value or default).lower()
+    return name if name in ALLOWED_HANDS else default
+
+
+def _landmark(value: Any) -> np.ndarray:
+    return LANDMARKS.get(str(value or "NEUTRAL").upper(), NEUTRAL)
+
+
+def _lerp(a: np.ndarray, b: np.ndarray, amount: float) -> np.ndarray:
+    return a + (b - a) * amount
+
+
+def _normalize_keyframes(params: dict) -> list[dict]:
+    raw_keyframes = params.get("keyframes")
+    if not isinstance(raw_keyframes, list):
+        return []
+
+    normalized: list[dict] = []
+    for idx, raw in enumerate(raw_keyframes[:6]):
+        if not isinstance(raw, dict):
+            continue
+
+        fallback_t = 0.0 if len(raw_keyframes) <= 1 else idx / max(1, len(raw_keyframes) - 1)
+        frame = {
+            "t": _clamp_float(raw.get("t"), 0.0, 1.0, fallback_t),
+            "r_elbow_offset": _pair(
+                raw.get("r_elbow_offset"),
+                low=-60.0,
+                high=80.0,
+                default=(30.0, 10.0),
+            ),
+            "l_elbow_offset": _pair(
+                raw.get("l_elbow_offset"),
+                low=-80.0,
+                high=80.0,
+                default=(-25.0, 35.0),
+            ),
+            "r_wrist": _landmark(raw.get("r_wrist_landmark"))
+            + _pair(raw.get("r_wrist_offset"), low=-80.0, high=80.0, default=(0.0, 0.0)),
+            "l_wrist": _landmark(raw.get("l_wrist_landmark"))
+            + _pair(raw.get("l_wrist_offset"), low=-80.0, high=80.0, default=(0.0, 35.0)),
+            "r_hand": _hand(raw.get("r_hand")),
+            "l_hand": _hand(raw.get("l_hand")),
+            "r_hand_angle": _clamp_float(raw.get("r_hand_angle_degrees"), -180.0, 180.0, -30.0),
+            "l_hand_angle": _clamp_float(raw.get("l_hand_angle_degrees"), -180.0, 180.0, -90.0),
+        }
+        normalized.append(frame)
+
+    if len(normalized) < 3:
+        return []
+
+    normalized.sort(key=lambda frame: frame["t"])
+    normalized[0]["t"] = 0.0
+    normalized[-1]["t"] = 1.0
+    return normalized
+
+
+def _sample_keyframes(keyframes: list[dict], progress: float) -> dict:
+    progress = _clamp_float(progress, 0.0, 1.0, 0.0)
+    prev_frame = keyframes[0]
+    next_frame = keyframes[-1]
+
+    for idx in range(1, len(keyframes)):
+        if progress <= keyframes[idx]["t"]:
+            prev_frame = keyframes[idx - 1]
+            next_frame = keyframes[idx]
+            break
+
+    span = max(0.001, next_frame["t"] - prev_frame["t"])
+    local = _clamp_float((progress - prev_frame["t"]) / span, 0.0, 1.0, 0.0)
+    eased = 0.5 - 0.5 * math.cos(local * math.pi)
+
+    # Handshapes change discretely at the midpoint so fingers do not morph into odd hybrids.
+    hand_frame = next_frame if local >= 0.5 else prev_frame
+    return {
+        "r_elbow_offset": _lerp(prev_frame["r_elbow_offset"], next_frame["r_elbow_offset"], eased),
+        "l_elbow_offset": _lerp(prev_frame["l_elbow_offset"], next_frame["l_elbow_offset"], eased),
+        "r_wrist": _lerp(prev_frame["r_wrist"], next_frame["r_wrist"], eased),
+        "l_wrist": _lerp(prev_frame["l_wrist"], next_frame["l_wrist"], eased),
+        "r_hand": hand_frame["r_hand"],
+        "l_hand": hand_frame["l_hand"],
+        "r_hand_angle": _clamp_float(
+            prev_frame["r_hand_angle"]
+            + (next_frame["r_hand_angle"] - prev_frame["r_hand_angle"]) * eased,
+            -180.0,
+            180.0,
+            -30.0,
+        ),
+        "l_hand_angle": _clamp_float(
+            prev_frame["l_hand_angle"]
+            + (next_frame["l_hand_angle"] - prev_frame["l_hand_angle"]) * eased,
+            -180.0,
+            180.0,
+            -90.0,
+        ),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -383,6 +513,7 @@ ISL_SIGNS = [
         "r_elbow_offset": [30, 20],
         "target": NEUTRAL,
         "r_motion": lambda p: np.array([_osc(p, 15, 2), _osc(p, 10, 2)]),
+        "l_motion": lambda p: np.array([_osc(p + math.pi, -15, 2), _osc(p + math.pi, 10, 2)]),
         "l_elbow_offset": [-30, 20],
         "l_wrist_offset": [0, 20],
         "r_hand": "fist", "l_hand": "fist",
@@ -396,11 +527,328 @@ ISL_SIGNS = [
         "r_elbow_offset": [35, 10],
         "target": NEUTRAL + np.array([10, -10]),
         "r_motion": lambda p: np.array([_osc(p, 12, 2), _osc(p, 8, 2)]),
+        "l_motion": lambda p: np.array([_osc(p + math.pi, -12, 2), _osc(p + math.pi, 8, 2)]),
         "l_elbow_offset": [-35, 10],
         "l_wrist_offset": [0, 20],
         "r_hand": "v", "l_hand": "v",
         "r_hand_angle": -30, "l_hand_angle": -30,
         "description": "COMPUTER/CODE — V-shape (ISL)",
+    },
+    # ------------------------------------------------------------------ THANK_YOU
+    {
+        "tokens": {"THANK_YOU"},
+        # Flat hand from chin moves forward
+        "r_elbow_offset": [20, 10],
+        "target": CHIN,
+        "r_motion": lambda p: np.array([_osc(p, 20, 1), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": -50, "l_hand_angle": -90,
+        "description": "THANK YOU — Chin forward (ISL)",
+    },
+    # ------------------------------------------------------------------ GOOD_MORNING
+    {
+        "tokens": {"GOOD_MORNING", "MORNING", "SUNRISE"},
+        # Right hand flat rises from horizontal left arm (morning sun)
+        "r_elbow_offset": [30, 20],
+        "target": CHEST + np.array([0, 20]),
+        "r_motion": lambda p: np.array([0, _osc(p, -30, 1)]),
+        "l_elbow_offset": [-35, 30],
+        "l_wrist_offset": [35, 0],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": -90, "l_hand_angle": 0,
+        "description": "GOOD MORNING — Sun rising (ISL)",
+    },
+    # ------------------------------------------------------------------ GOOD_NIGHT
+    {
+        "tokens": {"GOOD_NIGHT", "NIGHT", "SLEEP", "BEDTIME"},
+        # Hands tilt head to shoulder (sleeping pose)
+        "r_elbow_offset": [20, 10],
+        "target": CHEEK_R + np.array([10, 10]),
+        "r_motion": lambda p: np.array([0, _osc(p, 5, 0.5)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": 45, "l_hand_angle": -90,
+        "description": "GOOD NIGHT — Head tilts on hand (ISL)",
+    },
+    # ------------------------------------------------------------------ HOW_ARE_YOU
+    {
+        "tokens": {"HOW_ARE_YOU", "HOW_ARE_U", "STATUS"},
+        # Flat hands move out from chest pointing forward
+        "r_elbow_offset": [30, 10],
+        "target": NEUTRAL,
+        "r_motion": lambda p: np.array([_osc(p, 20, 1), 0]),
+        "l_motion": lambda p: np.array([_osc(p, -20, 1), 0]),
+        "l_elbow_offset": [-30, 10],
+        "l_wrist_offset": [-20, 30],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": 0, "l_hand_angle": -180,
+        "description": "HOW ARE YOU — Hands move out (ISL)",
+    },
+    # ------------------------------------------------------------------ HAPPY
+    {
+        "tokens": {"HAPPY", "JOY", "CELEBRATE", "GLAD", "CHEERFUL", "SMILE"},
+        # Both hands wave near shoulders/chest
+        "r_elbow_offset": [35, 0],
+        "target": CHEST + np.array([30, -20]),
+        "r_motion": lambda p: np.array([0, _osc(p, 15, 2)]),
+        "l_motion": lambda p: np.array([0, _osc(p, 15, 2)]),
+        "l_elbow_offset": [-35, 0],
+        "l_wrist_offset": [-10, 15],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": -45, "l_hand_angle": -135,
+        "description": "HAPPY — Hands wave near chest (ISL)",
+    },
+    # ------------------------------------------------------------------ FRIEND
+    {
+        "tokens": {"FRIEND", "BUDDY", "PARTNER", "AMIGO", "FRIENDS", "SEE_YOU", "SEE_YOU_LATER"},
+        # Clasping/interlocking hands at chest level
+        "r_elbow_offset": [25, 20],
+        "target": CHEST + np.array([10, 20]),
+        "r_motion": lambda p: np.array([_osc(p, 8, 1), 0]),
+        "l_motion": lambda p: np.array([_osc(p + math.pi, 8, 1), 0]),
+        "l_elbow_offset": [-25, 20],
+        "l_wrist_offset": [25, 10],
+        "r_hand": "fist", "l_hand": "fist",
+        "r_hand_angle": 45, "l_hand_angle": 135,
+        "description": "FRIEND — Clasping hands at chest (ISL)",
+    },
+    # ------------------------------------------------------------------ TIME
+    {
+        "tokens": {"TIME", "CLOCK", "WATCH", "HOUR", "MINUTE", "SECOND"},
+        # Right index points to left wrist
+        "r_elbow_offset": [20, 20],
+        "target": CHEST + np.array([-20, 20]),
+        "r_motion": lambda p: np.array([_osc(p, 6, 2), _osc(p, 8, 2)]),
+        "l_elbow_offset": [-30, 30],
+        "l_wrist_offset": [15, 0],
+        "r_hand": "point", "l_hand": "fist",
+        "r_hand_angle": 120, "l_hand_angle": 0,
+        "description": "TIME — Point to wrist watch (ISL)",
+    },
+    # ------------------------------------------------------------------ TALK
+    {
+        "tokens": {"TALK", "SPEAK", "SAY", "COMMUNICATE", "TELL", "CHAT", "SPEECH"},
+        # Index finger moves outward from mouth repeatedly
+        "r_elbow_offset": [30, 0],
+        "target": CHIN,
+        "r_motion": lambda p: np.array([_osc(p, 18, 2), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -20, "l_hand_angle": -90,
+        "description": "TALK — Index moves from chin (ISL)",
+    },
+    # ------------------------------------------------------------------ HOUSE
+    {
+        "tokens": {"HOUSE", "HOME", "BUILDING", "PLACE", "ROOM", "STAY", "LIVE"},
+        # Hands form a roof shape (tent) at chest level
+        "r_elbow_offset": [35, 10],
+        "target": CHEST + np.array([20, 10]),
+        "r_motion": lambda p: np.array([_osc(p, 5, 1), 0]),
+        "l_motion": lambda p: np.array([_osc(p, -5, 1), 0]),
+        "l_elbow_offset": [-35, 10],
+        "l_wrist_offset": [25, 0],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": -45, "l_hand_angle": -135,
+        "description": "HOUSE — Hands form roof shape (ISL)",
+    },
+    # ------------------------------------------------------------------ SAD
+    {
+        "tokens": {"SAD", "CRY", "SORROW", "UNHAPPY", "DEPRESSED", "TEARS"},
+        # Index fingers slide down cheeks
+        "r_elbow_offset": [25, -10],
+        "target": CHEEK_R,
+        "r_motion": lambda p: np.array([0, _osc(p, 20, 1)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -90, "l_hand_angle": -90,
+        "description": "SAD — Index slides down cheek (ISL)",
+    },
+    # ------------------------------------------------------------------ NAME
+    {
+        "tokens": {"NAME", "CALL", "IDENTITY", "NAMED", "INTRODUCE"},
+        # Two fingers tapping chest/neutral space
+        "r_elbow_offset": [25, 20],
+        "target": CHEST + np.array([10, 10]),
+        "r_motion": lambda p: np.array([0, _osc(p, 10, 2)]),
+        "l_elbow_offset": [-25, 20],
+        "l_wrist_offset": [20, 15],
+        "r_hand": "v", "l_hand": "v",
+        "r_hand_angle": 30, "l_hand_angle": -30,
+        "description": "NAME — Two fingers tap (ISL)",
+    },
+    # ------------------------------------------------------------------ SORRY
+    {
+        "tokens": {"SORRY", "APOLOGIZE", "FORGIVE", "EXCUSE", "REGRET"},
+        # Rubbing chest with right fist in circles
+        "r_elbow_offset": [15, 10],
+        "target": CHEST,
+        "r_motion": lambda p: np.array([_osc(p, 12, 1.5), _cos(p, 12, 1.5)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "fist", "l_hand": "flat",
+        "r_hand_angle": 90, "l_hand_angle": -90,
+        "description": "SORRY — Fist circles chest (ISL)",
+    },
+    # ------------------------------------------------------------------ MOTHER
+    {
+        "tokens": {"MOTHER", "MOM", "MUM", "MAMMA", "SISTER", "WOMAN", "GIRL", "FEMALE"},
+        # Index finger taps cheek
+        "r_elbow_offset": [25, 0],
+        "target": CHEEK_R,
+        "r_motion": lambda p: np.array([_osc(p, 6, 2), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -45, "l_hand_angle": -90,
+        "description": "MOTHER — Index taps cheek (ISL)",
+    },
+    # ------------------------------------------------------------------ FATHER
+    {
+        "tokens": {"FATHER", "DAD", "PAPA", "BROTHER", "MAN", "BOY", "MALE", "GENTLEMAN"},
+        # Index taps forehead
+        "r_elbow_offset": [25, -20],
+        "target": FOREHEAD + np.array([15, 0]),
+        "r_motion": lambda p: np.array([_osc(p, 6, 2), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -90, "l_hand_angle": -90,
+        "description": "FATHER — Index taps forehead (ISL)",
+    },
+    # ------------------------------------------------------------------ MONEY
+    {
+        "tokens": {"MONEY", "BUY", "SELL", "PRICE", "COST", "CASH", "PAY", "RICH", "EXPENSIVE", "DOLLAR", "RUPEE"},
+        # Pinch handshape rubbing fingers in neutral space
+        "r_elbow_offset": [30, 20],
+        "target": NEUTRAL,
+        "r_motion": lambda p: np.array([_osc(p, 5, 3), _cos(p, 4, 3)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "pinch", "l_hand": "flat",
+        "r_hand_angle": -20, "l_hand_angle": -90,
+        "description": "MONEY — Rubbing fingers (ISL)",
+    },
+    # ------------------------------------------------------------------ WHAT
+    {
+        "tokens": {"WHAT", "WHICH", "QUESTION", "QUERY", "ASK", "INTERROGATIVE"},
+        # Both hands shake horizontally facing up
+        "r_elbow_offset": [35, 20],
+        "target": NEUTRAL + np.array([10, 0]),
+        "r_motion": lambda p: np.array([_osc(p, 15, 2), 0]),
+        "l_elbow_offset": [-35, 20],
+        "l_wrist_offset": [-10, 25],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": 10, "l_hand_angle": -190,
+        "description": "WHAT — Shaking flat hands up (ISL)",
+    },
+    # ------------------------------------------------------------------ WHERE
+    {
+        "tokens": {"WHERE", "LOCATION", "PLACE", "DIRECTIONS", "DESTINATION"},
+        # Index finger points up and wags side-to-side
+        "r_elbow_offset": [35, 10],
+        "target": NEUTRAL + np.array([10, -20]),
+        "r_motion": lambda p: np.array([_osc(p, 18, 2), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -90, "l_hand_angle": -90,
+        "description": "WHERE — Index wags side-to-side (ISL)",
+    },
+    # ------------------------------------------------------------------ WHEN
+    {
+        "tokens": {"WHEN", "DATE", "CALENDAR", "DAY", "WEEK", "YEAR", "SCHEDULE"},
+        # Right index circles left index in neutral space
+        "r_elbow_offset": [30, 10],
+        "target": NEUTRAL,
+        "r_motion": lambda p: np.array([_osc(p, 15, 1.5), _cos(p, 15, 1.5)]),
+        "l_elbow_offset": [-30, 20],
+        "l_wrist_offset": [15, 15],
+        "r_hand": "point", "l_hand": "point",
+        "r_hand_angle": 0, "l_hand_angle": 90,
+        "description": "WHEN — Index circles (ISL)",
+    },
+    # ------------------------------------------------------------------ WHY
+    {
+        "tokens": {"WHY", "REASON", "CAUSE", "PURPOSE"},
+        # Finger touches side of head then pulls down
+        "r_elbow_offset": [20, -10],
+        "target": FOREHEAD + np.array([15, 0]),
+        "r_motion": lambda p: np.array([0, _osc(p, 20, 1)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -45, "l_hand_angle": -90,
+        "description": "WHY — Index pulls from forehead (ISL)",
+    },
+    # ------------------------------------------------------------------ HOW
+    {
+        "tokens": {"HOW", "METHOD", "WAY", "PROCESS", "MANNER", "STRATEGY"},
+        # Hands roll inward in neutral space
+        "r_elbow_offset": [25, 20],
+        "target": NEUTRAL + np.array([-10, 0]),
+        "r_motion": lambda p: np.array([_osc(p, 12, 1.5), _cos(p, 12, 1.5)]),
+        "l_elbow_offset": [-25, 20],
+        "l_wrist_offset": [25, 15],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": 45, "l_hand_angle": 135,
+        "description": "HOW — Hands roll over (ISL)",
+    },
+    # ------------------------------------------------------------------ WHO
+    {
+        "tokens": {"WHO", "PERSON", "SOMEONE", "INDIVIDUAL", "PEOPLE", "HUMAN", "EVERYONE", "ANYONE"},
+        # Index finger circles near chin/mouth
+        "r_elbow_offset": [20, 10],
+        "target": CHIN + np.array([10, -5]),
+        "r_motion": lambda p: np.array([_osc(p, 8, 2), _cos(p, 8, 2)]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "point", "l_hand": "flat",
+        "r_hand_angle": -30, "l_hand_angle": -90,
+        "description": "WHO — Index circles chin (ISL)",
+    },
+    # ------------------------------------------------------------------ DRINK
+    {
+        "tokens": {"DRINK", "TEA", "COFFEE", "MILK", "BEVERAGE", "JUICE", "CUP"},
+        # Thumb of fist points to mouth (drinking shape)
+        "r_elbow_offset": [20, 10],
+        "target": CHIN,
+        "r_motion": lambda p: np.array([_osc(p, 10, 1), 0]),
+        "l_elbow_offset": [-20, 55],
+        "l_wrist_offset": [0, 40],
+        "r_hand": "fist", "l_hand": "flat",
+        "r_hand_angle": -60, "l_hand_angle": -90,
+        "description": "DRINK — Thumb to mouth (ISL)",
+    },
+    # ------------------------------------------------------------------ PLAY
+    {
+        "tokens": {"PLAY", "GAME", "SPORT", "FUN", "TOY", "ENTERTAINMENT", "MATCH"},
+        # Both hands shake thumbs/pinkies in neutral space
+        "r_elbow_offset": [35, 20],
+        "target": NEUTRAL + np.array([10, 0]),
+        "r_motion": lambda p: np.array([_osc(p, 15, 2.5), 0]),
+        "l_elbow_offset": [-35, 20],
+        "l_wrist_offset": [-10, 25],
+        "r_hand": "v", "l_hand": "v",
+        "r_hand_angle": 0, "l_hand_angle": -180,
+        "description": "PLAY — Waving hands in neutral space (ISL)",
+    },
+    # ------------------------------------------------------------------ WEATHER
+    {
+        "tokens": {"WEATHER", "RAIN", "HOT", "COLD", "WIND", "CLIMATE", "SEASON", "WINTER", "SUMMER"},
+        # Flat hands move down with fluttering fingers
+        "r_elbow_offset": [30, 0],
+        "target": NEUTRAL + np.array([0, -20]),
+        "r_motion": lambda p: np.array([0, _osc(p, 25, 1.5)]),
+        "l_elbow_offset": [-30, 0],
+        "l_wrist_offset": [0, 0],
+        "r_hand": "flat", "l_hand": "flat",
+        "r_hand_angle": 90, "l_hand_angle": 90,
+        "description": "WEATHER — Fluttering hands move down (ISL)",
     },
 ]
 
@@ -454,10 +902,11 @@ def _get_sign(token: str) -> dict:
     t = token.upper().strip()
     if t in _TOKEN_TO_SIGN:
         return _TOKEN_TO_SIGN[t]
-    # Check if token contains any known keyword
-    for key, sign in _TOKEN_TO_SIGN.items():
-        if key in t or t in key:
-            return sign
+    # Check exact word boundaries
+    words = t.split()
+    for w in words:
+        if w in _TOKEN_TO_SIGN:
+            return _TOKEN_TO_SIGN[w]
     # Hash-select fallback family so different words look different
     h = int(hashlib.md5(t.encode()).hexdigest(), 16)
     return _FALLBACK_SIGNS[h % 4]
@@ -475,37 +924,150 @@ def _draw_skeleton(draw: ImageDraw.ImageDraw,
                    l_hand: str,
                    r_angle: float,
                    l_angle: float) -> None:
-    # --- body lines ---
-    draw.line([tuple(NECK.astype(int)), tuple(TORSO_BOT.astype(int))],
-              fill=LINE_COLOR, width=THICK)
-    draw.line([tuple(L_SHOULDER.astype(int)), tuple(R_SHOULDER.astype(int))],
-              fill=LINE_COLOR, width=THICK)
+    # --- body/shirt (filled polygon for realistic avatar body) ---
+    torso_poly = [
+        (int(L_SHOULDER[0]), int(L_SHOULDER[1])),
+        (int(R_SHOULDER[0]), int(R_SHOULDER[1])),
+        (int(TORSO_BOT[0] + 20), int(TORSO_BOT[1])),
+        (int(TORSO_BOT[0] - 20), int(TORSO_BOT[1]))
+    ]
+    # Fill with a nice soft blue/lavender avatar shirt and outline it
+    draw.polygon(torso_poly, fill=(215, 225, 255), outline=LINE_COLOR, width=2)
+    
+    # Neck line (thick, connects head to body)
+    draw.line([tuple(NECK.astype(int)), (int(NECK[0]), int(NECK[1] + 15))], fill=(255, 218, 185), width=10) # skin colored neck
+    draw.line([tuple(NECK.astype(int)), (int(NECK[0]), int(NECK[1] + 15))], fill=LINE_COLOR, width=2) # neck outline
+
+    # --- thick arms (long sleeves) ---
+    # Left sleeve
     draw.line([tuple(L_SHOULDER.astype(int)), tuple(l_elbow.astype(int)),
-               tuple(l_wrist.astype(int))], fill=LINE_COLOR, width=THICK)
+               tuple(l_wrist.astype(int))], fill=LINE_COLOR, width=8)
+    # Right sleeve
     draw.line([tuple(R_SHOULDER.astype(int)), tuple(r_elbow.astype(int)),
-               tuple(r_wrist.astype(int))], fill=LINE_COLOR, width=THICK)
+               tuple(r_wrist.astype(int))], fill=LINE_COLOR, width=8)
 
-    # --- head (drawn after torso so arms appear behind head) ---
+    # --- head (drawn with eyes and a smile) ---
     hx, hy = int(HEAD[0]), int(HEAD[1])
-    draw.ellipse([hx - 20, hy - 26, hx + 20, hy + 26],
-                 outline=LINE_COLOR, width=3, fill=(255, 255, 255))
+    # Draw face ellipse
+    draw.ellipse([hx - 22, hy - 28, hx + 22, hy + 28],
+                 outline=LINE_COLOR, width=3, fill=(255, 245, 235)) # Warm skin fill
+    
+    # Draw cute eyes (filled circles)
+    draw.ellipse([hx - 9, hy - 6, hx - 5, hy - 2], fill=LINE_COLOR) # Left eye
+    draw.ellipse([hx + 5, hy - 6, hx + 9, hy - 2], fill=LINE_COLOR) # Right eye
+    
+    # Draw a cute smile arc
+    draw.arc([hx - 8, hy + 2, hx + 8, hy + 12], start=0, end=180, fill=LINE_COLOR, width=2)
 
-    # --- joints ---
-    for jnt in [NECK, L_SHOULDER, R_SHOULDER, TORSO_BOT,
-                l_elbow, r_elbow]:
+    # --- joints (thick red caps for highlights) ---
+    for jnt in [L_SHOULDER, R_SHOULDER, l_elbow, r_elbow]:
         jx, jy = int(jnt[0]), int(jnt[1])
         draw.ellipse([jx - 5, jy - 5, jx + 5, jy + 5], fill=JOINT_COLOR)
 
-    # --- wrists (hand dots) ---
+    # --- wrists (hand base) ---
     for wrist in [l_wrist, r_wrist]:
         wx, wy = int(wrist[0]), int(wrist[1])
-        draw.ellipse([wx - 7, wy - 7, wx + 7, wy + 7], fill=HAND_COLOR)
+        draw.ellipse([wx - 9, wy - 9, wx + 9, wy + 9], fill=HAND_COLOR)
 
     # --- handshapes ---
     painter_r = HANDSHAPES.get(r_hand, draw_flat_hand)
     painter_l = HANDSHAPES.get(l_hand, draw_flat_hand)
     painter_r(draw, int(r_wrist[0]), int(r_wrist[1]), r_angle)
     painter_l(draw, int(l_wrist[0]), int(l_wrist[1]), l_angle)
+
+
+def _parse_llm_sign_params(params: dict) -> dict:
+    keyframes = _normalize_keyframes(params)
+    if "keyframes" in params and not keyframes:
+        raise ValueError("Invalid LLM keyframe animation pattern")
+
+    if keyframes:
+        first = _sample_keyframes(keyframes, 0.0)
+        return {
+            "uses_keyframes": True,
+            "keyframes": keyframes,
+            "target": np.array([0.0, 0.0], dtype=float),
+            "r_motion": lambda progress: _sample_keyframes(keyframes, progress)["r_wrist"],
+            "l_motion": lambda progress: _sample_keyframes(keyframes, progress)["l_wrist"],
+            "r_elbow_offset": first["r_elbow_offset"],
+            "l_elbow_offset": first["l_elbow_offset"],
+            "l_wrist_offset": np.array([0.0, 0.0], dtype=float),
+            "r_hand": first["r_hand"],
+            "l_hand": first["l_hand"],
+            "r_hand_angle": first["r_hand_angle"],
+            "l_hand_angle": first["l_hand_angle"],
+            "description": params.get("description", "OpenAI keyframe animation"),
+        }
+
+    target_name = params.get("target_landmark", "NEUTRAL").upper()
+    target = LANDMARKS.get(target_name, NEUTRAL)
+    
+    # Right-hand motion
+    motion_type = params.get("motion_type", "none").lower()
+    amp = _clamp_float(params.get("motion_amplitude"), 0.0, 40.0, 10.0)
+    freq = _clamp_float(params.get("motion_frequency"), 0.0, 4.0, 1.0)
+    
+    if motion_type == "vertical_wave":
+        r_motion = lambda p: np.array([0.0, _osc(p, amp, freq)])
+    elif motion_type == "horizontal_wave":
+        r_motion = lambda p: np.array([_osc(p, amp, freq), 0.0])
+    elif motion_type == "circle":
+        r_motion = lambda p: np.array([_osc(p, amp, freq), _cos(p, amp, freq)])
+    elif motion_type == "tap":
+        r_motion = lambda p: np.array([0.0, _osc(p, amp, freq * 2)])
+    else:
+        r_motion = lambda p: np.array([0.0, 0.0])
+        
+    # Left-hand motion (defaults to mirroring right-hand or separate sines)
+    l_motion_type = params.get("l_motion_type", "none").lower()
+    l_amp = _clamp_float(params.get("l_motion_amplitude"), 0.0, 40.0, amp)
+    l_freq = _clamp_float(params.get("l_motion_frequency"), 0.0, 4.0, freq)
+    
+    if l_motion_type == "mirror":
+        l_motion = lambda p: np.array([-r_motion(p)[0], r_motion(p)[1]])
+    elif l_motion_type == "opposite":
+        # Mirroring but with phase shift pi
+        l_motion = lambda p: np.array([-r_motion(p + math.pi)[0], r_motion(p + math.pi)[1]])
+    elif l_motion_type == "vertical_wave":
+        l_motion = lambda p: np.array([0.0, _osc(p, l_amp, l_freq)])
+    elif l_motion_type == "horizontal_wave":
+        l_motion = lambda p: np.array([_osc(p, -l_amp, l_freq), 0.0])
+    elif l_motion_type == "circle":
+        l_motion = lambda p: np.array([_osc(p, -l_amp, l_freq), _cos(p, l_amp, l_freq)])
+    elif l_motion_type == "tap":
+        l_motion = lambda p: np.array([0.0, _osc(p, l_amp, l_freq * 2)])
+    else:
+        l_motion = lambda p: np.array([0.0, 0.0])
+        
+    return {
+        "uses_keyframes": False,
+        "r_elbow_offset": _pair(
+            params.get("r_elbow_offset"),
+            low=-60.0,
+            high=80.0,
+            default=(35.0, 10.0),
+        ),
+        "l_elbow_offset": _pair(
+            params.get("l_elbow_offset"),
+            low=-80.0,
+            high=80.0,
+            default=(-35.0, 10.0),
+        ),
+        "l_wrist_offset": _pair(
+            params.get("l_wrist_offset"),
+            low=-80.0,
+            high=80.0,
+            default=(0.0, 40.0),
+        ),
+        "target": target,
+        "r_motion": r_motion,
+        "l_motion": l_motion,
+        "r_hand": _hand(params.get("r_hand")),
+        "l_hand": _hand(params.get("l_hand")),
+        "r_hand_angle": _clamp_float(params.get("r_hand_angle_degrees"), -180.0, 180.0, -30.0),
+        "l_hand_angle": _clamp_float(params.get("l_hand_angle_degrees"), -180.0, 180.0, -90.0),
+        "description": params.get("description", "AI Generated Motion")
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -531,12 +1093,45 @@ def generate_ai_fallback_gif(
     except Exception:
         font = None
 
-    # Per-token deterministic variation (speed / phase only — sign shape fixed)
-    h = int(hashlib.md5(token_upper.encode()).hexdigest(), 16)
-    speed_factor = 1.0 + (h % 5) * 0.15
-    phase_offset = (h % 100) / 100.0 * math.pi
+    sign = None
+    speed_factor = 1.0
+    phase_offset = 0.0
 
-    sign = _get_sign(token_upper)
+    # 1. Prioritize hand-crafted local sign database matching
+    matched_sign = None
+    if token_upper in _TOKEN_TO_SIGN:
+        matched_sign = _TOKEN_TO_SIGN[token_upper]
+    else:
+        # Check exact word boundaries
+        words = token_upper.split()
+        for w in words:
+            if w in _TOKEN_TO_SIGN:
+                matched_sign = _TOKEN_TO_SIGN[w]
+                break
+
+    if matched_sign:
+        sign = matched_sign
+        # Add deterministic phase/speed variation
+        h = int(hashlib.md5(token_upper.encode()).hexdigest(), 16)
+        speed_factor = 1.0 + (h % 5) * 0.15
+        phase_offset = (h % 100) / 100.0 * math.pi
+    else:
+        # 2. Fall back to LLM-parameterized gesture for unknown words
+        from .llm_client import call_llm_sign_params
+        llm_params = call_llm_sign_params(token_upper)
+        if llm_params:
+            try:
+                sign = _parse_llm_sign_params(llm_params)
+            except Exception:
+                sign = None
+
+    # 3. Fall back to local hash-family if LLM also fails
+    if not sign:
+        h = int(hashlib.md5(token_upper.encode()).hexdigest(), 16)
+        speed_factor = 1.0 + (h % 5) * 0.15
+        phase_offset = (h % 100) / 100.0 * math.pi
+        sign = _get_sign(token_upper)
+
     description = sign.get("description", f"SIGN: {token_upper}")
 
     r_elbow_off = np.array(sign["r_elbow_offset"], dtype=float)
@@ -544,6 +1139,8 @@ def generate_ai_fallback_gif(
     l_wrist_off = np.array(sign["l_wrist_offset"], dtype=float)
     target      = sign["target"]
     r_motion_fn = sign["r_motion"]
+    l_motion_fn = sign.get("l_motion")
+    uses_keyframes = bool(sign.get("uses_keyframes"))
 
     frames: list[Image.Image] = []
 
@@ -551,23 +1148,43 @@ def generate_ai_fallback_gif(
         img  = Image.new("RGB", (W, H), color=BG_COLOR)
         draw = ImageDraw.Draw(img)
 
-        # Smooth phase (ease-in-out via cosine)
-        t      = i / frame_count
-        phase  = 0.5 * (1 - math.cos(t * 2 * math.pi * speed_factor)) + phase_offset
+        if uses_keyframes:
+            progress = i / max(1, frame_count - 1)
+            pose = _sample_keyframes(sign["keyframes"], progress)
+            r_elbow = R_SHOULDER + pose["r_elbow_offset"]
+            l_elbow = L_SHOULDER + pose["l_elbow_offset"]
+            r_wrist = pose["r_wrist"]
+            l_wrist = pose["l_wrist"]
+            r_hand = pose["r_hand"]
+            l_hand = pose["l_hand"]
+            r_angle = pose["r_hand_angle"]
+            l_angle = pose["l_hand_angle"]
+        else:
+            # Smooth phase (ease-in-out via cosine)
+            t = i / frame_count
+            phase = 0.5 * (1 - math.cos(t * 2 * math.pi * speed_factor)) + phase_offset
 
-        r_elbow = R_SHOULDER + r_elbow_off
-        l_elbow = L_SHOULDER + l_elbow_off
-        l_wrist = l_elbow   + l_wrist_off
+            r_elbow = R_SHOULDER + r_elbow_off
+            l_elbow = L_SHOULDER + l_elbow_off
 
-        # Dominant wrist = target landmark + sign-specific oscillation
-        r_wrist = target + r_motion_fn(phase)
+            # Calculate left wrist with optional dynamic movement
+            l_wrist = l_elbow + l_wrist_off
+            if l_motion_fn is not None:
+                l_wrist = l_wrist + l_motion_fn(phase)
+
+            # Dominant wrist = target landmark + sign-specific oscillation
+            r_wrist = target + r_motion_fn(phase)
+            r_hand = sign["r_hand"]
+            l_hand = sign["l_hand"]
+            r_angle = sign["r_hand_angle"]
+            l_angle = sign["l_hand_angle"]
 
         _draw_skeleton(
             draw,
             r_elbow=r_elbow, r_wrist=r_wrist,
             l_elbow=l_elbow, l_wrist=l_wrist,
-            r_hand=sign["r_hand"], l_hand=sign["l_hand"],
-            r_angle=sign["r_hand_angle"], l_angle=sign["l_hand_angle"],
+            r_hand=r_hand, l_hand=l_hand,
+            r_angle=r_angle, l_angle=l_angle,
         )
 
         # Label overlay

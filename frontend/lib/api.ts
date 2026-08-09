@@ -165,7 +165,7 @@ export async function translateSpeechOnce(file: File): Promise<TranslateResponse
 
 export type DictionaryItem = { token: string; url: string; media_type: 'gif' | 'mp4' | 'img' };
 export async function fetchDictionary(): Promise<{ items: DictionaryItem[] }> {
-  const res = await fetch('/dictionary.json', { cache: 'no-store' });
+  const res = await fetch('/api/dictionary', { cache: 'no-store' });
   if (!res.ok) return { items: [] };
   const data = await res.json();
   return {

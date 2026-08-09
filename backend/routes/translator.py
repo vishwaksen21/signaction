@@ -50,9 +50,13 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
     settings = get_settings()
 
     gloss = glossify(req.text)
-    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=True)
+    translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=False)
 
     lex = SignLexicon(assets_dir=settings.assets_dir)
+
+    # Query YouTube playlist dictionary
+    from .dictionary import get_youtube_dictionary
+    yt_dict = get_youtube_dictionary()
 
     tokens_out: list[str] = []
     gestures: list[str] = []
@@ -61,14 +65,30 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
         resolved = lex.resolve(item.token)
 
         if resolved is not None and resolved.media_path.exists():
-            # Word has a direct ISL video
+            # Word has a direct local ISL video
             tokens_out.append(item.token)
             gestures.append(_asset_url_for(resolved.media_path, assets_dir=settings.assets_dir))
         else:
-            # Fingerspell the word letter by letter using real ISL letter videos
-            spelled = _fingerspell(item.token, lex, settings.assets_dir)
-            for label, url in spelled:
-                tokens_out.append(label)
-                gestures.append(url)
+            clean_token = item.token.lower().strip()
+            yt_match = yt_dict.get(clean_token)
+            if not yt_match:
+                from signaction.nlp import _load_nlp
+                nlp = _load_nlp()
+                doc = nlp(clean_token)
+                if len(doc) > 0:
+                    lemma = doc[0].lemma_.lower().strip()
+                    yt_match = yt_dict.get(lemma)
+
+            if yt_match:
+                tokens_out.append(item.token)
+                gestures.append(yt_match["youtubeUrl"])
+            else:
+                # Word is not found anywhere. Fingerspell it letter by letter!
+                for char in item.token.upper():
+                    if "A" <= char <= "Z":
+                        resolved_char = lex.resolve(char)
+                        if resolved_char and resolved_char.media_path.exists():
+                            tokens_out.append(char)
+                            gestures.append(_asset_url_for(resolved_char.media_path, assets_dir=settings.assets_dir))
 
     return TranslateResponse(tokens=tokens_out, gestures=gestures, gloss=gloss.gloss)

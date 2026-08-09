@@ -21,3 +21,5 @@ models/
 *.wav
 *.flac
 *.mp3
+
+.env

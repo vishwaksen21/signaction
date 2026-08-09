@@ -17,8 +17,17 @@ export default function TranslatorPage() {
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
 
-  // Use offline result if available, otherwise server result
-  const active = offlineResult ?? translateSpeech.data ?? translateText.data;
+  const handleTranslateText = () => {
+    translateSpeech.reset();
+    translateText.mutate({ text });
+  };
+
+  const handleTranslateSpeech = (file: File) => {
+    translateText.reset();
+    translateSpeech.mutate({ file });
+  };
+
+  const active = translateSpeech.data ?? translateText.data;
   const isLoading = translateText.isPending || translateSpeech.isPending;
   const error = (translateText.error ?? translateSpeech.error) as Error | null;
 
@@ -180,15 +189,9 @@ export default function TranslatorPage() {
             >
               <TranslatorInput
                 text={text}
-                onTextChange={handleTextChange}
-                onTranslateText={() => {
-                  setOfflineResult(null);
-                  translateText.mutate({ text });
-                }}
-                onTranslateSpeech={(file: File) => {
-                  setOfflineResult(null);
-                  translateSpeech.mutate({ file });
-                }}
+                onTextChange={setText}
+                onTranslateText={handleTranslateText}
+                onTranslateSpeech={handleTranslateSpeech}
                 loading={isLoading}
                 error={error?.message ?? null}
               />

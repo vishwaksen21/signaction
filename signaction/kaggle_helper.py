@@ -16,6 +16,11 @@ class KaggleHelper:
     """Helper to manage Kaggle sign language datasets."""
 
     DATASETS = {
+        "wlasl": {
+            "id": "sttaseen/wlasl2000-resized",
+            "description": "WLASL Complete 2000 signs (Resized)",
+            "type": "videos",
+        },
         "asl-alphabet": {
             "id": "grassknoted/asl-alphabet",
             "description": "ASL Alphabet (A-Z) fingerspelling dataset - Most reliable",
