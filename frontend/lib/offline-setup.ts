@@ -29,50 +29,64 @@ export interface OfflineSetupResult {
   error?: string;
 }
 
-// Sign asset files to cache (alphabet + common words)
+// ALL sign asset files that actually exist in public/assets/signs/
+// Generated from actual file listing — do NOT guess paths
 const ASSET_FILES = [
-  // Alphabet A-Z
-  ...Array.from({ length: 26 }, (_, i) => `alphabet/${String.fromCharCode(65 + i)}.mp4`),
-  // Numbers 0-9
-  ...Array.from({ length: 10 }, (_, i) => `signs/${i}.mp4`),
-  // Common words
-  'signs/HELLO.mp4', 'signs/GOODBYE.mp4', 'signs/PLEASE.mp4', 'signs/THANK_YOU.mp4',
-  'signs/YES.mp4', 'signs/NO.mp4', 'signs/HELP.mp4',
-  'signs/NAME.mp4', 'signs/WHAT.mp4', 'signs/WHO.mp4', 'signs/WHERE.mp4',
-  'signs/WHEN.mp4', 'signs/WHY.mp4', 'signs/HOW.mp4', 'signs/UNDERSTAND.mp4',
-  'signs/NOT_UNDERSTAND.mp4', 'signs/LOVE.mp4', 'signs/HATE.mp4',
-  'signs/HAPPY.mp4', 'signs/SAD.mp4', 'signs/ANGRY.mp4', 'signs/AFRAID.mp4',
-  'signs/GOOD.mp4', 'signs/BAD.mp4', 'signs/BIG.mp4', 'signs/SMALL.mp4',
-  'signs/EAT.mp4', 'signs/DRINK.mp4', 'signs/SLEEP.mp4', 'signs/WALK.mp4',
-  'signs/RUN.mp4', 'signs/TALK.mp4', 'signs/LOOK.mp4', 'signs/LISTEN.mp4',
-  'signs/READ.mp4', 'signs/WRITE.mp4', 'signs/WORK.mp4', 'signs/PLAY.mp4',
-  'signs/FRIEND.mp4', 'signs/FAMILY.mp4', 'signs/HOME.mp4', 'signs/SCHOOL.mp4',
-  'signs/FOOD.mp4', 'signs/WATER.mp4', 'signs/CAR.mp4', 'signs/BOOK.mp4',
-  'signs/DOG.mp4', 'signs/CAT.mp4', 'signs/AND.mp4', 'signs/OR.mp4',
-  'signs/NOT.mp4', 'signs/BUT.mp4', 'signs/BE.mp4', 'signs/HAVE.mp4',
-  'signs/DO.mp4', 'signs/CAN.mp4', 'signs/WANT.mp4', 'signs/NEED.mp4',
-  'signs/GO.mp4', 'signs/COME.mp4', 'signs/SEE.mp4', 'signs/HEAR.mp4',
-  'signs/FEEL.mp4', 'signs/THINK.mp4', 'signs/KNOW.mp4', 'signs/LEARN.mp4',
-  'signs/TEACH.mp4', 'signs/MAKE.mp4', 'signs/GIVE.mp4', 'signs/TAKE.mp4',
-  'signs/PUT.mp4', 'signs/OPEN.mp4', 'signs/CLOSE.mp4', 'signs/START.mp4',
-  'signs/STOP.mp4', 'signs/ALL.mp4', 'signs/NONE.mp4', 'signs/SOME.mp4',
-  'signs/MANY.mp4', 'signs/FEW.mp4', 'signs/MORE.mp4', 'signs/LESS.mp4',
-  'signs/ALSO.mp4', 'signs/ALWAYS.mp4', 'signs/NEVER.mp4', 'signs/SOMETIMES.mp4',
-  'signs/TODAY.mp4', 'signs/TOMORROW.mp4', 'signs/YESTERDAY.mp4',
-  'signs/MORNING.mp4', 'signs/AFTERNOON.mp4', 'signs/EVENING.mp4',
-  'signs/MONDAY.mp4', 'signs/TUESDAY.mp4', 'signs/WEDNESDAY.mp4',
-  'signs/THURSDAY.mp4', 'signs/FRIDAY.mp4', 'signs/SATURDAY.mp4', 'signs/SUNDAY.mp4',
-  'signs/JANUARY.mp4', 'signs/FEBRUARY.mp4', 'signs/MARCH.mp4',
-  'signs/APRIL.mp4', 'signs/MAY.mp4', 'signs/JUNE.mp4',
-  'signs/JULY.mp4', 'signs/AUGUST.mp4', 'signs/SEPTEMBER.mp4',
-  'signs/OCTOBER.mp4', 'signs/NOVEMBER.mp4', 'signs/DECEMBER.mp4',
-  'signs/QUESTION.mp4', 'signs/ANSWER.mp4', 'signs/EXCUSE_ME.mp4',
-  'signs/SORRY.mp4', 'signs/WELCOME.mp4', 'signs/GOOD_MORNING.mp4',
-  'signs/GOOD_NIGHT.mp4', 'signs/HOW_ARE_YOU.mp4', 'signs/I_AM_FINE.mp4',
+  'signs/0.mp4','signs/1.mp4','signs/2.mp4','signs/3.mp4','signs/4.mp4',
+  'signs/5.mp4','signs/6.mp4','signs/7.mp4','signs/8.mp4','signs/9.mp4',
+  'signs/A.mp4','signs/B.mp4','signs/C.mp4','signs/D.mp4','signs/E.mp4',
+  'signs/F.mp4','signs/G.mp4','signs/H.mp4','signs/I.mp4','signs/J.mp4',
+  'signs/K.mp4','signs/L.mp4','signs/M.mp4','signs/N.mp4','signs/O.mp4',
+  'signs/P.mp4','signs/Q.mp4','signs/R.mp4','signs/S.mp4','signs/T.mp4',
+  'signs/U.mp4','signs/V.mp4','signs/W.mp4','signs/X.mp4','signs/Y.mp4',
+  'signs/Z.mp4',
+  'signs/AFRAID.mp4','signs/AFTER.mp4','signs/AGAIN.mp4','signs/AGAINST.mp4',
+  'signs/AGE.mp4','signs/AGREE.mp4','signs/ALL.mp4','signs/ALONE.mp4',
+  'signs/ALSO.mp4','signs/ALWAYS.mp4','signs/AND.mp4','signs/ANGRY.mp4',
+  'signs/ANSWER.mp4','signs/ASK.mp4','signs/AT.mp4',
+  'signs/BAD.mp4','signs/BE.mp4','signs/BEAUTIFUL.mp4','signs/BEFORE.mp4',
+  'signs/BEST.mp4','signs/BETTER.mp4','signs/BRAVE.mp4','signs/BREAK.mp4',
+  'signs/BUSY.mp4','signs/BUT.mp4','signs/BYE.mp4',
+  'signs/CALL.mp4','signs/CALM.mp4','signs/CAN.mp4','signs/CANNOT.mp4',
+  'signs/CAREFUL.mp4','signs/CHANGE.mp4','signs/CHAT.mp4','signs/CHOCOLATE.mp4',
+  'signs/COLLEGE.mp4','signs/COME.mp4','signs/COMPUTER.mp4',
+  'signs/CONGRATULATIONS.mp4','signs/CRY.mp4',
+  'signs/DAY.mp4','signs/DISAGREE.mp4','signs/DISSENT.mp4','signs/DISTANCE.mp4',
+  'signs/DO.mp4','signs/DOES_NOT.mp4','signs/DO_NOT.mp4','signs/DRINK.mp4',
+  'signs/EAT.mp4','signs/ENGINEER.mp4',
+  'signs/FIGHT.mp4','signs/FINISH.mp4','signs/FOLLOW.mp4','signs/FROM.mp4',
+  'signs/GLITTER.mp4','signs/GO.mp4','signs/GOD.mp4','signs/GOLD.mp4',
+  'signs/GOOD.mp4','signs/GREAT.mp4',
+  'signs/HAND.mp4','signs/HANDS.mp4','signs/HAPPY.mp4','signs/HE.mp4',
+  'signs/HEAR.mp4','signs/HELLO.mp4','signs/HELP.mp4','signs/HER.mp4',
+  'signs/HERE.mp4','signs/HIS.mp4','signs/HOME.mp4','signs/HOMEPAGE.mp4',
+  'signs/HOW.mp4',
+  'signs/I.mp4','signs/INVENT.mp4','signs/IT.mp4',
+  'signs/KEEP.mp4',
+  'signs/LANGUAGE.mp4','signs/LAUGH.mp4','signs/LEARN.mp4','signs/LIKE.mp4',
+  'signs/ME.mp4','signs/MORE.mp4','signs/MY.mp4',
+  'signs/NAME.mp4','signs/NEXT.mp4','signs/NO.mp4','signs/NOT.mp4','signs/NOW.mp4',
+  'signs/OF.mp4','signs/ON.mp4','signs/OUR.mp4','signs/OUT.mp4',
+  'signs/PLAY.mp4','signs/PRETTY.mp4',
+  'signs/RIGHT.mp4',
+  'signs/SAD.mp4','signs/SAFE.mp4','signs/SEE.mp4','signs/SELF.mp4',
+  'signs/SHE.mp4','signs/SIGN.mp4','signs/SING.mp4','signs/SLEEP.mp4',
+  'signs/SO.mp4','signs/SOUND.mp4','signs/SPEAK.mp4','signs/STAY.mp4',
+  'signs/STOP.mp4','signs/STUDY.mp4',
+  'signs/TALK.mp4','signs/TELEVISION.mp4','signs/THANK.mp4','signs/THANK_YOU.mp4',
+  'signs/THAT.mp4','signs/THEY.mp4','signs/THIS.mp4','signs/THOSE.mp4',
+  'signs/TIME.mp4','signs/TO.mp4','signs/TYPE.mp4',
+  'signs/UNDERSTAND.mp4','signs/US.mp4',
+  'signs/WAIT.mp4','signs/WALK.mp4','signs/WASH.mp4','signs/WAY.mp4',
+  'signs/WE.mp4','signs/WELCOME.mp4','signs/WHAT.mp4','signs/WHEN.mp4',
+  'signs/WHERE.mp4','signs/WHICH.mp4','signs/WHO.mp4','signs/WHOLE.mp4',
+  'signs/WHOSE.mp4','signs/WHY.mp4','signs/WIFE.mp4','signs/WILL.mp4',
+  'signs/WITH.mp4','signs/WITHOUT.mp4','signs/WORDS.mp4','signs/WORK.mp4',
+  'signs/WORLD.mp4','signs/WRONG.mp4',
+  'signs/YOU.mp4','signs/YOUR.mp4','signs/YOURSELF.mp4',
 ];
 
-// Minimum percentage of assets that must be cached to consider "ready"
-const ASSET_READINESS_THRESHOLD = 0.8; // 80%
+const ASSET_READINESS_THRESHOLD = 0.8;
 
 /**
  * Check if the app is fully ready for offline use.
@@ -84,14 +98,13 @@ export async function isFullyOfflineReady(): Promise<{
 }> {
   const model = await isModelCached();
 
-  // Check if enough sign assets are cached in the SW cache
   let assets = false;
   if ('caches' in window) {
     try {
       const cache = await caches.open('signaction-v1');
       const keys = await cache.keys();
       const cachedAssetCount = keys.filter((req) =>
-        req.url.includes('/assets/')
+        req.url.includes('/assets/signs/')
       ).length;
       const requiredCount = Math.ceil(
         ASSET_FILES.length * ASSET_READINESS_THRESHOLD
@@ -155,19 +168,18 @@ export async function setupOffline(
 
     if ('caches' in window) {
       const cache = await caches.open('signaction-v1');
-  const existingKeys = new Set<string>();
-  const keyRequests = await cache.keys();
+      const existingKeys = new Set<string>();
+      const keyRequests = await cache.keys();
       keyRequests.forEach((r) => existingKeys.add(r.url));
 
       const totalAssets = ASSET_FILES.length;
       let cachedCount = 0;
       let failedCount = 0;
 
-      // Cache assets in batches of 5 for parallel downloads
-      const BATCH_SIZE = 5;
+      const BATCH_SIZE = 10;
       for (let i = 0; i < ASSET_FILES.length; i += BATCH_SIZE) {
         const batch = ASSET_FILES.slice(i, i + BATCH_SIZE);
-        const results = await Promise.allSettled(
+        await Promise.allSettled(
           batch.map(async (file) => {
             const url = `/assets/${file}`;
             if (existingKeys.has(url)) {
@@ -180,16 +192,18 @@ export async function setupOffline(
                 await cache.put(url, response);
                 cachedCount++;
               } else {
+                console.warn(`[Offline] Failed to cache ${url}: ${response.status}`);
                 failedCount++;
               }
-            } catch {
+            } catch (err) {
+              console.warn(`[Offline] Error caching ${url}:`, err);
               failedCount++;
             }
           })
         );
 
         const pct = Math.round(((i + batch.length) / totalAssets) * 100);
-        const overall = 30 + Math.round(pct * 0.5); // 30-80%
+        const overall = 30 + Math.round(pct * 0.5);
         report('assets', pct, overall, `Caching assets... ${cachedCount}/${totalAssets}`);
       }
 
@@ -204,7 +218,7 @@ export async function setupOffline(
       );
     } else {
       assetsCached = true;
-      report('assets', 100, 80, 'Cache API not available (assets will load on demand)');
+      report('assets', 100, 80, 'Cache API not available');
     }
 
     // Phase 3: Ensure Service Worker caches app shell
@@ -213,19 +227,16 @@ export async function setupOffline(
     if ('serviceWorker' in navigator) {
       try {
         const reg = await navigator.serviceWorker.ready;
-        // Trigger SW update to ensure latest cache
         await reg.update();
         appShellCached = true;
       } catch {
-        appShellCached = true; // Non-critical
+        appShellCached = true;
       }
     } else {
       appShellCached = true;
     }
 
     report('appshell', 100, 95, 'App shell ready');
-
-    // Done
     report('done', 100, 100, 'Offline mode ready!');
 
     return {

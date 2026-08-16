@@ -5,6 +5,7 @@ import { Navbar } from '../components/navbar';
 import { Footer } from '../components/footer';
 import { BottomNav } from '../components/bottom-nav';
 import { ApkDownloadFab } from '../components/apk-download-fab';
+import { ServiceWorkerRegister } from '../components/sw-register';
 
 export const metadata: Metadata = {
   title: 'SignAction - Sign Language Translator',
@@ -71,6 +72,9 @@ export default function RootLayout({
 
           {/* APK download FAB */}
           <ApkDownloadFab />
+
+          {/* Register service worker for offline PWA */}
+          <ServiceWorkerRegister />
         </Providers>
       </body>
     </html>
