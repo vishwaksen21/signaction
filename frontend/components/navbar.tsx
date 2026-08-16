@@ -78,8 +78,7 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             {/* APK Download */}
             <a
-              href="/signaction.apk"
-              download="signaction.apk"
+              href="/download-apk"
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-500 transition-colors"
             >
               <Smartphone size={14} />
