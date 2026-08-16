@@ -137,7 +137,7 @@ export function TranslatorInput({
           </label>
           <textarea
             className="w-full resize-none rounded-lg border border-apple-hairline bg-apple-canvas p-4 text-apple-body text-apple-ink placeholder-apple-ink-muted-48 outline-none focus-ring"
-            rows={6}
+            rows={4}
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
             placeholder="Type a sentence, phrase, or word to translate…"

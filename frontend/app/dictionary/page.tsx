@@ -29,7 +29,7 @@ export default function DictionaryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         
         {/* Header */}
         <div className="mb-12 text-center max-w-2xl mx-auto">
@@ -40,7 +40,7 @@ export default function DictionaryPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-6">
               <BookOpen size={32} />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Sign Dictionary
             </h1>
             <p className="text-lg text-slate-500 dark:text-slate-400">
@@ -89,7 +89,7 @@ export default function DictionaryPage() {
                 <button
                   key={l}
                   onClick={() => setLetter(l)}
-                  className={`w-9 h-9 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
+                  className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
                     letter === l
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'

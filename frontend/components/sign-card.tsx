@@ -28,7 +28,7 @@ export function SignCard({
 
       {/* Image Container */}
       <div
-        className="relative w-full aspect-square rounded-lg border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center"
+        className="relative w-full aspect-video md:aspect-square rounded-lg border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center"
       >
         <div className="w-full h-full">
           <SignViewer url={url} />

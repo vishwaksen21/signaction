@@ -1,25 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Hand } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { SignViewer } from './sign-viewer';
-
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? '100%' : '-100%',
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction < 0 ? '100%' : '-100%',
-    opacity: 0,
-  }),
-};
 
 export function GestureSequencePlayer({
   gestures,
@@ -44,18 +29,20 @@ export function GestureSequencePlayer({
 
   const handleEnded = () => {
     if (!playing) return;
-    if (index < gestures.length - 1) {
-      setDirection(1);
-      setIndex((i) => i + 1);
-    } else {
+    // Clamp index to valid range first
+    const maxIndex = Math.max(0, gestures.length - 1);
+    if (index >= maxIndex) {
       setPlaying(false);
       setDirection(1);
-      setIndex(0); // Reset to start after finishing
+      setIndex(0);
+    } else {
+      setDirection(1);
+      setIndex((i) => Math.min(i + 1, maxIndex));
     }
   };
 
   if (loading) {
-    return <Skeleton className="h-[400px] w-full rounded-xl bg-apple-surface-pearl" />;
+    return <Skeleton className="h-[250px] md:h-[400px] w-full rounded-xl bg-apple-surface-pearl" />;
   }
 
   const progress = gestures.length > 0 ? ((index + 1) / gestures.length) * 100 : 0;
@@ -74,30 +61,12 @@ export function GestureSequencePlayer({
       {/* Video/Image Container */}
       <div className="relative group">
         <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative min-h-[200px] md:min-h-[300px]">
-          <AnimatePresence mode="wait" custom={direction}>
-            {current ? (
-              <motion.div
-                key={index}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: 'spring', stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 },
-                }}
-                className="w-full h-full flex items-center justify-center absolute inset-0"
-              >
-                <SignViewer url={current} onEnded={handleEnded} playing={playing} />
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full h-full flex items-center justify-center"
-              >
+          {current ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <SignViewer key={current} url={current} onEnded={handleEnded} playing={playing} />
+            </div>
+          ) : (
+              <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-apple-surface-pearl text-apple-primary">
                     <Hand size={22} />
@@ -105,9 +74,8 @@ export function GestureSequencePlayer({
                   <p className="text-apple-body-strong">No gestures yet</p>
                   <p className="text-apple-caption text-apple-ink-muted-48 mt-1">Enter text or speech to start translating</p>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
         </div>
 
         {/* Gesture Counter Overlay */}

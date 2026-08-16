@@ -41,11 +41,41 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
   useEffect(() => {
     const el = videoRef.current;
     if (!el || isYoutube) return;
+
     if (playing) {
-      if (el.ended) {
-        el.currentTime = 0;
-      }
-      el.play().catch(() => {}); // ignore autoplay policy errors silently
+      // Reset to start, then play with retry
+      el.currentTime = 0;
+      setError(null);
+
+      let cancelled = false;
+
+      const tryPlay = () => {
+        if (cancelled || !el) return;
+        el.play().catch(() => {
+          // Retry after delay (Android WebView needs this)
+          setTimeout(() => {
+            if (!cancelled && el) el.play().catch(() => {});
+          }, 200);
+        });
+      };
+
+      // Try to play immediately
+      tryPlay();
+
+      // Also try on canplay as backup
+      const onCanPlay = () => { if (!cancelled) tryPlay(); };
+      el.addEventListener('canplay', onCanPlay, { once: true });
+
+      // Safety net: if still paused after 300ms, try again
+      const fallback = setTimeout(() => {
+        if (!cancelled && el && el.paused) tryPlay();
+      }, 300);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(fallback);
+        el.removeEventListener('canplay', onCanPlay);
+      };
     } else {
       el.pause();
     }
@@ -140,16 +170,12 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     const el = videoRef.current;
     if (!el || isYoutube) return;
 
-    let cancelled = false;
     const handleVideoEnded = () => {
-      if (!cancelled) {
-        onEndedRef.current?.();
-      }
+      onEndedRef.current?.();
     };
 
     el.addEventListener('ended', handleVideoEnded);
     return () => {
-      cancelled = true;
       el.removeEventListener('ended', handleVideoEnded);
     };
   }, [url, isYoutube]);
@@ -272,14 +298,43 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
         <video
           ref={videoRef}
           src={url}
-          className="max-h-[360px] w-auto rounded-lg object-contain"
+          className="max-w-full max-h-[300px] md:max-h-[360px] w-auto rounded-lg object-contain"
           playsInline
+          webkit-playsinline="true"
           preload="auto"
           autoPlay
           muted
-          onError={(e) => setError(`Video error: ${e.currentTarget.error?.message || 'Unknown'}`)}
+          controls={false}
+          disablePictureInPicture
+          onLoadedData={() => setError(null)}
+          onEnded={() => onEndedRef.current?.()}
+          onError={(e) => {
+            const video = e.currentTarget;
+            const err = video.error;
+            let msg = 'Unknown';
+            if (err) {
+              switch (err.code) {
+                case 1: msg = 'Aborted'; break;
+                case 2: msg = 'Network error'; break;
+                case 3: msg = 'Decode error'; break;
+                case 4: msg = 'Not available'; break;
+                default: msg = err.message || 'Unknown';
+              }
+            }
+            setError(`Video not available`);
+            // Signal ended so the sequence can advance past missing assets
+            if (err && (err.code === 2 || err.code === 4)) {
+              setTimeout(() => {
+                onEndedRef.current?.();
+              }, 800);
+            }
+          }}
         />
-        {error && <div className="text-xs text-red-400 absolute bottom-2">{error}</div>}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+            <span className="text-xs text-yellow-400 bg-black/60 px-2 py-1 rounded">{error}</span>
+          </div>
+        )}
       </div>
     );
   }

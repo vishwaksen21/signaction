@@ -63,7 +63,7 @@ export default function TranslatorPage() {
                 Translate words <span className="text-blue-600 dark:text-blue-500">to sign</span>
               </h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <a href="#translate" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium text-sm transition-all shadow-md">
                 <Zap size={16} />
                 Start Translating
@@ -82,7 +82,7 @@ export default function TranslatorPage() {
       </section>
 
       {/* Main Translator Section */}
-      <section id="translate" className="w-full py-20 px-4 md:px-8">
+      <section id="translate" className="w-full py-12 md:py-20 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
           
           {error && (
@@ -114,7 +114,7 @@ export default function TranslatorPage() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col min-h-[400px] md:min-h-[500px] shadow-sm"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-8 flex flex-col min-h-[300px] md:min-h-[500px] shadow-sm"
             >
               <div className="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6 flex items-center gap-4">
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">

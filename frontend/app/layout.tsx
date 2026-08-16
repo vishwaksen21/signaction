@@ -58,7 +58,7 @@ export default function RootLayout({
           </div>
 
           {/* Main content - padding for bottom nav on mobile */}
-          <main className="min-h-screen pb-24 md:pb-0">
+          <main className="min-h-screen pb-20 md:pb-0">
             {children}
           </main>
 

@@ -72,6 +72,10 @@ function simpleLemma(word: string): string {
     got: 'get',
     gotten: 'get',
     getting: 'get',
+    better: 'good',
+    best: 'good',
+    worse: 'bad',
+    worst: 'bad',
     knew: 'know',
     known: 'know',
     knowing: 'know',
@@ -217,12 +221,20 @@ function simpleLemma(word: string): string {
     return lower.slice(0, -1);
   }
 
-  // Comparative/superlative: -er, -est
-  if (lower.endsWith('er') && lower.length > 4) {
-    return lower.slice(0, -2);
+  // Comparative/superlative: -er, -est with doubled consonant
+  // bigger → big, tallest → tall, thinnest → thin
+  // Does NOT strip: mother, father, teacher, water, butter
+  if (lower.length > 4 && lower.endsWith('er')) {
+    const beforeEr = lower.slice(0, -2);
+    if (beforeEr.length >= 3 && beforeEr[beforeEr.length - 1] === beforeEr[beforeEr.length - 2]) {
+      return beforeEr.slice(0, -1);
+    }
   }
-  if (lower.endsWith('est') && lower.length > 5) {
-    return lower.slice(0, -3);
+  if (lower.length > 5 && lower.endsWith('est')) {
+    const beforeEst = lower.slice(0, -3);
+    if (beforeEst.length >= 3 && beforeEst[beforeEst.length - 1] === beforeEst[beforeEst.length - 2]) {
+      return beforeEst.slice(0, -1);
+    }
   }
 
   // Adverbs: -ly
@@ -285,9 +297,10 @@ export function glossify(
       continue;
     }
 
-    // Auxiliaries — keep exact form
+    // Auxiliaries — lemmatize to base form (be/do/have have video assets)
     if (AUXILIARIES.has(lower)) {
-      tokens.push(lower.toUpperCase());
+      const base = simpleLemma(lower);
+      tokens.push(base.toUpperCase());
       continue;
     }
 

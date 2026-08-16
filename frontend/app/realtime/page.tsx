@@ -189,10 +189,10 @@ export default function RealtimePage() {
   }
 
   return (
-    <div className="min-h-screen bg-apple-canvas text-apple-ink py-section">
+    <div className="min-h-screen bg-apple-canvas text-apple-ink py-12 md:py-section">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Mode Toggle */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-apple-display-lg mb-1">
               Real-time Speech Translator
@@ -358,7 +358,7 @@ export default function RealtimePage() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-apple-hairline bg-apple-canvas-parchment p-6 min-h-[220px] flex flex-col justify-between relative overflow-hidden">
+                <div className="rounded-2xl border border-apple-hairline bg-apple-canvas-parchment p-6 min-h-[160px] md:min-h-[220px] flex flex-col justify-between relative overflow-hidden">
                   <p
                     className={`text-apple-body ${
                       transcript
@@ -428,7 +428,7 @@ export default function RealtimePage() {
           <div className="store-utility-card flex flex-col">
             {/* Output Header */}
             <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
                   <Volume2 size={20} />
                 </div>
