@@ -73,7 +73,7 @@ export function GestureSequencePlayer({
     <div className="space-y-4">
       {/* Video/Image Container */}
       <div className="relative group">
-        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative min-h-[300px]">
+        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative min-h-[200px] md:min-h-[300px]">
           <AnimatePresence mode="wait" custom={direction}>
             {current ? (
               <motion.div

@@ -114,7 +114,7 @@ export default function TranslatorPage() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col min-h-[500px] shadow-sm"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col min-h-[400px] md:min-h-[500px] shadow-sm"
             >
               <div className="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6 flex items-center gap-4">
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">

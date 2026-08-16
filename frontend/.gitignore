@@ -4,3 +4,4 @@ dist/
 .env
 .env.*
 .next/
+frontend/public/signaction.apk

@@ -7,6 +7,7 @@
   body {
     height: 100%;
     @apply scroll-smooth text-[17px] font-sans antialiased text-apple-ink bg-apple-canvas selection:bg-apple-primary selection:text-apple-on-primary;
+    overscroll-behavior: none;
   }
 }
 
@@ -85,5 +86,15 @@
 
   .animate-fade-in {
     animation: fade-in 0.4s ease-out;
+  }
+
+  /* Safe area insets for bottom navigation */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Prevent overscroll on Android */
+  .no-overscroll {
+    overscroll-behavior: none;
   }
 }
