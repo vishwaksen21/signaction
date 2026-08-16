@@ -124,20 +124,22 @@ def _build_semantic_dictionary(raw_dict: dict) -> dict:
 
     return semantic_dict
 
-@router.get("/api/youtube-dictionary")
 def get_youtube_dictionary() -> dict:
     global _YT_DICT_CACHE
     if _YT_DICT_CACHE is not None:
         return _YT_DICT_CACHE
 
+    # Use the pre-built static dictionary.json from frontend/public instead
+    # of building a semantic dictionary at runtime (which is too slow)
     repo_root = Path(__file__).resolve().parents[2]
-    json_path = repo_root / "sign_videos.json"
-    if json_path.exists():
+    dict_json = repo_root / "frontend" / "public" / "dictionary.json"
+    if dict_json.exists():
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                raw_dict = json.load(f)
-                _YT_DICT_CACHE = _build_semantic_dictionary(raw_dict)
-                return _YT_DICT_CACHE
+            with open(dict_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            items = data.get("items", [])
+            _YT_DICT_CACHE = {item["token"].lower(): {"youtubeUrl": item["url"]} for item in items}
+            return _YT_DICT_CACHE
         except Exception:
             return {}
     return {}
