@@ -13,8 +13,8 @@ const MODEL_CACHE = 'signaction-model-v1';
 const PRECACHE_URLS = [
   '/',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 // Install: pre-cache app shell

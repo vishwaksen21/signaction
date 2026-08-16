@@ -101,7 +101,7 @@ export default function TranslatorPage() {
             >
               <TranslatorInput
                 text={text}
-                onTextChange={setText}
+                onTextChange={handleTextChange}
                 onTranslateText={handleTranslateText}
                 onTranslateSpeech={handleTranslateSpeech}
                 loading={isLoading}

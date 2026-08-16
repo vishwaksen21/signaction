@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SignAction</string>
+    <string name="title_activity_main">SignAction</string>
+    <string name="package_name">com.signaction.app</string>
+    <string name="custom_url_scheme">com.signaction.app</string>
+</resources>

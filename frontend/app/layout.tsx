@@ -3,25 +3,26 @@ import './globals.css';
 import { Providers } from '../components/providers';
 import { Navbar } from '../components/navbar';
 import { Footer } from '../components/footer';
-import { ServiceWorkerRegister } from '../components/sw-register';
+import { BottomNav } from '../components/bottom-nav';
 import { ApkDownloadFab } from '../components/apk-download-fab';
 
 export const metadata: Metadata = {
-  title: 'SignAction - Text & Speech to Sign Language',
+  title: 'SignAction - Sign Language Translator',
   description:
-    'Translate text and speech into sign language gestures. Works offline on mobile.',
+    'Translate text and speech into sign language gestures.',
   keywords: [
     'sign language',
-    'ASL',
+    'ISL',
     'accessibility',
-    'AI',
     'translation',
     'offline',
-    'PWA',
   ],
-  authors: [{ name: 'SignAction Team' }],
+  authors: [{ name: 'SignAction' }],
   icons: {
-    icon: '/logo1.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
     apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
@@ -36,7 +37,8 @@ export const viewport: Viewport = {
   themeColor: '#0066cc',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -46,16 +48,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="transition-colors duration-300">
-        <ServiceWorkerRegister />
+      <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
         <Providers>
-          <div className="flex flex-col min-h-screen">
+          {/* Desktop nav - hidden on mobile */}
+          <div className="hidden md:block">
             <Navbar />
-            <main className="flex-1">{children}</main>
+          </div>
+
+          {/* Main content - padding for bottom nav on mobile */}
+          <main className="min-h-screen pb-20 md:pb-0">
+            {children}
+          </main>
+
+          {/* Footer - hidden on mobile (app feel) */}
+          <div className="hidden md:block">
             <Footer />
           </div>
+
+          {/* Bottom navigation - mobile only */}
+          <BottomNav />
+
+          {/* APK download FAB */}
+          <ApkDownloadFab />
         </Providers>
-        <ApkDownloadFab />
       </body>
     </html>
   );

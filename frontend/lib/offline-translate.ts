@@ -31,7 +31,7 @@ export interface ModelDownloadProgress {
 function tokenToAssetPath(token: string): string {
   const upper = token.toUpperCase();
   // Try direct word match first
-  return `signs/${upper}.mp4`;
+  return `${upper}.mp4`;
 }
 
 /**
@@ -61,7 +61,7 @@ export function translateTextOffline(
   text: string,
   options: OfflineTranslateOptions = {}
 ): OfflineTranslateResult {
-  const { assetsBaseUrl = '/assets' } = options;
+  const { assetsBaseUrl = '/assets/signs' } = options;
 
   const glossResult = glossify(text);
   const gestures = resolveGestureUrls(glossResult.tokens, assetsBaseUrl);
