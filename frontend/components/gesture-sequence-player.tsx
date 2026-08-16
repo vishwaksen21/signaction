@@ -42,7 +42,7 @@ export function GestureSequencePlayer({
   };
 
   if (loading) {
-    return <Skeleton className="h-[250px] md:h-[400px] w-full rounded-xl bg-apple-surface-pearl" />;
+    return <Skeleton className="h-[200px] md:h-[280px] w-full rounded-xl bg-apple-surface-pearl" />;
   }
 
   const progress = gestures.length > 0 ? ((index + 1) / gestures.length) * 100 : 0;
@@ -60,7 +60,7 @@ export function GestureSequencePlayer({
     <div className="space-y-4">
       {/* Video/Image Container */}
       <div className="relative group">
-        <div className="aspect-video rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative min-h-[200px] md:min-h-[300px]">
+        <div className="h-[200px] md:h-[280px] rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative">
           {current ? (
             <div className="w-full h-full flex items-center justify-center">
               <SignViewer key={current} url={current} onEnded={handleEnded} playing={playing} />
@@ -71,8 +71,8 @@ export function GestureSequencePlayer({
                   <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-apple-surface-pearl text-apple-primary">
                     <Hand size={22} />
                   </div>
-                  <p className="text-apple-body-strong">No gestures yet</p>
-                  <p className="text-apple-caption text-apple-ink-muted-48 mt-1">Enter text or speech to start translating</p>
+                  <p className="text-apple-body-strong text-sm">No gestures yet</p>
+                  <p className="text-apple-caption text-apple-ink-muted-48 mt-1 text-xs">Enter text or speech to start translating</p>
                 </div>
               </div>
             )}

@@ -174,6 +174,18 @@ function simpleLemma(word: string): string {
     shook: 'shake',
     shaken: 'shake',
     shaking: 'shake',
+    // Words that end in -ed but are NOT past tense
+    need: 'need',
+    seed: 'seed',
+    greed: 'greed',
+    speed: 'speed',
+    bleed: 'bleed',
+    feed: 'feed',
+    breed: 'breed',
+    proceed: 'proceed',
+    exceed: 'exceed',
+    precede: 'precede',
+    succeed: 'succeed',
   };
 
   if (irregulars[lower]) {

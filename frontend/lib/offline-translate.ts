@@ -5,6 +5,7 @@
  */
 
 import { glossify, type GlossResult } from './glossify';
+import { resolveGestureUrls } from './asset-resolver';
 import { createVoskSTT, type VoskSTT, type VoskSTTOptions } from './vosk-stt';
 import { isModelCached, downloadModel, cacheModel } from './model-cache';
 
@@ -26,33 +27,6 @@ export interface ModelDownloadProgress {
   percent: number;
 }
 
-// Default sign asset paths — maps token to asset file
-// This mirrors the Python mapping logic
-function tokenToAssetPath(token: string): string {
-  const upper = token.toUpperCase();
-  // Try direct word match first
-  return `${upper}.mp4`;
-}
-
-/**
- * Resolve tokens to gesture asset URLs.
- * Falls back to fingerspelling for unknown words.
- */
-function resolveGestureUrls(
-  tokens: string[],
-  assetsBaseUrl: string
-): string[] {
-  const gestures: string[] = [];
-
-  for (const token of tokens) {
-    const upper = token.toUpperCase();
-    const assetPath = tokenToAssetPath(upper);
-    gestures.push(`${assetsBaseUrl}/${assetPath}`);
-  }
-
-  return gestures;
-}
-
 /**
  * Translate text offline (no server needed).
  * Uses the JS glossify port + client-side asset resolution.
@@ -64,7 +38,8 @@ export function translateTextOffline(
   const { assetsBaseUrl = '/assets/signs' } = options;
 
   const glossResult = glossify(text);
-  const gestures = resolveGestureUrls(glossResult.tokens, assetsBaseUrl);
+  // Use the robust asset resolver
+  const gestures = resolveGestureUrls(glossResult.tokens);
 
   return {
     tokens: glossResult.tokens,

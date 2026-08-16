@@ -293,12 +293,15 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
 
   // For video files, use native playback
   if (lower.endsWith('.mp4')) {
+    // Extract word name from URL for placeholder
+    const wordName = url.split('/').pop()?.replace(/\.mp4$/i, '') || '';
+    
     return (
       <div className="w-full h-full flex items-center justify-center relative">
         <video
           ref={videoRef}
           src={url}
-          className="max-w-full max-h-[300px] md:max-h-[360px] w-auto rounded-lg object-contain"
+          className="max-w-full max-h-full w-auto h-auto rounded-lg object-contain"
           playsInline
           webkit-playsinline="true"
           preload="auto"
@@ -311,28 +314,23 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
           onError={(e) => {
             const video = e.currentTarget;
             const err = video.error;
-            let msg = 'Unknown';
-            if (err) {
-              switch (err.code) {
-                case 1: msg = 'Aborted'; break;
-                case 2: msg = 'Network error'; break;
-                case 3: msg = 'Decode error'; break;
-                case 4: msg = 'Not available'; break;
-                default: msg = err.message || 'Unknown';
-              }
-            }
-            setError(`Video not available`);
-            // Signal ended so the sequence can advance past missing assets
-            if (err && (err.code === 2 || err.code === 4)) {
+            // Auto-advance silently for missing/network/decode errors
+            if (err && (err.code === 2 || err.code === 4 || err.code === 3)) {
+              setError(null);
               setTimeout(() => {
                 onEndedRef.current?.();
-              }, 800);
+              }, 300);
+            } else {
+              setError('Playback error');
             }
           }}
         />
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-            <span className="text-xs text-yellow-400 bg-black/60 px-2 py-1 rounded">{error}</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+            <div className="text-center px-4">
+              <div className="text-2xl mb-1 opacity-50">🎬</div>
+              <span className="text-xs text-white/80 bg-black/50 px-3 py-1.5 rounded-full">{error}</span>
+            </div>
           </div>
         )}
       </div>
@@ -344,7 +342,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
       <img
         src={url}
         alt="Sign gesture"
-        className="max-h-[360px] w-auto rounded-lg object-contain"
+        className="max-h-full max-w-full w-auto h-auto rounded-lg object-contain"
         onError={(e) => {
           const msg = `Failed to load image. URL: ${url.substring(0, 60)}`;
           console.error(msg);

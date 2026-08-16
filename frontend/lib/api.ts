@@ -62,7 +62,8 @@ export async function translateText(req: TranslateTextRequest): Promise<Translat
     // Offline fallback: use client-side glossification
     const { glossify } = await import('./glossify');
     const { tokens, gloss } = glossify(req.text);
-    const gestures = tokens.map((t) => `/assets/signs/${encodeURIComponent(t)}.mp4`);
+    // Don't encodeURIComponent — tokens are already uppercase safe filenames
+    const gestures = tokens.map((t) => `/assets/signs/${t}.mp4`);
     return { tokens, gestures: gestures.map(resolveApiUrl), gloss };
   }
 }
@@ -96,5 +97,17 @@ export async function fetchDictionary(): Promise<{ items: DictionaryItem[] }> {
     };
   } catch {
     return { items: [] };
+  }
+}
+
+/**
+ * Check if an asset URL is reachable (for preflight validation).
+ */
+export async function checkAssetExists(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+    return res.ok;
+  } catch {
+    return false;
   }
 }
