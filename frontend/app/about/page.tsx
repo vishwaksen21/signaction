@@ -79,8 +79,7 @@ export default function AboutPage() {
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, delay: i * 0.15 }}
               className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative hover:-translate-y-2 transition-transform duration-300"
             >
@@ -104,8 +103,8 @@ export default function AboutPage() {
       {/* Research Paper CTA */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
         className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-12 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 mb-20"
       >
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -127,8 +126,8 @@ export default function AboutPage() {
       {/* Tech Stack */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
         className="max-w-4xl mx-auto text-center"
       >
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-6">

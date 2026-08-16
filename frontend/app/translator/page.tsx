@@ -95,8 +95,8 @@ export default function TranslatorPage() {
             {/* Input Panel */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
               className="flex flex-col"
             >
               <TranslatorInput
@@ -112,8 +112,8 @@ export default function TranslatorPage() {
             {/* Output Panel */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-8 flex flex-col min-h-[300px] md:min-h-[500px] shadow-sm"
             >
               <div className="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6 flex items-center gap-4">

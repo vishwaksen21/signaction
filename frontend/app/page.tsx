@@ -179,8 +179,7 @@ export default function LandingPage() {
           className="space-y-8 md:space-y-12"
           variants={containerVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
+          animate="visible"
         >
           {/* Section Title */}
           <motion.div className="text-center space-y-3" variants={itemVariants}>
@@ -239,8 +238,7 @@ export default function LandingPage() {
           className="space-y-8 md:space-y-12"
           variants={containerVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
+          animate="visible"
         >
           {/* Section Title */}
           <motion.div className="text-center space-y-3" variants={itemVariants}>
@@ -299,8 +297,8 @@ export default function LandingPage() {
         <motion.div
           className="text-center space-y-6 md:space-y-8 py-8 md:py-12 px-4 md:px-6 rounded-2xl bg-gradient-to-r from-indigo-600/20 via-indigo-500/10 to-indigo-600/20 border border-indigo-500/30"
           initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
         >
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">Ready to Get Started?</h2>
           <p className="text-slate-400 dark:text-slate-400 light:text-slate-600 max-w-2xl mx-auto">
