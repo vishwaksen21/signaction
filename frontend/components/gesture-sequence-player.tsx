@@ -42,7 +42,7 @@ export function GestureSequencePlayer({
   };
 
   if (loading) {
-    return <Skeleton className="h-[200px] md:h-[280px] w-full rounded-xl bg-apple-surface-pearl" />;
+    return <Skeleton className="aspect-video w-full rounded-xl bg-apple-surface-pearl" />;
   }
 
   const progress = gestures.length > 0 ? ((index + 1) / gestures.length) * 100 : 0;
@@ -57,30 +57,28 @@ export function GestureSequencePlayer({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Video/Image Container */}
-      <div className="relative group">
-        <div className="h-[200px] md:h-[280px] rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center relative">
-          {current ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <SignViewer key={current} url={current} onEnded={handleEnded} playing={playing} />
-            </div>
-          ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-apple-surface-pearl text-apple-primary">
-                    <Hand size={22} />
-                  </div>
-                  <p className="text-apple-body-strong text-sm">No gestures yet</p>
-                  <p className="text-apple-caption text-apple-ink-muted-48 mt-1 text-xs">Enter text or speech to start translating</p>
-                </div>
+    <div className="flex flex-col gap-3">
+      {/* Video/Image Container - fixed aspect ratio */}
+      <div className="relative group aspect-video w-full rounded-xl border border-apple-hairline bg-apple-canvas-parchment overflow-hidden">
+        {current ? (
+          <div className="absolute inset-0">
+            <SignViewer key={current} url={current} onEnded={handleEnded} playing={playing} />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-apple-surface-pearl text-apple-primary">
+                <Hand size={22} />
               </div>
-            )}
-        </div>
+              <p className="text-apple-body-strong text-sm">No gestures yet</p>
+              <p className="text-apple-caption text-apple-ink-muted-48 mt-1 text-xs">Enter text or speech to start translating</p>
+            </div>
+          </div>
+        )}
 
         {/* Gesture Counter Overlay */}
         {gestures.length > 0 && (
-          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-apple-surface-black/50 backdrop-blur border border-apple-hairline">
+          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-apple-surface-black/50 backdrop-blur border border-apple-hairline z-10">
             <p className="text-apple-micro-legal text-apple-on-dark">
               Gesture {index + 1} <span className="text-apple-ink-muted-48">/ {gestures.length}</span>
             </p>

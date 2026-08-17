@@ -1,29 +1,58 @@
 /**
  * Robust asset resolution for sign language gestures.
- * Tries MP4 → GIF → image → fallback for each token.
+ * Returns typed results so the renderer uses the correct element.
  */
 
 const ASSETS_BASE = '/assets/signs';
 
-const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+export type AssetType = 'video' | 'gif' | 'image' | 'missing';
 
-/**
- * Resolve a single token to the best available asset URL.
- * Tries in order: MP4 → GIF → PNG → JPG → fallback (returns MP4 path anyway for error handling).
- */
-export function resolveAssetUrl(token: string): string {
-  const upper = token.toUpperCase().trim();
-  if (!upper) return '';
-  // Always return MP4 path — the SignViewer handles missing assets gracefully
-  return `${ASSETS_BASE}/${upper}.mp4`;
+export interface ResolvedAsset {
+  type: AssetType;
+  url: string;
+  token: string;
+}
+
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogg'];
+const GIF_EXTENSIONS = ['.gif'];
+const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.svg', '.bmp'];
+
+function getAssetType(url: string): AssetType {
+  const lower = url.toLowerCase();
+  if (VIDEO_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'video';
+  if (GIF_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'gif';
+  if (IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'image';
+  return 'missing';
 }
 
 /**
- * Resolve tokens to gesture asset URLs with format fallback.
- * Returns an array of URLs in the same order as tokens.
+ * Resolve a single token to a typed asset.
+ * Currently all assets are MP4. Returns typed result for correct rendering.
+ */
+export function resolveAsset(token: string): ResolvedAsset {
+  const upper = token.toUpperCase().trim();
+  if (!upper) return { type: 'missing', url: '', token };
+  
+  const url = `${ASSETS_BASE}/${upper}.mp4`;
+  return {
+    type: 'video',
+    url,
+    token: upper,
+  };
+}
+
+/**
+ * Resolve tokens to typed asset URLs.
+ */
+export function resolveAssets(tokens: string[]): ResolvedAsset[] {
+  return tokens.map(resolveAsset);
+}
+
+/**
+ * Resolve tokens to plain URL strings (backward compatible).
  */
 export function resolveGestureUrls(tokens: string[]): string[] {
-  return tokens.map(resolveAssetUrl);
+  return tokens.map(t => resolveAsset(t).url);
 }
 
 /**

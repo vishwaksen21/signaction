@@ -293,15 +293,12 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
 
   // For video files, use native playback
   if (lower.endsWith('.mp4')) {
-    // Extract word name from URL for placeholder
-    const wordName = url.split('/').pop()?.replace(/\.mp4$/i, '') || '';
-    
     return (
       <div className="w-full h-full flex items-center justify-center relative">
         <video
           ref={videoRef}
           src={url}
-          className="max-w-full max-h-full w-auto h-auto rounded-lg object-contain"
+          className="w-full h-full rounded-lg object-contain"
           playsInline
           webkit-playsinline="true"
           preload="auto"
@@ -338,11 +335,11 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
   }
 
   return (
-    <div className="space-y-2 w-full h-full flex items-center justify-center relative">
+    <div className="w-full h-full flex items-center justify-center relative">
       <img
         src={url}
         alt="Sign gesture"
-        className="max-h-full max-w-full w-auto h-auto rounded-lg object-contain"
+        className="w-full h-full rounded-lg object-contain"
         onError={(e) => {
           const msg = `Failed to load image. URL: ${url.substring(0, 60)}`;
           console.error(msg);
