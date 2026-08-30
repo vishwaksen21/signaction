@@ -145,7 +145,7 @@ python scripts/bootstrap_demo_assets.py
 export SIGNACTION_ASSETS_DIR="$PWD/signaction_assets"
 ```
 
-Then run:
+Then run::
 
 ```bash
 streamlit run mvp_text_to_sign.py
