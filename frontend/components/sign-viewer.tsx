@@ -88,6 +88,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     let cancelled = false;
     let player: any;
     let interval: ReturnType<typeof setInterval>;
+    let hasStarted = false;
 
     const onPlayerReady = () => {
       if (!iframeRef.current || cancelled) return;
@@ -103,8 +104,12 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
             }
           },
           onStateChange: (event: any) => {
+            // YT.PlayerState.PLAYING is 1
+            if (event.data === 1) {
+              hasStarted = true;
+            }
             // YT.PlayerState.ENDED is 0
-            if (event.data === 0 && !cancelled) {
+            if (event.data === 0 && !cancelled && hasStarted) {
               onEndedRef.current?.();
             }
           },

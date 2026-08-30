@@ -129,16 +129,34 @@ def get_youtube_dictionary() -> dict:
     if _YT_DICT_CACHE is not None:
         return _YT_DICT_CACHE
 
-    # Use the pre-built static dictionary.json from frontend/public instead
-    # of building a semantic dictionary at runtime (which is too slow)
     repo_root = Path(__file__).resolve().parents[2]
-    dict_json = repo_root / "frontend" / "public" / "dictionary.json"
-    if dict_json.exists():
+    json_path = repo_root / "sign_videos.json"
+    if json_path.exists():
         try:
-            with open(dict_json, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            items = data.get("items", [])
-            _YT_DICT_CACHE = {item["token"].lower(): {"youtubeUrl": item["url"]} for item in items}
+            with open(json_path, "r", encoding="utf-8") as f:
+                raw_dict = json.load(f)
+            
+            # Fast clean and index without SpaCy (takes <10ms)
+            semantic_dict = {}
+            for raw_key, record in raw_dict.items():
+                clean = raw_key.lower().strip()
+                clean = re.sub(r"\(.*?\)", "", clean)
+                clean = re.sub(r"\bsign\s+\d+\b", "", clean)
+                clean = re.sub(r"\b\d+\b", "", clean)
+                clean = clean.strip()
+                
+                # Split synonyms (commas or slashes)
+                synonyms = [s.strip() for s in re.split(r"[,/]", clean) if s.strip()]
+                synonyms.append(raw_key.lower().strip())
+                
+                for syn in synonyms:
+                    semantic_dict[syn] = record
+                    # Map individual words inside a multi-word phrase
+                    for part in re.split(r"\s+", syn):
+                        if part and part not in semantic_dict:
+                            semantic_dict[part] = record
+
+            _YT_DICT_CACHE = {k: {"youtubeUrl": v["youtubeUrl"]} for k, v in semantic_dict.items()}
             return _YT_DICT_CACHE
         except Exception:
             return {}

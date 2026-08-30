@@ -8,8 +8,10 @@ signaction/audio.py
 signaction/cli.py
 signaction/config.py
 signaction/exceptions.py
+signaction/generate_video_json.py
 signaction/kaggle_helper.py
 signaction/lexicon.py
+signaction/llm_client.py
 signaction/mapping.py
 signaction/nlp.py
 signaction/pipeline.py
@@ -31,6 +33,7 @@ signaction/stt/vosk_backend.py
 signaction/stt/whisper_backend.py
 tests/test_kaggle_integration.py
 tests/test_lexicon.py
+tests/test_llm_client.py
 tests/test_nlp.py
 tests/test_pipeline_smoke.py
 tests/test_translate.py

@@ -35,6 +35,9 @@ const nextConfig = {
           { source: '/api/translate/:path*', destination: `${BACKEND_URL}/api/translate/:path*` },
           { source: '/health', destination: `${BACKEND_URL}/health` },
         ],
+        fallback: [
+          { source: '/assets/:path*', destination: `${BACKEND_URL}/assets/:path*` },
+        ],
       };
     },
   }),
