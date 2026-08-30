@@ -77,52 +77,10 @@ def placeholder_gif(token: str) -> Response:
 
     return Response(content=data, media_type="image/gif")
 
-
 import json
 import re
-from signaction.nlp import _load_nlp
 
 _YT_DICT_CACHE = None
-
-def _build_semantic_dictionary(raw_dict: dict) -> dict:
-    nlp = _load_nlp()
-    semantic_dict = {}
-
-    for raw_key, record in raw_dict.items():
-        # 1. Clean the key (remove (sign 1), sign 2, numbers, parentheses)
-        clean = raw_key.lower().strip()
-        clean = re.sub(r"\(.*?\)", "", clean)
-        clean = re.sub(r"\bsign\s+\d+\b", "", clean)
-        clean = re.sub(r"\b\d+\b", "", clean)
-        clean = clean.strip()
-        
-        # 2. Split by commas/slashes to find synonyms
-        synonyms = [s.strip() for s in re.split(r"[,/]", clean) if s.strip()]
-        
-        # Add the raw key itself to preserve exact lookups
-        synonyms.append(raw_key.lower().strip())
-        
-        for syn in synonyms:
-            # Map the clean synonym phrase itself
-            semantic_dict[syn] = record
-            
-            # 3. Use SpaCy to extract lemmas for each individual word
-            doc = nlp(syn)
-            for token in doc:
-                if token.is_space or token.is_punct or token.is_stop:
-                    continue
-                lemma = (token.lemma_ or "").strip().lower()
-                if lemma and lemma != "-pron-":
-                    # Map the lemma
-                    if lemma not in semantic_dict:
-                        semantic_dict[lemma] = record
-                
-                # Also map the raw word token
-                word = token.text.strip().lower()
-                if word and word not in semantic_dict:
-                    semantic_dict[word] = record
-
-    return semantic_dict
 
 def get_youtube_dictionary() -> dict:
     global _YT_DICT_CACHE
@@ -135,28 +93,35 @@ def get_youtube_dictionary() -> dict:
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 raw_dict = json.load(f)
-            
-            # Fast clean and index without SpaCy (takes <10ms)
+
             semantic_dict = {}
             for raw_key, record in raw_dict.items():
-                clean = raw_key.lower().strip()
-                clean = re.sub(r"\(.*?\)", "", clean)
-                clean = re.sub(r"\bsign\s+\d+\b", "", clean)
-                clean = re.sub(r"\b\d+\b", "", clean)
-                clean = clean.strip()
-                
-                # Split synonyms (commas or slashes)
-                synonyms = [s.strip() for s in re.split(r"[,/]", clean) if s.strip()]
-                synonyms.append(raw_key.lower().strip())
-                
-                for syn in synonyms:
-                    semantic_dict[syn] = record
-                    # Map individual words inside a multi-word phrase
-                    for part in re.split(r"\s+", syn):
-                        if part and part not in semantic_dict:
-                            semantic_dict[part] = record
+                title = record.get("title", "")
+                if "private video" in title.lower() or "deleted video" in title.lower():
+                    continue
 
-            _YT_DICT_CACHE = {k: {"youtubeUrl": v["youtubeUrl"]} for k, v in semantic_dict.items()}
+                for text in (raw_key, title):
+                    clean = text.lower().strip()
+                    clean = re.sub(r"\(.*?\)", "", clean)
+                    clean = re.sub(r"\bsign\s+\d+\b", "", clean)
+                    clean = re.sub(r"\b\d+\b", "", clean)
+                    clean = re.sub(r"[^a-z0-9\s,/;]", " ", clean)
+                    clean = re.sub(r"\s+", " ", clean).strip()
+
+                    # Split synonyms (commas, slashes, semicolons)
+                    synonyms = [s.strip() for s in re.split(r"[,/;]", clean) if s.strip()]
+                    if clean and clean not in synonyms:
+                        synonyms.append(clean)
+
+                    for syn in synonyms:
+                        syn_norm = re.sub(r"\s+", " ", syn).strip()
+                        if syn_norm and syn_norm not in semantic_dict:
+                            semantic_dict[syn_norm] = {"youtubeUrl": record["youtubeUrl"]}
+                        syn_under = syn_norm.replace(" ", "_")
+                        if syn_under and syn_under not in semantic_dict:
+                            semantic_dict[syn_under] = {"youtubeUrl": record["youtubeUrl"]}
+
+            _YT_DICT_CACHE = semantic_dict
             return _YT_DICT_CACHE
         except Exception:
             return {}
