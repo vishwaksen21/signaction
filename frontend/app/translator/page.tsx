@@ -13,17 +13,20 @@ import { OfflineBadge } from '../../components/model-download';
 export default function TranslatorPage() {
   const [text, setText] = useState('');
   const [offlineResult, setOfflineResult] = useState<any>(null);
+  const [activeTokenIndex, setActiveTokenIndex] = useState(0);
 
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
 
   const handleTranslateText = () => {
     translateSpeech.reset();
+    setActiveTokenIndex(0);
     translateText.mutate({ text });
   };
 
   const handleTranslateSpeech = (file: File) => {
     translateText.reset();
+    setActiveTokenIndex(0);
     translateSpeech.mutate({ file });
   };
 
@@ -33,6 +36,7 @@ export default function TranslatorPage() {
 
   const handleTranslateOffline = useCallback(() => {
     if (!text.trim()) return;
+    setActiveTokenIndex(0);
     const result = translateTextOffline(text);
     setOfflineResult(result);
   }, [text]);
@@ -114,7 +118,7 @@ export default function TranslatorPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-8 flex flex-col h-[600px] md:h-[700px] shadow-sm overflow-hidden"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-8 flex flex-col min-h-[500px] shadow-sm"
             >
               <div className="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6 flex items-center gap-4">
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
@@ -123,7 +127,7 @@ export default function TranslatorPage() {
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Output</h2>
               </div>
 
-              <div className="flex-1 flex flex-col overflow-y-auto min-h-0">
+              <div className="flex-1 flex flex-col min-h-0">
                 {active || offlineResult ? (
                   <div className="space-y-8 flex-1">
                     
@@ -157,7 +161,10 @@ export default function TranslatorPage() {
                           Tokens ({(active?.tokens ?? offlineResult?.tokens)?.length ?? 0})
                         </label>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                          <TokenChips tokens={active?.tokens ?? offlineResult?.tokens ?? []} />
+                          <TokenChips
+                            tokens={active?.tokens ?? offlineResult?.tokens ?? []}
+                            activeIndex={activeTokenIndex}
+                          />
                         </div>
                       </motion.div>
                     </div>
@@ -172,7 +179,12 @@ export default function TranslatorPage() {
                       <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-4">
                         Gesture Playback
                       </label>
-                      <GestureSequencePlayer gestures={active?.gestures ?? offlineResult?.gestures ?? []} loading={isLoading} />
+                      <GestureSequencePlayer
+                        gestures={active?.gestures ?? offlineResult?.gestures ?? []}
+                        tokens={active?.tokens ?? offlineResult?.tokens ?? []}
+                        onIndexChange={setActiveTokenIndex}
+                        loading={isLoading}
+                      />
                     </motion.div>
                   </div>
                 ) : (
