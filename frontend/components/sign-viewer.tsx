@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface SignViewerProps {
   url: string;
@@ -12,16 +12,52 @@ interface SignViewerProps {
 
 function extractYoutubeVideoId(url: string): string | null {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2]?.length === 11) ? match[2] : null;
+
+  try {
+    const parsed = new URL(url);
+
+    // youtu.be/VIDEO_ID
+    if (parsed.hostname === 'youtu.be') {
+      const id = parsed.pathname.slice(1);
+      return id.length === 11 ? id : null;
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    if (parsed.hostname.includes('youtube.com')) {
+      const id = parsed.searchParams.get('v');
+
+      if (id && id.length === 11) {
+        return id;
+      }
+
+      // /embed/VIDEO_ID
+      const embedMatch = parsed.pathname.match(/\/embed\/([^/]+)/);
+
+      if (embedMatch && embedMatch[1].length === 11) {
+        return embedMatch[1];
+      }
+
+      // /shorts/VIDEO_ID
+      const shortsMatch = parsed.pathname.match(/\/shorts\/([^/]+)/);
+
+      if (shortsMatch && shortsMatch[1].length === 11) {
+        return shortsMatch[1];
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }
 
 export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }: SignViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const youtubeContainerRef = useRef<HTMLDivElement>(null);
   const ytPlayerRef = useRef<any>(null);
+  const endedRef = useRef(false);
+  const playingRef = useRef(playing);
   
   // Keep latest onEnded in a ref to avoid resetting the timer if the function identity changes
   const onEndedRef = useRef(onEnded);
@@ -29,13 +65,24 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
   const lower = url ? url.toLowerCase() : '';
   const isYoutube = lower.includes('youtube.com') || lower.includes('youtu.be');
   const youtubeVideoId = isYoutube ? extractYoutubeVideoId(url) : null;
-  const uniqueId = useMemo(() => {
-    return youtubeVideoId ? `yt-player-${youtubeVideoId}-${Math.random().toString(36).substring(2, 9)}` : '';
-  }, [youtubeVideoId]);
 
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
+
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
+
+  useEffect(() => {
+    endedRef.current = false;
+  }, [url]);
+
+  const handleEndedOnce = useCallback(() => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    onEndedRef.current?.();
+  }, []);
 
   // Auto-play and restart when URL changes or playing state changes
   useEffect(() => {
@@ -81,75 +128,153 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     }
   }, [url, isYoutube, playing]);
 
-  // YouTube API Integration for auto-advance on playback end
+  // YouTube player
   useEffect(() => {
-    if (!youtubeVideoId || !iframeRef.current) return;
+    if (!youtubeVideoId || !youtubeContainerRef.current) {
+      return;
+    }
 
     let cancelled = false;
-    let player: any;
-    let interval: ReturnType<typeof setInterval>;
+    let player: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     let hasStarted = false;
 
-    const onPlayerReady = () => {
-      if (!iframeRef.current || cancelled) return;
-      player = new (window as any).YT.Player(iframeRef.current, {
-        events: {
-          onReady: (event: any) => {
-            if (cancelled) return;
-            ytPlayerRef.current = event.target;
-            if (playing) {
-              event.target.playVideo();
-            } else {
-              event.target.pauseVideo();
-            }
+    const createPlayer = () => {
+      if (
+        cancelled ||
+        !youtubeContainerRef.current ||
+        !(window as any).YT?.Player
+      ) {
+        return;
+      }
+
+      // Don't create twice
+      if (ytPlayerRef.current) {
+        return;
+      }
+
+      player = new (window as any).YT.Player(
+        youtubeContainerRef.current,
+        {
+          videoId: youtubeVideoId,
+
+          playerVars: {
+            autoplay: 1,
+            controls: 1,
+            rel: 0,
+            playsinline: 1,
+            enablejsapi: 1,
+            origin: window.location.origin,
           },
-          onStateChange: (event: any) => {
-            // YT.PlayerState.PLAYING is 1
-            if (event.data === 1) {
-              hasStarted = true;
-            }
-            // YT.PlayerState.ENDED is 0
-            if (event.data === 0 && !cancelled && hasStarted) {
-              onEndedRef.current?.();
-            }
+
+          events: {
+            onReady: (event: any) => {
+              if (cancelled) return;
+
+              ytPlayerRef.current = event.target;
+
+              if (playingRef.current) {
+                event.target.playVideo();
+              }
+            },
+
+            onStateChange: (event: any) => {
+              if (cancelled) return;
+
+              // PLAYING
+              if (event.data === 1) {
+                hasStarted = true;
+                return;
+              }
+
+              // ENDED
+              if (event.data === 0 && hasStarted) {
+                handleEndedOnce();
+              }
+            },
+
+            onError: (event: any) => {
+              console.error(
+                'YouTube playback error:',
+                event.data,
+                'videoId:',
+                youtubeVideoId
+              );
+            },
           },
-          onError: () => {
-            if (!cancelled) {
-              setTimeout(() => {
-                if (!cancelled) onEndedRef.current?.();
-              }, 1500);
-            }
-          },
-        },
-      });
+        }
+      );
     };
 
-    const checkYTApi = () => {
-      if ((window as any).YT && (window as any).YT.Player) {
-        onPlayerReady();
-        if (interval) clearInterval(interval);
+    const checkYouTubeAPI = () => {
+      if (
+        (window as any).YT &&
+        (window as any).YT.Player
+      ) {
+        createPlayer();
+
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
       }
     };
 
-    if ((window as any).YT && (window as any).YT.Player) {
-      onPlayerReady();
+    // API already loaded
+    if (
+      (window as any).YT &&
+      (window as any).YT.Player
+    ) {
+      createPlayer();
     } else {
-      interval = setInterval(checkYTApi, 100);
-      if (!document.getElementById('youtube-iframe-api-script')) {
-        const tag = document.createElement('script');
-        tag.id = 'youtube-iframe-api-script';
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      // Load API once
+      if (
+        !document.getElementById(
+          'youtube-iframe-api-script'
+        )
+      ) {
+        const script = document.createElement('script');
+
+        script.id = 'youtube-iframe-api-script';
+        script.src = 'https://www.youtube.com/iframe_api';
+        script.async = true;
+
+        document.head.appendChild(script);
       }
+
+      // Wait until API is ready
+      interval = setInterval(
+        checkYouTubeAPI,
+        100
+      );
     }
 
     return () => {
       cancelled = true;
-      if (interval) clearInterval(interval);
+
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+
+      if (
+        player &&
+        typeof player.destroy === 'function'
+      ) {
+        try {
+          player.destroy();
+        } catch (error) {
+          console.warn(
+            'Failed to destroy YouTube player',
+            error
+          );
+        }
+      }
+
+      player = null;
       ytPlayerRef.current = null;
     };
-  }, [youtubeVideoId]);
+  }, [youtubeVideoId, handleEndedOnce]);
 
   // Play/Pause YouTube video dynamically on playing prop change
   useEffect(() => {
@@ -169,21 +294,6 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
       // ignore player state lookup errors before API is fully ready
     }
   }, [playing, isYoutube]);
-
-  // Native video event listener with unmount check
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el || isYoutube) return;
-
-    const handleVideoEnded = () => {
-      onEndedRef.current?.();
-    };
-
-    el.addEventListener('ended', handleVideoEnded);
-    return () => {
-      el.removeEventListener('ended', handleVideoEnded);
-    };
-  }, [url, isYoutube]);
 
   // For GIFs: try to detect actual duration by loading the GIF metadata
   // For SVGs/static images: use the specified duration
@@ -265,7 +375,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     getGifDuration().then((ms) => {
       if (cancelled) return;
       timer = setTimeout(() => {
-        onEndedRef.current?.();
+        handleEndedOnce();
       }, ms);
     });
 
@@ -273,7 +383,7 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [url, lower, durationMs, isYoutube]);
+  }, [url, lower, durationMs, isYoutube, playing, handleEndedOnce]);
 
   // Now, place conditional renders AFTER all hook calls
   if (!url) {
@@ -284,13 +394,9 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
   if (isYoutube && youtubeVideoId) {
     return (
       <div className="w-full h-full relative">
-        <iframe
-          ref={iframeRef}
-          id={uniqueId}
-          src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=1&mute=1&controls=1&rel=0`}
-          className="w-full h-full border-0 rounded-lg"
-          allow="autoplay; encrypted-media"
-          allowFullScreen
+        <div
+          ref={youtubeContainerRef}
+          className="w-full h-full"
         />
       </div>
     );
@@ -312,19 +418,20 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
           controls={false}
           disablePictureInPicture
           onLoadedData={() => setError(null)}
-          onEnded={() => onEndedRef.current?.()}
+          onEnded={handleEndedOnce}
           onError={(e) => {
             const video = e.currentTarget;
             const err = video.error;
-            // Auto-advance silently for missing/network/decode errors
-            if (err && (err.code === 2 || err.code === 4 || err.code === 3)) {
-              setError(null);
-              setTimeout(() => {
-                onEndedRef.current?.();
-              }, 300);
-            } else {
-              setError('Playback error');
-            }
+
+            console.error('MP4 playback error:', {
+              url,
+              errorCode: err?.code,
+              errorMessage: err?.message,
+            });
+
+            setError(
+              `Playback error${err?.code ? ` (${err.code})` : ''}`
+            );
           }}
         />
         {error && (

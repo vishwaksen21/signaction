@@ -70,12 +70,13 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
             gestures.append(_asset_url_for(resolved.media_path, assets_dir=settings.assets_dir))
         else:
             clean_token = item.token.lower().strip()
-            yt_match = yt_dict.get(clean_token)
+            clean_token_space = clean_token.replace("_", " ")
+            yt_match = yt_dict.get(clean_token) or yt_dict.get(clean_token_space)
             if not yt_match:
                 from signaction.nlp import _load_nlp
                 nlp = _load_nlp()
-                doc = nlp(clean_token)
-                if len(doc) > 0:
+                doc = nlp(clean_token_space)
+                if len(doc) == 1:
                     lemma = doc[0].lemma_.lower().strip()
                     yt_match = yt_dict.get(lemma)
 
