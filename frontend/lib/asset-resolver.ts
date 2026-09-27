@@ -35,7 +35,7 @@ export const KNOWN_SIGN_TOKENS = new Set([
   'CHANGE','CHAT','CHOCOLATE','COLLEGE','COME','COMPUTER','CONGRATULATIONS','CRY',
   'DAY','DISAGREE','DISSENT','DISTANCE','DO','DOES_NOT','DO_NOT','DRINK','EAT',
   'ENGINEER','FIGHT','FINISH','FOLLOW','FROM','GLITTER','GO','GOD','GOLD','GOOD',
-  'GREAT','HAND','HANDS','HAPPY','HE','HEAR','HELLO','HELP','HER','HERE','HIS',
+  'GREAT','HAND','HANDS','HAPPY','HE','HEAR','HELLO','HELP','HER','HERE','HI','HIS',
   'HOME','HOMEPAGE','HOW','I','INVENT','IT','KEEP','LANGUAGE','LAUGH','LEARN',
   'LIKE','ME','MORE','MY','NAME','NEXT','NO','NOT','NOW','OF','ON','OUR','OUT',
   'PLAY','PRETTY','RIGHT','SAD','SAFE','SEE','SELF','SHE','SIGN','SING','SLEEP',
@@ -103,11 +103,13 @@ export function resolveAsset(token: string): ResolvedAsset {
   const upper = token.toUpperCase().trim();
   if (!upper) return { type: 'missing', url: '', token };
   
-  const url = `${ASSETS_BASE}/${upper}.mp4`;
+  const aliased = COMMON_ALIASES[upper] || upper;
+  const tokenToUse = KNOWN_SIGN_TOKENS.has(upper) ? upper : (KNOWN_SIGN_TOKENS.has(aliased) ? aliased : upper);
+  const url = `${ASSETS_BASE}/${tokenToUse}.mp4`;
   return {
     type: 'video',
     url,
-    token: upper,
+    token: tokenToUse,
   };
 }
 

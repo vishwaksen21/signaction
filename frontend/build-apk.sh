@@ -56,6 +56,9 @@ npx cap sync android
 # Ensure signaction.apk is excluded from assets
 rm -f android/app/src/main/assets/public/signaction.apk
 
+# Ensure WebViewLocalServer has range request fix for video playback
+python3 ../scripts/patch_webview_local_server.py
+
 echo "=== Step 5: Build Android APK ==="
 if [ -d "/opt/homebrew/opt/openjdk@21" ]; then
   export JAVA_HOME="/opt/homebrew/opt/openjdk@21"

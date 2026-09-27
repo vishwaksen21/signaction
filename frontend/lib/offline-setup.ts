@@ -59,7 +59,7 @@ const ASSET_FILES = [
   'signs/GOOD.mp4','signs/GREAT.mp4',
   'signs/HAND.mp4','signs/HANDS.mp4','signs/HAPPY.mp4','signs/HE.mp4',
   'signs/HEAR.mp4','signs/HELLO.mp4','signs/HELP.mp4','signs/HER.mp4',
-  'signs/HERE.mp4','signs/HIS.mp4','signs/HOME.mp4','signs/HOMEPAGE.mp4',
+  'signs/HERE.mp4','signs/HI.mp4','signs/HIS.mp4','signs/HOME.mp4','signs/HOMEPAGE.mp4',
   'signs/HOW.mp4',
   'signs/I.mp4','signs/INVENT.mp4','signs/IT.mp4',
   'signs/KEEP.mp4',

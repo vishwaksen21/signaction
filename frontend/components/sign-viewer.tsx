@@ -90,8 +90,14 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     if (!el || isYoutube) return;
 
     if (playing) {
-      // Reset to start, then play with retry
-      el.currentTime = 0;
+      // Reset to start if already loaded, then play with retry
+      if (el.currentTime !== 0 && el.readyState >= 1) {
+        try {
+          el.currentTime = 0;
+        } catch {
+          // ignore
+        }
+      }
       setError(null);
 
       let cancelled = false;

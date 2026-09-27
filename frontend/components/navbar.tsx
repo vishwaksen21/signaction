@@ -29,11 +29,11 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 rounded-sm p-1.5 transition-opacity hover:opacity-80">
             <Image
-              src="/logo1.png"
+              src="/signaction-.png"
               alt="SignAction Logo"
-              width={28}
-              height={28}
-              className="rounded-md"
+              width={32}
+              height={32}
+              className="rounded-lg object-contain"
               priority
             />
             <span className="font-semibold text-lg tracking-tight">

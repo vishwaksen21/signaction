@@ -250,6 +250,7 @@ ADITYA MULE (1CR23CD036) & \rule{4cm}{0.4pt} \\
     {\huge\bfseries ABSTRACT}
 \end{center}
 \vspace{1cm}
+\large
 India has about 18 million deaf and hard-of-hearing people who rely on Indian Sign Language (ISL) for daily communication. When these individuals come across English text --- in hospitals, offices, or online --- they have very few tools to help them understand it. Most existing solutions either cost too much, require an internet connection, or support only a limited set of signs.
 
 This project, SignAction, tackles that gap with a web-based tool that converts English text or spoken audio into animated ISL gestures. The system works in three steps. First, an NLP module reads the input sentence and converts it into ISL gloss tokens using rule-based processing. Second, a file-based resolver searches a collection of pre-recorded sign videos and GIFs for each token. Third, when no video exists for a token, a fallback module generates a stick-figure animation using handshape and movement data gathered from the ISLRTC dictionary.
@@ -263,6 +264,7 @@ The backend is built with FastAPI, and the frontend uses Next.js. Users can type
     {\huge\bfseries ACKNOWLEDGEMENT}
 \end{center}
 \vspace{1cm}
+\large
 \begingroup
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.45em}
@@ -367,6 +369,9 @@ Finally, we would like to thank our parents, families, and friends for their mor
 \pagestyle{maincontent} 
 \pagenumbering{arabic}
 \setcounter{page}{1}
+
+% Apply \large (14.4pt) to all main body text
+\large
 
 \chapter{INTRODUCTION}
 India is home to roughly 18 million deaf and hard-of-hearing people, most of whom communicate using Indian Sign Language (ISL). Despite this, there is a severe shortage of tools that can bridge the gap between written or spoken English and ISL. When a deaf person encounters a hospital notice, a government form, or a news article, they typically depend on a human interpreter --- something that is neither always available nor affordable.
