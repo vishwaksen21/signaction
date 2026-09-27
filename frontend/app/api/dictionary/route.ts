@@ -1,14 +1,13 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import DICTIONARY from '@/public/dictionary.json';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const filePath = join(process.cwd(), 'public', 'dictionary.json');
-  const data = await readFile(filePath, 'utf-8');
-  return new Response(data, {
+  return Response.json(DICTIONARY, {
     status: 200,
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      'cache-control': 'public, max-age=3600, s-maxage=86400',
+    },
   });
 }

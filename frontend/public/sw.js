@@ -3,8 +3,8 @@
  * Caches app shell, static assets, and sign language media for offline use.
  */
 
-const CACHE_NAME = 'signaction-v4';
-const STATIC_CACHE = 'signaction-static-v4';
+const CACHE_NAME = 'signaction-v5';
+const STATIC_CACHE = 'signaction-static-v5';
 
 // Install: skip waiting to activate immediately
 self.addEventListener('install', (event) => {
@@ -36,34 +36,26 @@ self.addEventListener('fetch', (event) => {
   // Skip non-http
   if (!url.protocol.startsWith('http')) return;
 
-  // Skip Vosk model download — too large for SW cache
-  if (url.pathname === '/api/vosk-model') return;
+  // Skip Vosk model and large downloads (e.g. APK) — too large for SW cache
+  if (url.pathname === '/api/vosk-model' || url.pathname.startsWith('/download-apk')) return;
+
+  // CRITICAL: NEVER intercept Range requests or video/audio streaming with Cache.put
+  // Browsers request videos with 'Range: bytes=0-', which returns 206 Partial Content.
+  // Cache.put() throws a DOMException TypeError on 206 status, breaking video playback in Chrome and Safari.
+  if (
+    request.headers.has('range') ||
+    request.destination === 'video' ||
+    request.destination === 'audio' ||
+    url.pathname.endsWith('.mp4') ||
+    url.pathname.endsWith('.webm') ||
+    url.pathname.endsWith('.ogg')
+  ) {
+    return;
+  }
 
   // On localhost / development, never cache JS/CSS/webpack chunks to avoid stale hot-reload code
   const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
   if (isLocalhost && (url.pathname.startsWith('/_next/') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
-    return;
-  }
-
-  // Sign assets (MP4): cache-first — these are the core offline content
-  if (url.pathname.startsWith('/assets/signs/') || url.pathname.startsWith('/assets/alphabet/')) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        }).catch(() => {
-          // Offline and not cached — return 404
-          return new Response('Asset not available offline', { status: 404 });
-        });
-      })
-    );
     return;
   }
 
@@ -90,11 +82,11 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.jpg') ||
     url.pathname.endsWith('.jpeg') ||
+    url.pathname.endsWith('.webp') ||
     url.pathname.endsWith('.svg') ||
     url.pathname.endsWith('.woff2') ||
     url.pathname.endsWith('.woff') ||
-    url.pathname.endsWith('.ico') ||
-    url.pathname.endsWith('.mp4')
+    url.pathname.endsWith('.ico')
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
@@ -141,8 +133,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/translate-') ||
     url.pathname.startsWith('/health') ||
     url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/dictionary') ||
-    url.pathname.startsWith('/download-apk')
+    url.pathname.startsWith('/dictionary')
   ) {
     event.respondWith(
       fetch(request)

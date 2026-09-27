@@ -47,6 +47,22 @@ export function ServiceWorkerRegister() {
 
         console.log('[PWA] Service Worker registered, scope:', registration.scope);
 
+        // If a new worker is waiting, activate it immediately
+        if (registration.waiting) {
+          registration.waiting.postMessage('skipWaiting');
+        }
+
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                newWorker.postMessage('skipWaiting');
+              }
+            });
+          }
+        });
+
         const onControllerChange = () => {
           console.log('[PWA] Service Worker controller changed');
         };
@@ -55,7 +71,7 @@ export function ServiceWorkerRegister() {
         // Check for updates periodically
         intervalId = setInterval(() => {
           registration.update().catch(() => {});
-        }, 60 * 60 * 1000);
+        }, 15 * 60 * 1000);
 
         cleanupFn = () => {
           if (intervalId) clearInterval(intervalId);

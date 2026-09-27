@@ -159,66 +159,70 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
         return;
       }
 
-      player = new (window as any).YT.Player(
-        youtubeContainerRef.current,
-        {
-          videoId: youtubeVideoId,
+      // Create an isolated mount point so player.destroy() doesn't remove the React-managed container
+      const container = youtubeContainerRef.current;
+      container.innerHTML = '';
+      const mountPoint = document.createElement('div');
+      mountPoint.style.width = '100%';
+      mountPoint.style.height = '100%';
+      container.appendChild(mountPoint);
 
-          playerVars: {
-            autoplay: 1,
-            controls: 1,
-            rel: 0,
-            playsinline: 1,
-            enablejsapi: 1,
-            origin: window.location.origin,
+      player = new (window as any).YT.Player(mountPoint, {
+        videoId: youtubeVideoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          rel: 0,
+          playsinline: 1,
+          enablejsapi: 1,
+        },
+        events: {
+          onReady: (event: any) => {
+            if (cancelled) return;
+            ytPlayerRef.current = event.target;
+            if (playingRef.current) {
+              event.target.playVideo();
+            }
           },
-
-          events: {
-            onReady: (event: any) => {
-              if (cancelled) return;
-
-              ytPlayerRef.current = event.target;
-
-              if (playingRef.current) {
-                event.target.playVideo();
-              }
-            },
-
-            onStateChange: (event: any) => {
-              if (cancelled) return;
-
-              // PLAYING
-              if (event.data === 1) {
-                hasStarted = true;
-                return;
-              }
-
-              // ENDED
-              if (event.data === 0 && hasStarted) {
-                handleEndedOnce();
-              }
-            },
-
-            onError: (event: any) => {
-              console.error(
-                'YouTube playback error:',
-                event.data,
-                'videoId:',
-                youtubeVideoId
-              );
-            },
+          onStateChange: (event: any) => {
+            if (cancelled) return;
+            // PLAYING
+            if (event.data === 1) {
+              hasStarted = true;
+              return;
+            }
+            // ENDED
+            if (event.data === 0 && hasStarted) {
+              handleEndedOnce();
+            }
           },
-        }
-      );
+          onError: (event: any) => {
+            console.error(
+              'YouTube playback error:',
+              event.data,
+              'videoId:',
+              youtubeVideoId
+            );
+            // Fallback to direct iframe embed on error 150/101
+            if (youtubeContainerRef.current) {
+              youtubeContainerRef.current.innerHTML = `
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&playsinline=1"
+                  class="w-full h-full rounded-lg"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              `;
+            }
+          },
+        },
+      });
     };
 
     const checkYouTubeAPI = () => {
-      if (
-        (window as any).YT &&
-        (window as any).YT.Player
-      ) {
+      if ((window as any).YT && (window as any).YT.Player) {
         createPlayer();
-
         if (interval) {
           clearInterval(interval);
           interval = null;
@@ -227,54 +231,56 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     };
 
     // API already loaded
-    if (
-      (window as any).YT &&
-      (window as any).YT.Player
-    ) {
+    if ((window as any).YT && (window as any).YT.Player) {
       createPlayer();
     } else {
       // Load API once
-      if (
-        !document.getElementById(
-          'youtube-iframe-api-script'
-        )
-      ) {
+      if (!document.getElementById('youtube-iframe-api-script')) {
         const script = document.createElement('script');
-
         script.id = 'youtube-iframe-api-script';
         script.src = 'https://www.youtube.com/iframe_api';
         script.async = true;
-
         document.head.appendChild(script);
       }
 
       // Wait until API is ready
-      interval = setInterval(
-        checkYouTubeAPI,
-        100
-      );
+      interval = setInterval(checkYouTubeAPI, 100);
     }
+
+    // Safety fallback: if YT API doesn't initialize within 2 seconds (e.g. adblocker, network), embed direct iframe
+    const fallbackTimer = setTimeout(() => {
+      if (cancelled || ytPlayerRef.current || !youtubeContainerRef.current) return;
+      const container = youtubeContainerRef.current;
+      container.innerHTML = `
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&playsinline=1"
+          class="w-full h-full rounded-lg"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      `;
+    }, 2000);
 
     return () => {
       cancelled = true;
+      clearTimeout(fallbackTimer);
 
       if (interval) {
         clearInterval(interval);
         interval = null;
       }
 
-      if (
-        player &&
-        typeof player.destroy === 'function'
-      ) {
+      if (player && typeof player.destroy === 'function') {
         try {
           player.destroy();
-        } catch (error) {
-          console.warn(
-            'Failed to destroy YouTube player',
-            error
-          );
+        } catch {
+          // ignore
         }
+      }
+
+      if (youtubeContainerRef.current) {
+        youtubeContainerRef.current.innerHTML = '';
       }
 
       player = null;

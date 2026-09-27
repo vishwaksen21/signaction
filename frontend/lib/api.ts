@@ -9,15 +9,28 @@ export type TranslateResponse = {
 
 const ENV_API_BASE = process.env.NEXT_PUBLIC_API_URL?.trim() || '';
 
+function isNativeApp(): boolean {
+  return typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+}
+
 function getApiBase(): string {
-  if (!ENV_API_BASE) return '';
-  const baseLooksLocalhost =
-    ENV_API_BASE.includes('://localhost') ||
-    ENV_API_BASE.includes('://127.0.0.1') ||
-    ENV_API_BASE.startsWith('localhost') ||
-    ENV_API_BASE.startsWith('127.0.0.1');
-  if (baseLooksLocalhost) return '';
-  return ENV_API_BASE;
+  // In native Android APK (Capacitor), use ENV_API_BASE if provided
+  if (isNativeApp()) {
+    if (!ENV_API_BASE) return '';
+    const baseLooksLocalhost =
+      ENV_API_BASE.includes('://localhost') ||
+      ENV_API_BASE.includes('://127.0.0.1') ||
+      ENV_API_BASE.startsWith('localhost') ||
+      ENV_API_BASE.startsWith('127.0.0.1');
+    if (baseLooksLocalhost) return '';
+    return ENV_API_BASE;
+  }
+
+  // In web browsers (Vercel deployment or local), always use relative routes.
+  // Next.js API route handlers (/translate-text, /translate-speech, /health)
+  // run on the same origin, avoiding CORS issues, cold-start hangs, and
+  // automatically forwarding to the backend with timeout and offline fallbacks.
+  return '';
 }
 
 export function resolveApiUrl(urlOrPath: string): string {
@@ -25,6 +38,8 @@ export function resolveApiUrl(urlOrPath: string): string {
   const u = (urlOrPath || '').trim();
   if (!u) return u;
   if (u.startsWith('http://') || u.startsWith('https://')) return u;
+  // Local sign MP4 videos and images are served directly by the web server / CDN
+  if (u.startsWith('/assets/')) return u;
   if (u.startsWith('/')) return `${API_BASE}${u}`;
   return u;
 }
@@ -33,17 +48,35 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
   const method = (init.method || 'GET').toUpperCase();
   const API_BASE = getApiBase();
   const url = API_BASE ? `${API_BASE}${path}` : path;
-  const fetchInit = { ...init, cache: init.cache || 'no-store' } as RequestInit;
-  const res = await fetch(url, fetchInit);
-  if (!res.ok) {
-    let msg = `${res.status} ${res.statusText} (${method} ${url})`;
-    try {
-      const data = (await res.json()) as { detail?: string };
-      if (data?.detail) msg = `${data.detail} (${method} ${url})`;
-    } catch { /* ignore */ }
-    throw new Error(msg);
+
+  // Add 6-second timeout to prevent requests from hanging indefinitely on sleeping backends
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+  if (init.signal) {
+    init.signal.addEventListener('abort', () => controller.abort());
   }
-  return (await res.json()) as T;
+
+  try {
+    const fetchInit = {
+      ...init,
+      signal: controller.signal,
+      cache: init.cache || 'no-store',
+    } as RequestInit;
+    const res = await fetch(url, fetchInit);
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      let msg = `${res.status} ${res.statusText} (${method} ${url})`;
+      try {
+        const data = (await res.json()) as { detail?: string };
+        if (data?.detail) msg = `${data.detail} (${method} ${url})`;
+      } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
 }
 
 export async function apiHealth(): Promise<{ status: string }> {
