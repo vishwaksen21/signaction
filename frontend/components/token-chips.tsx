@@ -1,5 +1,7 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
 interface TokenChipsProps {
   tokens: string[];
   activeIndex?: number;
@@ -8,27 +10,30 @@ interface TokenChipsProps {
 export function TokenChips({ tokens, activeIndex }: TokenChipsProps) {
   if (!tokens || tokens.length === 0) {
     return (
-      <div className="text-apple-body text-apple-ink-muted-80 italic">
-        No tokens generated
+      <div className="text-xs text-[#60759A] dark:text-slate-400 italic py-2">
+        No tokens generated yet
       </div>
     );
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2.5">
       {tokens.map((token, idx) => {
         const isActive = activeIndex !== undefined && activeIndex === idx;
         return (
-          <div
+          <motion.div
             key={idx}
-            className={`configurator-chip border transition-all duration-150 ${
+            whileHover={{ y: -2 }}
+            className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold tracking-wide rounded-full px-4 py-2 border transition-all duration-200 cursor-default select-none ${
               isActive
-                ? 'border-blue-500 bg-blue-500 text-white font-semibold shadow-sm scale-105'
-                : 'border-apple-hairline bg-apple-surface-pearl text-apple-ink'
+                ? 'bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white border-transparent shadow-[0_4px_16px_rgba(7,87,232,0.35)] scale-105'
+                : 'bg-white dark:bg-slate-900 text-[#062B5C] dark:text-slate-200 border-[rgba(7,87,232,0.18)] dark:border-blue-900/50 hover:border-[#12CFF3] hover:shadow-[0_4px_16px_rgba(18,207,243,0.22)]'
             }`}
           >
-            {token}
-          </div>
+            <span className="opacity-60 mr-1">[</span>
+            <span>{token.toUpperCase()}</span>
+            <span className="opacity-60 ml-1">]</span>
+          </motion.div>
         );
       })}
     </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { SignViewer } from './sign-viewer';
 
 export function SignCard({
@@ -13,27 +12,24 @@ export function SignCard({
   mediaType: 'gif' | 'mp4' | 'img';
 }) {
   return (
-    <div
-      className="store-utility-card h-full flex flex-col gap-sm"
-    >
-      {/* Content */}
-      <div className="flex items-center justify-between">
-        <span className="text-apple-body-strong text-apple-ink">
+    <div className="sign-card p-4 h-full flex flex-col gap-3 group hover:border-sign-bright/40 transition-all duration-300">
+      {/* Header info */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-bold text-base text-sign-darktext dark:text-white tracking-wide truncate">
           {token}
         </span>
-        <span className="configurator-chip border-apple-hairline border bg-apple-surface-pearl text-apple-ink-muted-80">
-          {mediaType.toUpperCase()}
+        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-sign-verylight dark:bg-sign-navy/50 text-sign-blue dark:text-sign-cyan border border-sign-border/60">
+          {mediaType}
         </span>
       </div>
 
-      {/* Image Container */}
-      <div
-        className="relative w-full aspect-video md:aspect-square rounded-lg border border-apple-hairline bg-apple-canvas-parchment overflow-hidden flex items-center justify-center"
-      >
-        <div className="w-full h-full">
+      {/* Video Container */}
+      <div className="relative w-full aspect-video md:aspect-square rounded-2xl border border-sign-border/60 bg-sign-soft/70 dark:bg-slate-900/60 overflow-hidden flex items-center justify-center group-hover:shadow-inner transition-all">
+        <div className="w-full h-full flex items-center justify-center">
           <SignViewer url={url} />
         </div>
       </div>
     </div>
   );
 }
+

@@ -200,41 +200,45 @@ export default function RealtimePage() {
   }
 
   return (
-    <div className="min-h-screen bg-apple-canvas text-apple-ink py-12 md:py-section">
+    <div className="min-h-screen bg-[#F4FAFF] dark:bg-[#020b24] text-[#062B5C] dark:text-slate-100 py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Mode Toggle */}
+        {/* Mode Toggle & Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-apple-display-lg mb-1">
-              Real-time Speech Translator
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF9FF] dark:bg-blue-950/80 border border-[rgba(7,87,232,0.15)] text-xs font-bold text-[#0757E8] dark:text-[#7DEBFA] mb-2">
+              <Activity size={14} className="text-[#12CFF3]" />
+              <span>Continuous Audio Stream</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#062B5C] dark:text-white">
+              Real-time <span className="sign-text-gradient">Speech Translator</span>
             </h1>
-            <p className="text-apple-body text-apple-ink-muted-80">
+            <p className="text-sm text-[#60759A] dark:text-slate-400 mt-1">
               {mode === 'online'
-                ? 'Translates via server (requires internet)'
-                : 'Translates locally on device (works offline)'}
+                ? 'Translates via server API with continuous voice streaming'
+                : 'Translates locally on device via Vosk (100% offline ready)'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Offline model status */}
             {mode === 'offline' && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
-                <Check size={12} />
-                Model Ready
+              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-2xs">
+                <Check size={12} className="stroke-[3]" />
+                <span>Model Ready</span>
               </div>
             )}
 
             {/* Mode toggle */}
-            <div className="flex items-center bg-apple-canvas-parchment border border-apple-hairline rounded-full p-1">
+            <div className="flex items-center bg-white dark:bg-[#03133b] border border-[rgba(7,87,232,0.16)] dark:border-blue-900/60 rounded-full p-1 shadow-sm">
               <button
                 onClick={() => setMode('online')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                   mode === 'online'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-apple-ink-muted-80 hover:text-apple-ink'
+                    ? 'bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white shadow-sm'
+                    : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
                 }`}
               >
-                <Wifi size={12} />
+                <Wifi size={13} />
                 Online
               </button>
               <button
@@ -245,13 +249,13 @@ export default function RealtimePage() {
                     setMode('offline');
                   }
                 }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                   mode === 'offline'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-apple-ink-muted-80 hover:text-apple-ink'
+                    ? 'bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white shadow-sm'
+                    : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
                 }`}
               >
-                <WifiOff size={12} />
+                <WifiOff size={13} />
                 Offline
               </button>
             </div>
@@ -265,28 +269,27 @@ export default function RealtimePage() {
             animate={{ opacity: 1, height: 'auto' }}
             className="mb-6"
           >
-            <div className="rounded-2xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 p-5">
+            <div className="rounded-[24px] border border-[rgba(7,87,232,0.18)] dark:border-blue-900/60 bg-[#EAF9FF]/70 dark:bg-blue-950/40 p-5 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
-                  <Download size={20} />
+                <div className="p-3 bg-white dark:bg-blue-900/40 rounded-2xl text-[#0757E8] dark:text-[#12CFF3] shadow-sm shrink-0">
+                  <Download size={22} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                  <h3 className="text-sm font-bold text-[#062B5C] dark:text-white mb-0.5">
                     Download Speech Model (~40MB)
                   </h3>
-                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-                    Required for offline speech recognition. Downloaded once and
-                    cached on your device.
+                  <p className="text-xs text-[#60759A] dark:text-slate-300 mb-3">
+                    Required for offline speech recognition. Downloaded once and cached securely on your device.
                   </p>
                   {downloading ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-[#0757E8] dark:text-[#7DEBFA]">
                         <Loader2 size={14} className="animate-spin" />
-                        <span>Downloading... {downloadProgress}%</span>
+                        <span>Downloading model... {downloadProgress}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-white dark:bg-blue-950 rounded-full overflow-hidden p-0.5 border border-[rgba(7,87,232,0.1)]">
                         <motion.div
-                          className="h-full bg-blue-500 rounded-full"
+                          className="h-full bg-gradient-to-r from-[#0757E8] to-[#12CFF3] rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${downloadProgress}%` }}
                           transition={{ duration: 0.3 }}
@@ -296,9 +299,9 @@ export default function RealtimePage() {
                   ) : (
                     <button
                       onClick={handleDownloadModel}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                      className="btn-sign-primary text-xs px-5 py-2 shadow-sm"
                     >
-                      <Download size={14} />
+                      <Download size={14} className="mr-1.5" />
                       Download Model
                     </button>
                   )}
@@ -310,92 +313,95 @@ export default function RealtimePage() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Left Column: Input */}
-          <div className="store-utility-card flex flex-col justify-between">
+          <div className="sign-card flex flex-col justify-between">
             <div>
               {/* LIVE Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold tracking-wide mb-6">
-                <motion.div
-                  className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-500"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                />
-                LIVE
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF9FF] dark:bg-blue-950/80 border border-[rgba(7,87,232,0.15)] text-[#0757E8] dark:text-[#7DEBFA] text-xs font-bold tracking-wide mb-6">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12CFF3] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0757E8] dark:bg-[#12CFF3]"></span>
+                </span>
+                LIVE LISTENING
               </div>
 
               {/* Title */}
-              <h2 className="text-apple-display-md mb-2">Voice Input</h2>
-              <p className="text-apple-body text-apple-ink-muted-80 mb-8">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white tracking-tight mb-2">
+                Voice Input
+              </h2>
+              <p className="text-sm text-[#60759A] dark:text-slate-400 mb-8 leading-relaxed">
                 {mode === 'online'
-                  ? 'Speak and your words will be sent to the server for translation'
-                  : 'Speak and your words are processed locally on your device'}
+                  ? 'Speak naturally and audio chunks will stream continuously to generate signs.'
+                  : 'Speak naturally and words will be processed entirely on your device via Vosk.'}
               </p>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 mb-10">
+              <div className="flex items-center gap-3 mb-8">
                 <button
                   onClick={start}
                   disabled={running}
-                  className="btn-primary flex items-center gap-2 px-6"
+                  className="btn-sign-primary flex items-center gap-2 px-7 py-3 text-sm"
                 >
                   <Mic size={18} />
-                  Start
+                  Start Listening
                 </button>
                 <button
                   onClick={stop}
                   disabled={!running}
-                  className="btn-secondary-pill flex items-center gap-2 px-6"
+                  className="btn-sign-secondary flex items-center gap-2 px-6 py-3 text-sm"
                 >
-                  <Square size={18} />
+                  <Square size={16} />
                   Stop
                 </button>
               </div>
 
               {/* Error Alert */}
               {error && (
-                <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-apple-body">
+                <div className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm">
                   {error}
                 </div>
               )}
 
-              {/* Live Transcript */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-apple-body-strong text-apple-primary">
-                  <FileText size={18} />
-                  <span>Live transcript</span>
+              {/* Live Transcript Card */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#60759A] dark:text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <FileText size={16} className="text-[#0757E8]" />
+                    <span>Live Transcript</span>
+                  </div>
                   {mode === 'offline' && (
-                    <span className="text-[10px] font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded-full">
-                      LOCAL
+                    <span className="text-[10px] font-bold bg-[#EAF9FF] text-[#0757E8] px-2 py-0.5 rounded-full border border-[rgba(7,87,232,0.15)]">
+                      ON-DEVICE
                     </span>
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-apple-hairline bg-apple-canvas-parchment p-6 min-h-[160px] md:min-h-[220px] flex flex-col justify-between relative overflow-hidden">
+                <div className="rounded-[20px] border border-[rgba(7,87,232,0.14)] dark:border-blue-900/50 bg-[#F4FAFF] dark:bg-[#03133b] p-6 min-h-[160px] md:min-h-[200px] flex flex-col justify-between relative overflow-hidden">
                   <p
-                    className={`text-apple-body ${
+                    className={`text-sm sm:text-base leading-relaxed ${
                       transcript
-                        ? 'text-apple-ink'
-                        : 'text-apple-ink-muted-48'
+                        ? 'text-[#062B5C] dark:text-white font-medium'
+                        : 'text-[#60759A] dark:text-slate-400 italic'
                     }`}
                   >
-                    {transcript || 'Listening... Speak now'}
+                    {transcript || 'Listening for speech… Click Start to begin recording.'}
                   </p>
 
-                  {/* Waveform */}
+                  {/* Waveform Animation */}
                   {running && (
-                    <div className="absolute inset-x-0 bottom-16 h-20 flex items-center justify-center gap-1 opacity-20">
-                      {[...Array(30)].map((_, i) => (
+                    <div className="absolute inset-x-0 bottom-12 h-14 flex items-center justify-center gap-1 opacity-25 pointer-events-none">
+                      {[...Array(32)].map((_, i) => (
                         <motion.div
                           key={i}
-                          className="w-1.5 bg-blue-500 rounded-full"
+                          className="w-1.5 bg-gradient-to-t from-[#0757E8] to-[#12CFF3] rounded-full"
                           animate={{
                             height: [
-                              Math.random() * 10 + 10,
-                              Math.random() * 60 + 20,
-                              Math.random() * 10 + 10,
+                              Math.random() * 8 + 8,
+                              Math.random() * 45 + 15,
+                              Math.random() * 8 + 8,
                             ],
                           }}
                           transition={{
-                            duration: 0.5 + Math.random() * 0.5,
+                            duration: 0.4 + Math.random() * 0.4,
                             repeat: Infinity,
                             repeatType: 'reverse',
                           }}
@@ -405,29 +411,26 @@ export default function RealtimePage() {
                   )}
 
                   {/* Status Bar */}
-                  <div className="flex items-center justify-between mt-8 pt-4 border-t border-apple-hairline">
-                    <div className="flex items-center gap-2 text-apple-caption font-medium">
+                  <div className="flex items-center justify-between mt-6 pt-3 border-t border-[rgba(7,87,232,0.1)] dark:border-blue-900/40">
+                    <div className="flex items-center gap-2 text-xs font-semibold">
                       {running ? (
                         <>
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-green-600 dark:text-green-400">
-                            Listening...
-                          </span>
-                          <span className="text-apple-ink-muted-80 font-normal">
-                            Speak now
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            Active stream
                           </span>
                         </>
                       ) : (
                         <>
-                          <div className="w-2 h-2 rounded-full bg-apple-ink-muted-48" />
-                          <span className="text-apple-ink-muted-48 font-normal">
-                            Ready to record
+                          <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
+                          <span className="text-[#60759A] dark:text-slate-400">
+                            Idle
                           </span>
                         </>
                       )}
                     </div>
                     {running && (
-                      <Activity size={16} className="text-blue-500" />
+                      <Activity size={16} className="text-[#12CFF3] animate-pulse" />
                     )}
                   </div>
                 </div>
@@ -435,35 +438,34 @@ export default function RealtimePage() {
             </div>
           </div>
 
-          {/* Right Column: Output */}
-          <div className="store-utility-card flex flex-col">
-            {/* Output Header */}
-            <div className="flex items-center justify-between mb-8">
-          <div className="flex flex-wrap items-center gap-3">
-                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
-                  <Volume2 size={20} />
+          {/* Right Column: Output Sequence */}
+          <div className="sign-card flex flex-col justify-between">
+            <div>
+              {/* Output Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-[rgba(7,87,232,0.08)] dark:border-blue-900/40 mb-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                    <Hand size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#062B5C] dark:text-white">
+                      Gesture Output
+                    </h3>
+                    <p className="text-xs text-[#60759A] dark:text-slate-400">
+                      Synchronized sequence
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-apple-tagline">Output</h3>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-apple-surface-pearl border border-apple-hairline rounded-full">
-                <span className="text-apple-caption text-apple-ink-muted-80">
-                  Tokens
-                </span>
-                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold">
-                  {tokens.length}
-                </span>
-              </div>
-            </div>
-
-            {/* Gesture Sequence */}
-            <div className="flex-1 flex flex-col">
-              <div className="flex items-center gap-2 text-apple-body-strong text-apple-primary mb-4">
-                <Hand size={18} />
-                <span>Gesture sequence</span>
+                <div className="flex items-center gap-2 px-3 py-1 bg-[#EAF9FF] dark:bg-blue-950/70 border border-[rgba(7,87,232,0.15)] rounded-full">
+                  <span className="text-xs font-bold text-[#0757E8] dark:text-[#7DEBFA]">
+                    {tokens.length} {tokens.length === 1 ? 'Token' : 'Tokens'}
+                  </span>
+                </div>
               </div>
 
+              {/* Gesture Sequence Player Component */}
               <div className="flex-1">
-                <GestureSequencePlayer gestures={gestures} />
+                <GestureSequencePlayer gestures={gestures} tokens={tokens} />
               </div>
             </div>
           </div>

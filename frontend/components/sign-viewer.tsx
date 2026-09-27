@@ -441,21 +441,26 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
               errorMessage: err?.message,
             });
 
-            setError(
-              `Playback error${err?.code ? ` (${err.code})` : ''}`
-            );
+            setError('Gesture unavailable');
 
-            // Auto-advance sequence after error display so sequence does not freeze
+            // Auto-advance sequence after clean display so sequence does not freeze
             setTimeout(() => {
               handleEndedOnce();
-            }, 1200);
+            }, 1800);
           }}
         />
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
-            <div className="text-center px-4">
-              <div className="text-2xl mb-1 opacity-50">🎬</div>
-              <span className="text-xs text-white/80 bg-black/50 px-3 py-1.5 rounded-full">{error}</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-[#F4FAFF]/95 dark:bg-[#03133b]/95 p-6 rounded-[20px] z-20">
+            <div className="text-center space-y-2 max-w-xs">
+              <div className="mx-auto w-10 h-10 rounded-full bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center font-bold text-sm">
+                !
+              </div>
+              <h4 className="text-sm font-bold text-[#062B5C] dark:text-white">
+                Gesture unavailable
+              </h4>
+              <p className="text-xs text-[#60759A] dark:text-slate-400">
+                Try another translation or check the available sign assets.
+              </p>
             </div>
           </div>
         )}
@@ -469,14 +474,26 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
         src={url}
         alt="Sign gesture"
         className="w-full h-full rounded-lg object-contain"
-        onError={(e) => {
-          const msg = `Failed to load image. URL: ${url.substring(0, 60)}`;
-          console.error(msg);
-          setError(msg);
+        onError={() => {
+          setError('Gesture unavailable');
         }}
         onLoad={() => setError(null)}
       />
-      {error && <div className="text-xs text-red-400 absolute bottom-2">{error}</div>}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#F4FAFF]/95 dark:bg-[#03133b]/95 p-6 rounded-[20px] z-20">
+          <div className="text-center space-y-2 max-w-xs">
+            <div className="mx-auto w-10 h-10 rounded-full bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center font-bold text-sm">
+              !
+            </div>
+            <h4 className="text-sm font-bold text-[#062B5C] dark:text-white">
+              Gesture unavailable
+            </h4>
+            <p className="text-xs text-[#60759A] dark:text-slate-400">
+              Try another translation or check the available sign assets.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

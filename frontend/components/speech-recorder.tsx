@@ -154,7 +154,7 @@ export function SpeechRecorder({
         <button
           onClick={start}
           disabled={disabled || recording}
-          className="btn-primary flex-1 flex items-center justify-center gap-2"
+          className="btn-sign-primary flex-1 flex items-center justify-center gap-2 py-3 text-xs md:text-sm font-bold shadow-md shadow-sign-blue/20"
         >
           <Mic size={18} />
           Start Recording
@@ -164,7 +164,7 @@ export function SpeechRecorder({
         <button
           onClick={stop}
           disabled={disabled || !recording}
-          className="btn-secondary-pill flex items-center justify-center gap-2"
+          className="btn-sign-secondary flex items-center justify-center gap-2 py-3 px-5 text-xs md:text-sm font-bold"
         >
           <Square size={18} />
           Stop
@@ -174,24 +174,24 @@ export function SpeechRecorder({
       {/* Recording Indicator */}
       {recording && (
         <motion.div
-          className="flex items-center gap-2 text-apple-caption text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg"
+          className="flex items-center gap-2 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 px-3.5 py-2.5 rounded-xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="w-2 h-2 rounded-full bg-red-600"
+            className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-400"
             variants={pulseVariants}
             initial="initial"
             animate="animate"
           />
-          Recording in progress...
+          Recording speech in progress...
         </motion.div>
       )}
 
       {/* Last Recording Status */}
       {last && !recording && (
         <motion.div
-          className="flex items-center gap-2 text-apple-caption text-apple-primary bg-apple-surface-pearl border border-apple-hairline px-3 py-2 rounded-lg"
+          className="flex items-center gap-2 text-xs font-semibold text-sign-blue dark:text-sign-cyan bg-sign-verylight dark:bg-sign-navy/40 border border-sign-border/60 px-3.5 py-2 rounded-xl"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
@@ -204,3 +204,4 @@ export function SpeechRecorder({
     </div>
   );
 }
+

@@ -1,8 +1,18 @@
 'use client';
 
+
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Hand, Sparkles, Zap, WifiOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Hand,
+  Sparkles,
+  Zap,
+  WifiOff,
+  Shield,
+  Layers,
+  ArrowDown,
+  CheckCircle2,
+} from 'lucide-react';
 import { TranslatorInput } from '../../components/translator-input';
 import { GestureSequencePlayer } from '../../components/gesture-sequence-player';
 import { TokenChips } from '../../components/token-chips';
@@ -22,7 +32,16 @@ export default function TranslatorPage() {
     translateSpeech.reset();
     setOfflineResult(null);
     setActiveTokenIndex(0);
-    translateText.mutate({ text });
+    translateText.mutate(
+      { text },
+      {
+        onError: () => {
+          // Automatic offline fallback
+          const result = translateTextOffline(text);
+          setOfflineResult(result);
+        },
+      }
+    );
   };
 
   const handleTranslateSpeech = (file: File) => {
@@ -34,7 +53,8 @@ export default function TranslatorPage() {
 
   const active = translateSpeech.data ?? translateText.data;
   const isLoading = translateText.isPending || translateSpeech.isPending;
-  const error = (translateText.error ?? translateSpeech.error) as Error | null;
+  const error = offlineResult ? null : ((translateText.error ?? translateSpeech.error) as Error | null);
+
 
   const handleTranslateOffline = useCallback(() => {
     if (!text.trim()) return;
@@ -49,167 +69,183 @@ export default function TranslatorPage() {
     setOfflineResult(null);
   }, []);
 
+  const hasResult = Boolean(active || offlineResult);
+  const displayGloss = active?.gloss || offlineResult?.gloss || '';
+  const displayTokens = active?.tokens ?? offlineResult?.tokens ?? [];
+  const displayGestures = active?.gestures ?? offlineResult?.gestures ?? [];
+  const displayInputText = active?.transcript || text;
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-apple-surface-black text-slate-900 dark:text-white">
-      
-      {/* Hero Section - Compact */}
-      <section className="w-full py-8 px-4 md:px-8 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-xs mb-3"
-              >
-                <Sparkles size={14} />
-                Text + Speech → Sign Gestures
-              </motion.div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Translate words <span className="text-blue-600 dark:text-blue-500">to sign</span>
-              </h1>
+    <div className="min-h-screen bg-[#F4FAFF] dark:bg-[#020b24] text-[#062B5C] dark:text-slate-100 py-6 sm:py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        {/* Header & Offline-First Badge */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white dark:bg-slate-900 border border-[rgba(7,87,232,0.18)] text-xs font-bold text-[#0757E8] dark:text-[#7DEBFA] mb-2.5 shadow-2xs">
+              <Sparkles size={14} className="text-[#12CFF3]" />
+              <span>English → Sign Language</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <a href="#translate" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium text-sm transition-all shadow-md">
-                <Zap size={16} />
-                Start Translating
-              </a>
-              <button
-                onClick={handleTranslateOffline}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-full font-medium text-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <WifiOff size={14} />
-                Offline
-              </button>
-              <OfflineBadge />
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#062B5C] dark:text-white">
+              Translate to <span className="sign-text-gradient">Sign Gestures</span>
+            </h1>
+          </div>
+
+          {/* Offline Status Badge */}
+          <div className="flex flex-col sm:items-end gap-1.5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-emerald-500/25 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-2xs">
+              <Shield size={14} className="text-emerald-500 stroke-[2.5]" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>● 100% Offline Ready</span>
             </div>
+            <p className="text-[11px] text-[#60759A] dark:text-slate-400">
+              Speech recognition & sign assets run directly on your device.
+            </p>
           </div>
         </div>
-      </section>
 
-      {/* Main Translator Section */}
-      <section id="translate" className="w-full py-12 md:py-20 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          
-          {error && (
-            <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/30 rounded-xl text-sm">
-              {error.message}
-            </div>
-          )}
-
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Input Panel */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-col"
+        {/* Global Error Banner */}
+        {error && (
+          <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm flex items-center justify-between">
+            <span>{error.message}</span>
+            <button
+              onClick={() => { translateText.reset(); translateSpeech.reset(); }}
+              className="text-xs font-bold underline hover:no-underline"
             >
-              <TranslatorInput
-                text={text}
-                onTextChange={handleTextChange}
-                onTranslateText={handleTranslateText}
-                onTranslateSpeech={handleTranslateSpeech}
-                loading={isLoading}
-                error={error?.message ?? null}
-              />
-            </motion.div>
+              Dismiss
+            </button>
+          </div>
+        )}
 
-            {/* Output Panel */}
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-8 flex flex-col min-h-[500px] shadow-sm"
+        {/* ========================================================================= */}
+        {/* SECTION 1: INPUT CARD                                                     */}
+        {/* ========================================================================= */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <TranslatorInput
+            text={text}
+            onTextChange={handleTextChange}
+            onTranslateText={handleTranslateText}
+            onTranslateSpeech={handleTranslateSpeech}
+            loading={isLoading}
+            error={error?.message ?? null}
+          />
+        </motion.div>
+
+        {/* Pipeline Progression Indicator */}
+        {hasResult && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#60759A] dark:text-slate-400 py-2"
+          >
+            <span>English</span>
+            <ArrowDown size={14} className="text-[#0757E8] dark:text-[#12CFF3]" />
+            <span className="text-[#0757E8] dark:text-[#12CFF3]">Gloss</span>
+            <ArrowDown size={14} className="text-[#0757E8] dark:text-[#12CFF3]" />
+            <span>Gestures</span>
+          </motion.div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* SECTION 2: SIGN GLOSS CARD                                                */}
+        {/* ========================================================================= */}
+        <AnimatePresence>
+          {hasResult && displayGloss && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="sign-card"
             >
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6 flex items-center gap-4">
-                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
-                  <Hand size={24} />
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(7,87,232,0.08)] dark:border-blue-900/40 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                    <Layers size={16} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#062B5C] dark:text-white">
+                    Sign Gloss
+                  </h3>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Output</h2>
+                <span className="text-xs font-medium text-[#60759A] dark:text-slate-400">
+                  NLP Grammatical Transformation
+                </span>
               </div>
 
-              <div className="flex-1 flex flex-col min-h-0">
-                {active || offlineResult ? (
-                  <div className="space-y-8 flex-1">
-                    
-                    {/* Transcript */}
-                    {(active?.transcript || offlineResult?.gloss) && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
-                          {active?.transcript ? 'Transcript' : 'Input'}
-                        </label>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-medium">
-                          "{active?.transcript || text}"
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Gloss & Tokens */}
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      {(active?.gloss || offlineResult?.gloss) && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
-                          <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
-                            Sign Gloss
-                          </label>
-                          <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/50 rounded-xl font-mono text-blue-700 dark:text-blue-400 text-sm">
-                            {active?.gloss || offlineResult?.gloss}
-                          </div>
-                        </motion.div>
-                      )}
-
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                        <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-2">
-                          Tokens ({(active?.tokens ?? offlineResult?.tokens)?.length ?? 0})
-                        </label>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                          <TokenChips
-                            tokens={active?.tokens ?? offlineResult?.tokens ?? []}
-                            activeIndex={activeTokenIndex}
-                          />
-                        </div>
-                      </motion.div>
-                    </div>
-
-                    {/* Sequence Player */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="pt-4 flex-1"
-                    >
-                      <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 block mb-4">
-                        Gesture Playback
-                      </label>
-                      <GestureSequencePlayer
-                        gestures={active?.gestures ?? offlineResult?.gestures ?? []}
-                        tokens={active?.tokens ?? offlineResult?.tokens ?? []}
-                        onIndexChange={setActiveTokenIndex}
-                        loading={isLoading}
-                      />
-                    </motion.div>
-                  </div>
-                ) : (
-                  /* Empty State */
-                  <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    <motion.div 
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-600 mb-6"
-                    >
-                      <Hand size={48} strokeWidth={1.5} />
-                    </motion.div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Ready to Translate</h3>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-                      Enter text or use your microphone to generate sign language gestures.
-                    </p>
-                  </div>
+              {/* Gloss Display Typography */}
+              <div className="p-5 rounded-[20px] bg-[#F4FAFF] dark:bg-[#03133b] border border-[rgba(7,87,232,0.14)] dark:border-blue-900/50">
+                <div className="font-mono text-lg sm:text-xl font-extrabold tracking-wide sign-text-gradient uppercase leading-relaxed break-words">
+                  {displayGloss}
+                </div>
+                {displayInputText && (
+                  <p className="mt-3 pt-3 border-t border-[rgba(7,87,232,0.08)] text-xs text-[#60759A] dark:text-slate-400">
+                    Source text: "{displayInputText}"
+                  </p>
                 )}
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
+          )}
+        </AnimatePresence>
+
+        {/* ========================================================================= */}
+        {/* SECTION 3: TOKEN SECTION                                                  */}
+        {/* ========================================================================= */}
+        <AnimatePresence>
+          {hasResult && displayTokens.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="sign-card"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(7,87,232,0.08)] dark:border-blue-900/40 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                    <Zap size={16} />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#062B5C] dark:text-white">
+                    Tokens ({displayTokens.length})
+                  </h3>
+                </div>
+                <span className="text-xs font-medium text-[#60759A] dark:text-slate-400">
+                  Mapped to Sign Database
+                </span>
+              </div>
+
+              {/* Token Chips */}
+              <div className="p-4 rounded-[20px] bg-[#F4FAFF] dark:bg-[#03133b] border border-[rgba(7,87,232,0.12)]">
+                <TokenChips
+                  tokens={displayTokens}
+                  activeIndex={activeTokenIndex}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ========================================================================= */}
+        {/* SECTION 4: GESTURE PLAYBACK SECTION                                       */}
+        {/* ========================================================================= */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="sign-card"
+        >
+          <GestureSequencePlayer
+            gestures={displayGestures}
+            tokens={displayTokens}
+            onIndexChange={setActiveTokenIndex}
+            loading={isLoading}
+          />
+        </motion.div>
+
+      </div>
     </div>
   );
 }
