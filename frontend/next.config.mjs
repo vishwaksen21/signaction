@@ -27,18 +27,10 @@ const nextConfig = {
       ];
     },
     rewrites: async () => {
-      return {
-        beforeFiles: [
-          { source: '/translate-text', destination: `${BACKEND_URL}/translate-text` },
-          { source: '/translate-speech', destination: `${BACKEND_URL}/translate-speech` },
-          { source: '/api/dictionary', destination: `${BACKEND_URL}/dictionary` },
-          { source: '/api/translate/:path*', destination: `${BACKEND_URL}/api/translate/:path*` },
-          { source: '/health', destination: `${BACKEND_URL}/health` },
-        ],
-        fallback: [
-          { source: '/assets/:path*', destination: `${BACKEND_URL}/assets/:path*` },
-        ],
-      };
+      return [
+        { source: '/api/translate/:path*', destination: `${BACKEND_URL}/api/translate/:path*` },
+        { source: '/assets/:path*', destination: `${BACKEND_URL}/assets/:path*` },
+      ];
     },
   }),
 };
