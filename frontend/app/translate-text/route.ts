@@ -3,7 +3,7 @@ import { translateTextOffline } from '@/lib/offline-translate';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const BACKEND_BASE = (process.env.SIGNACTION_BACKEND_URL || 'http://localhost:8000').replace(/\/$/, '');
+const BACKEND_BASE = (process.env.SIGNACTION_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 export async function POST(req: Request) {
   const bodyText = await req.text();

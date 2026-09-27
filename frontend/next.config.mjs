@@ -29,7 +29,6 @@ const nextConfig = {
     rewrites: async () => {
       return [
         { source: '/api/translate/:path*', destination: `${BACKEND_URL}/api/translate/:path*` },
-        { source: '/assets/:path*', destination: `${BACKEND_URL}/assets/:path*` },
       ];
     },
   }),

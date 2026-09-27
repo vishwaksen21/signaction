@@ -87,42 +87,61 @@ def get_youtube_dictionary() -> dict:
     if _YT_DICT_CACHE is not None:
         return _YT_DICT_CACHE
 
-    repo_root = Path(__file__).resolve().parents[2]
-    json_path = repo_root / "sign_videos.json"
-    if json_path.exists():
+    # 1. Try precomputed dictionary in backend folder (instant load, works in Docker & Render)
+    backend_dir = Path(__file__).resolve().parents[1]
+    precomputed = backend_dir / "youtube_dictionary.json"
+    if precomputed.exists():
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                raw_dict = json.load(f)
-
-            semantic_dict = {}
-            for raw_key, record in raw_dict.items():
-                title = record.get("title", "")
-                if "private video" in title.lower() or "deleted video" in title.lower():
-                    continue
-
-                for text in (raw_key, title):
-                    clean = text.lower().strip()
-                    clean = re.sub(r"\(.*?\)", "", clean)
-                    clean = re.sub(r"\bsign\s+\d+\b", "", clean)
-                    clean = re.sub(r"\b\d+\b", "", clean)
-                    clean = re.sub(r"[^a-z0-9\s,/;]", " ", clean)
-                    clean = re.sub(r"\s+", " ", clean).strip()
-
-                    # Split synonyms (commas, slashes, semicolons)
-                    synonyms = [s.strip() for s in re.split(r"[,/;]", clean) if s.strip()]
-                    if clean and clean not in synonyms:
-                        synonyms.append(clean)
-
-                    for syn in synonyms:
-                        syn_norm = re.sub(r"\s+", " ", syn).strip()
-                        if syn_norm and syn_norm not in semantic_dict:
-                            semantic_dict[syn_norm] = {"youtubeUrl": record["youtubeUrl"]}
-                        syn_under = syn_norm.replace(" ", "_")
-                        if syn_under and syn_under not in semantic_dict:
-                            semantic_dict[syn_under] = {"youtubeUrl": record["youtubeUrl"]}
-
-            _YT_DICT_CACHE = semantic_dict
+            with open(precomputed, "r", encoding="utf-8") as f:
+                _YT_DICT_CACHE = json.load(f)
             return _YT_DICT_CACHE
         except Exception:
-            return {}
+            pass
+
+    # 2. Search potential locations for sign_videos.json
+    candidates = [
+        Path(__file__).resolve().parents[2] / "sign_videos.json",
+        backend_dir.parent / "sign_videos.json",
+        Path("/app/sign_videos.json"),
+        Path.cwd() / "sign_videos.json",
+    ]
+
+    for json_path in candidates:
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    raw_dict = json.load(f)
+
+                semantic_dict = {}
+                for raw_key, record in raw_dict.items():
+                    title = record.get("title", "")
+                    if "private video" in title.lower() or "deleted video" in title.lower():
+                        continue
+
+                    for text in (raw_key, title):
+                        clean = text.lower().strip()
+                        clean = re.sub(r"\(.*?\)", "", clean)
+                        clean = re.sub(r"\bsign\s+\d+\b", "", clean)
+                        clean = re.sub(r"\b\d+\b", "", clean)
+                        clean = re.sub(r"[^a-z0-9\s,/;]", " ", clean)
+                        clean = re.sub(r"\s+", " ", clean).strip()
+
+                        # Split synonyms (commas, slashes, semicolons)
+                        synonyms = [s.strip() for s in re.split(r"[,/;]", clean) if s.strip()]
+                        if clean and clean not in synonyms:
+                            synonyms.append(clean)
+
+                        for syn in synonyms:
+                            syn_norm = re.sub(r"\s+", " ", syn).strip()
+                            if syn_norm and syn_norm not in semantic_dict:
+                                semantic_dict[syn_norm] = {"youtubeUrl": record["youtubeUrl"]}
+                            syn_under = syn_norm.replace(" ", "_")
+                            if syn_under and syn_under not in semantic_dict:
+                                semantic_dict[syn_under] = {"youtubeUrl": record["youtubeUrl"]}
+
+                _YT_DICT_CACHE = semantic_dict
+                return _YT_DICT_CACHE
+            except Exception:
+                continue
+
     return {}

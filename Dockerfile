@@ -22,6 +22,7 @@ COPY pyproject.toml ./
 COPY signaction/ ./signaction/
 COPY backend/ ./backend/
 COPY signaction_assets/ ./signaction_assets/
+COPY sign_videos.json ./
 
 # Install Python dependencies (regular install, NOT editable — editable needs .git)
 RUN pip install --no-cache-dir --upgrade pip \

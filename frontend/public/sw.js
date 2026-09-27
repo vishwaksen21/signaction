@@ -3,8 +3,8 @@
  * Caches app shell, static assets, and sign language media for offline use.
  */
 
-const CACHE_NAME = 'signaction-v3';
-const STATIC_CACHE = 'signaction-static-v3';
+const CACHE_NAME = 'signaction-v4';
+const STATIC_CACHE = 'signaction-static-v4';
 
 // Install: skip waiting to activate immediately
 self.addEventListener('install', (event) => {
@@ -115,24 +115,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML pages: stale-while-revalidate
+  // HTML pages: network-first so clients always receive latest deployment HTML, fallback to cache offline
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      caches.open(STATIC_CACHE).then(async (cache) => {
-        const cached = await cache.match(request);
-        const fetchPromise = fetch(request)
-          .then((response) => {
-            if (response.ok) {
-              cache.put(request, response.clone());
-            }
-            return response;
-          })
-          .catch(() => {
-            return cached || caches.match('/');
-          });
-
-        return cached || fetchPromise;
-      })
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          return cached || caches.match('/');
+        })
     );
     return;
   }

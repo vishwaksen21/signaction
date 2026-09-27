@@ -64,7 +64,7 @@ export async function translateText(req: TranslateTextRequest): Promise<Translat
     const offlineRes = translateTextOffline(req.text);
     return {
       tokens: offlineRes.tokens,
-      gestures: offlineRes.gestures.map(resolveApiUrl),
+      gestures: offlineRes.gestures,
       gloss: offlineRes.gloss,
     };
   }
@@ -89,7 +89,7 @@ export async function translateSpeechOnce(file: File): Promise<TranslateResponse
       return {
         transcript,
         tokens: offlineRes.tokens,
-        gestures: offlineRes.gestures.map(resolveApiUrl),
+        gestures: offlineRes.gestures,
         gloss: offlineRes.gloss,
       };
     } catch (offlineErr) {
