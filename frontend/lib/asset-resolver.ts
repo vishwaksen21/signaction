@@ -3,9 +3,11 @@
  * Returns typed results so the renderer uses the correct element.
  */
 
+import YOUTUBE_DICT from './youtube-dictionary.json';
+
 const ASSETS_BASE = '/assets/signs';
 
-export type AssetType = 'video' | 'gif' | 'image' | 'missing';
+export type AssetType = 'video' | 'youtube' | 'gif' | 'image' | 'missing';
 
 export interface ResolvedAsset {
   type: AssetType;
@@ -19,6 +21,7 @@ const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.svg', '.bmp'];
 
 function getAssetType(url: string): AssetType {
   const lower = url.toLowerCase();
+  if (lower.includes('youtube.com') || lower.includes('youtu.be')) return 'youtube';
   if (VIDEO_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'video';
   if (GIF_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'gif';
   if (IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext))) return 'image';
@@ -62,8 +65,32 @@ export const COMMON_ALIASES: Record<string, string> = {
   'HI': 'HELLO', 'HEY': 'HELLO',
 };
 
+const YOUTUBE_MAP: Record<string, string> = YOUTUBE_DICT as Record<string, string>;
+
 /**
- * Resolve tokens to gesture video URLs, with automatic fingerspelling for unknown words.
+ * Look up a token in the YouTube sign video dictionary.
+ * Returns the full YouTube watch URL if found, or null otherwise.
+ */
+export function getYoutubeVideoUrl(token: string): string | null {
+  if (!token) return null;
+  const upper = token.toUpperCase().trim();
+  const space = upper.replace(/_/g, ' ');
+  const under = upper.replace(/\s+/g, '_');
+
+  const videoIdOrUrl = YOUTUBE_MAP[upper] || YOUTUBE_MAP[space] || YOUTUBE_MAP[under];
+  if (!videoIdOrUrl) return null;
+
+  if (videoIdOrUrl.startsWith('http://') || videoIdOrUrl.startsWith('https://')) {
+    return videoIdOrUrl;
+  }
+  return `https://www.youtube.com/watch?v=${videoIdOrUrl}`;
+}
+
+/**
+ * Resolve tokens to gesture video URLs.
+ * 1. Checks local sign dataset first.
+ * 2. Falls back to YouTube sign video if not in local dataset.
+ * 3. Falls back to character-by-character fingerspelling if not in YouTube either.
  */
 export function resolveTokensWithFingerspelling(
   tokens: string[],
@@ -82,11 +109,18 @@ export function resolveTokensWithFingerspelling(
       tokensOut.push(aliased);
       gesturesOut.push(`${assetsBaseUrl}/${aliased}.mp4`);
     } else {
-      // Fingerspell unknown token letter by letter (A-Z, 0-9)
-      for (const char of norm) {
-        if (KNOWN_SIGN_TOKENS.has(char)) {
-          tokensOut.push(char);
-          gesturesOut.push(`${assetsBaseUrl}/${char}.mp4`);
+      // 1st Fallback: check YouTube dictionary for words not in the local dataset
+      const ytUrl = getYoutubeVideoUrl(aliased) || getYoutubeVideoUrl(norm);
+      if (ytUrl) {
+        tokensOut.push(aliased);
+        gesturesOut.push(ytUrl);
+      } else {
+        // 2nd Fallback: Fingerspell unknown token letter by letter (A-Z, 0-9)
+        for (const char of norm) {
+          if (KNOWN_SIGN_TOKENS.has(char)) {
+            tokensOut.push(char);
+            gesturesOut.push(`${assetsBaseUrl}/${char}.mp4`);
+          }
         }
       }
     }
@@ -97,19 +131,35 @@ export function resolveTokensWithFingerspelling(
 
 /**
  * Resolve a single token to a typed asset.
- * Currently all assets are MP4. Returns typed result for correct rendering.
+ * Checks local dataset first, then YouTube fallback.
  */
 export function resolveAsset(token: string): ResolvedAsset {
   const upper = token.toUpperCase().trim();
   if (!upper) return { type: 'missing', url: '', token };
   
   const aliased = COMMON_ALIASES[upper] || upper;
-  const tokenToUse = KNOWN_SIGN_TOKENS.has(upper) ? upper : (KNOWN_SIGN_TOKENS.has(aliased) ? aliased : upper);
-  const url = `${ASSETS_BASE}/${tokenToUse}.mp4`;
+  const tokenToUse = KNOWN_SIGN_TOKENS.has(upper) ? upper : (KNOWN_SIGN_TOKENS.has(aliased) ? aliased : null);
+  if (tokenToUse) {
+    return {
+      type: 'video',
+      url: `${ASSETS_BASE}/${tokenToUse}.mp4`,
+      token: tokenToUse,
+    };
+  }
+
+  const ytUrl = getYoutubeVideoUrl(aliased) || getYoutubeVideoUrl(upper);
+  if (ytUrl) {
+    return {
+      type: 'youtube',
+      url: ytUrl,
+      token: aliased,
+    };
+  }
+
   return {
     type: 'video',
-    url,
-    token: tokenToUse,
+    url: `${ASSETS_BASE}/${aliased}.mp4`,
+    token: aliased,
   };
 }
 
