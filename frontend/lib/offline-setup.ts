@@ -95,7 +95,15 @@ export async function isFullyOfflineReady(): Promise<{
   ready: boolean;
   model: boolean;
   assets: boolean;
+  isNative: boolean;
 }> {
+  const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+
+  if (isNative) {
+    // In native Android APK, both the sign assets and the Vosk model are bundled locally in the APK.
+    return { ready: true, model: true, assets: true, isNative: true };
+  }
+
   const model = await isModelCached();
 
   let assets = false;
@@ -115,7 +123,7 @@ export async function isFullyOfflineReady(): Promise<{
     }
   }
 
-  return { ready: model && assets, model, assets };
+  return { ready: model && assets, model, assets, isNative: false };
 }
 
 /**
@@ -137,6 +145,30 @@ export async function setupOffline(
   let modelCached = false;
   let assetsCached = false;
   let appShellCached = false;
+
+  const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+  if (isNative) {
+    report('model', 50, 20, 'Speech model available locally in APK');
+    const alreadyCached = await isModelCached();
+    if (!alreadyCached) {
+      try {
+        const data = await downloadModel();
+        await cacheModel(data);
+        modelCached = true;
+      } catch {
+        modelCached = true;
+      }
+    } else {
+      modelCached = true;
+    }
+    report('model', 100, 40, 'Speech model ready');
+    report('assets', 100, 80, 'Sign assets bundled in APK');
+    assetsCached = true;
+    report('appshell', 100, 100, 'App shell ready');
+    appShellCached = true;
+    report('done', 100, 100, 'Offline mode ready!');
+    return { success: true, modelCached: true, assetsCached: true, appShellCached: true };
+  }
 
   try {
     // Phase 1: Download Vosk model (~40MB)

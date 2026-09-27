@@ -42,9 +42,19 @@ export default function RealtimePage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  // Check if offline model is ready on mount
+  // Check if offline model is ready on mount, defaulting to offline if native or offline
   useEffect(() => {
-    isOfflineSTTReady().then(setModelReady).catch(() => {});
+    const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isNative || isOffline) {
+      setMode('offline');
+    }
+    isOfflineSTTReady().then((ready) => {
+      setModelReady(ready);
+      if (ready && (isNative || isOffline)) {
+        setMode('offline');
+      }
+    }).catch(() => {});
   }, []);
 
   // Cleanup on unmount
@@ -81,7 +91,8 @@ export default function RealtimePage() {
     setTokens([]);
     setGestures([]);
 
-    if (mode === 'offline' && !modelReady) {
+    const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+    if (mode === 'offline' && !modelReady && !isNative) {
       setError('Download the offline model first.');
       return;
     }

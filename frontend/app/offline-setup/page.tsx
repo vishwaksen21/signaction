@@ -34,13 +34,17 @@ export default function OfflineSetupPage() {
   const [progress, setProgress] = useState<OfflineSetupProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [alreadyReady, setAlreadyReady] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const mountedRef = useRef(true);
 
   // Check if already set up (with cleanup)
   useEffect(() => {
     mountedRef.current = true;
-    isFullyOfflineReady().then(({ ready }) => {
-      if (mountedRef.current && ready) setAlreadyReady(true);
+    isFullyOfflineReady().then(({ ready, isNative: native }) => {
+      if (mountedRef.current) {
+        setIsNative(native);
+        if (ready || native) setAlreadyReady(true);
+      }
     });
     return () => {
       mountedRef.current = false;
@@ -105,11 +109,12 @@ export default function OfflineSetupPage() {
             transition={{ delay: 0.1 }}
             className="text-apple-lead text-apple-ink-muted-80 max-w-xl mx-auto mb-12"
           >
-            Download everything you need to use SignAction without internet.
-            One click, one time, works forever.
+            {isNative
+              ? 'SignAction Android APK is packaged with local offline speech recognition and bundled sign assets. Completely offline from first launch.'
+              : 'Download everything you need to use SignAction without internet. One click, one time, works forever.'}
           </motion.p>
 
-          {/* What gets downloaded */}
+          {/* What gets downloaded / bundled */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -120,20 +125,26 @@ export default function OfflineSetupPage() {
               {
                 icon: <Mic size={20} />,
                 title: 'Speech Recognition',
-                size: '~40MB',
-                desc: 'Vosk AI model for voice-to-text',
+                size: isNative ? 'Bundled' : '~40MB',
+                desc: isNative
+                  ? 'Offline speech model: ✓ Available locally'
+                  : 'Vosk AI model for voice-to-text',
               },
               {
                 icon: <Hand size={20} />,
                 title: 'Sign Assets',
-                size: '~18MB',
-                desc: '100+ gesture videos & alphabet',
+                size: isNative ? 'Bundled' : '~18MB',
+                desc: isNative
+                  ? '182 sign videos & 36 alphabet signs'
+                  : '100+ gesture videos & alphabet',
               },
               {
                 icon: <RefreshCw size={20} />,
                 title: 'App Shell',
-                size: '~1MB',
-                desc: 'Cached pages & UI components',
+                size: isNative ? 'Bundled' : '~1MB',
+                desc: isNative
+                  ? 'Local Android application'
+                  : 'Cached pages & UI components',
               },
             ].map((item, i) => (
               <motion.div
@@ -167,11 +178,13 @@ export default function OfflineSetupPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            {alreadyReady && state === 'idle' ? (
+            {(alreadyReady || isNative) && state === 'idle' ? (
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
                   <Check size={16} />
-                  Already set up for offline use
+                  {isNative
+                    ? 'Offline speech model: ✓ Available locally'
+                    : 'Already set up for offline use'}
                 </div>
                 <div>
                   <Link

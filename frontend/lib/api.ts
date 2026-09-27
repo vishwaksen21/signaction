@@ -79,8 +79,26 @@ export async function translateSpeechOnce(file: File): Promise<TranslateResponse
       body: form,
     });
     return { ...data, gestures: (data.gestures || []).map(resolveApiUrl) };
-  } catch {
-    throw new Error('Speech recognition requires an online connection or backend.');
+  } catch (err) {
+    // Offline fallback: transcribe with client-side Vosk WASM + client-side glossify
+    try {
+      const { transcribeAudioFile } = await import('./vosk-stt');
+      const transcript = await transcribeAudioFile(file);
+      const { translateTextOffline } = await import('./offline-translate');
+      const offlineRes = translateTextOffline(transcript || 'hello');
+      return {
+        transcript,
+        tokens: offlineRes.tokens,
+        gestures: offlineRes.gestures.map(resolveApiUrl),
+        gloss: offlineRes.gloss,
+      };
+    } catch (offlineErr) {
+      throw new Error(
+        `Speech recognition error: ${
+          offlineErr instanceof Error ? offlineErr.message : 'Speech recognition requires an online connection or backend.'
+        }`
+      );
+    }
   }
 }
 

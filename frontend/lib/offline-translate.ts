@@ -51,7 +51,27 @@ export function translateTextOffline(
  * Check if offline STT model is available.
  */
 export async function isOfflineSTTReady(): Promise<boolean> {
-  return isModelCached();
+  const cached = await isModelCached();
+  if (cached) return true;
+
+  // In native Android APK, the Vosk model is bundled directly in the application
+  if (typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false)) {
+    return true;
+  }
+
+  // Check if local bundled model asset is reachable
+  if (typeof window !== 'undefined') {
+    for (const url of ['/models/vosk-model-small-en-us-0.15.tar', '/models/vosk-model-small-en-us-0.15.tar.gz']) {
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) return true;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  return false;
 }
 
 /**

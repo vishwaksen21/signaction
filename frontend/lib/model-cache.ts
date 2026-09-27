@@ -93,8 +93,12 @@ export async function deleteCachedModel(): Promise<void> {
 export async function downloadModel(
   onProgress?: (loaded: number, total: number) => void
 ): Promise<ArrayBuffer> {
-  // Proxy through our API to avoid CORS (alphacephei.com has no CORS headers)
-  const MODEL_URLS = ['/api/vosk-model'];
+  // Try local bundled model first (for APK & offline web), then API proxy fallback
+  const MODEL_URLS = [
+    '/models/vosk-model-small-en-us-0.15.tar',
+    '/models/vosk-model-small-en-us-0.15.tar.gz',
+    '/api/vosk-model',
+  ];
 
   let lastError: Error | null = null;
 

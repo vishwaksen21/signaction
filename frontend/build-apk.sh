@@ -46,8 +46,15 @@ for route in "${API_ROUTES[@]}"; do
 done
 rm -rf "$TMPDIR"
 
+# Exclude redundant signaction.apk from static output so it is not bundled inside itself
+rm -f out/signaction.apk
+rm -f android/app/src/main/assets/public/signaction.apk
+
 echo "=== Step 4: Capacitor sync ==="
 npx cap sync android
+
+# Ensure signaction.apk is excluded from assets
+rm -f android/app/src/main/assets/public/signaction.apk
 
 echo "=== Step 5: Build Android APK ==="
 if [ -d "/opt/homebrew/opt/openjdk@21" ]; then
