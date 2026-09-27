@@ -74,10 +74,19 @@ const YOUTUBE_MAP: Record<string, string> = YOUTUBE_DICT as Record<string, strin
 export function getYoutubeVideoUrl(token: string): string | null {
   if (!token) return null;
   const upper = token.toUpperCase().trim();
+  const lower = token.toLowerCase().trim();
   const space = upper.replace(/_/g, ' ');
   const under = upper.replace(/\s+/g, '_');
+  const spaceLower = lower.replace(/_/g, ' ');
+  const underLower = lower.replace(/\s+/g, '_');
 
-  const videoIdOrUrl = YOUTUBE_MAP[upper] || YOUTUBE_MAP[space] || YOUTUBE_MAP[under];
+  const videoIdOrUrl =
+    YOUTUBE_MAP[upper] ||
+    YOUTUBE_MAP[space] ||
+    YOUTUBE_MAP[under] ||
+    YOUTUBE_MAP[lower] ||
+    YOUTUBE_MAP[spaceLower] ||
+    YOUTUBE_MAP[underLower];
   if (!videoIdOrUrl) return null;
 
   if (videoIdOrUrl.startsWith('http://') || videoIdOrUrl.startsWith('https://')) {

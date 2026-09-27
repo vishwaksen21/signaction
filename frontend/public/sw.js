@@ -3,15 +3,15 @@
  * Caches app shell, static assets, and sign language media for offline use.
  */
 
-const CACHE_NAME = 'signaction-v1';
-const STATIC_CACHE = 'signaction-static-v1';
+const CACHE_NAME = 'signaction-v3';
+const STATIC_CACHE = 'signaction-static-v3';
 
 // Install: skip waiting to activate immediately
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: clean up all old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -39,6 +39,12 @@ self.addEventListener('fetch', (event) => {
   // Skip Vosk model download — too large for SW cache
   if (url.pathname === '/api/vosk-model') return;
 
+  // On localhost / development, never cache JS/CSS/webpack chunks to avoid stale hot-reload code
+  const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+  if (isLocalhost && (url.pathname.startsWith('/_next/') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+    return;
+  }
+
   // Sign assets (MP4): cache-first — these are the core offline content
   if (url.pathname.startsWith('/assets/signs/') || url.pathname.startsWith('/assets/alphabet/')) {
     event.respondWith(
@@ -61,10 +67,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets (JS, CSS, images, fonts): cache-first
+  // Code assets (JS, CSS): network-first so clients always receive latest code updates
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Static media assets (images, fonts, icons): cache-first
   if (
-    url.pathname.endsWith('.js') ||
-    url.pathname.endsWith('.css') ||
     url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.jpg') ||
     url.pathname.endsWith('.jpeg') ||
