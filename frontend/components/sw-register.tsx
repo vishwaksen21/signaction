@@ -15,6 +15,30 @@ export function ServiceWorkerRegister() {
     let intervalId: ReturnType<typeof setInterval> | undefined;
     let cleanupFn: (() => void) | undefined;
 
+    const isLocalhost =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+
+    if (isLocalhost) {
+      // In local development, unregister any active service workers and clear caches
+      // to ensure the latest compiled JS/CSS bundles always execute directly.
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const reg of registrations) {
+          reg.unregister();
+          console.log('[PWA] Unregistered service worker for localhost');
+        }
+      });
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          for (const name of names) {
+            caches.delete(name);
+            console.log('[PWA] Purged cache:', name);
+          }
+        });
+      }
+      return;
+    }
+
     const registerSW = async () => {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js', {

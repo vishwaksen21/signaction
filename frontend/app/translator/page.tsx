@@ -20,12 +20,14 @@ export default function TranslatorPage() {
 
   const handleTranslateText = () => {
     translateSpeech.reset();
+    setOfflineResult(null);
     setActiveTokenIndex(0);
     translateText.mutate({ text });
   };
 
   const handleTranslateSpeech = (file: File) => {
     translateText.reset();
+    setOfflineResult(null);
     setActiveTokenIndex(0);
     translateSpeech.mutate({ file });
   };
