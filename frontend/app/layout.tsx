@@ -50,20 +50,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
         <Providers>
-          {/* Desktop nav - hidden on mobile */}
-          <div className="hidden md:block">
-            <Navbar />
-          </div>
+          {/* Floating Pill Navbar */}
+          <Navbar />
 
           {/* Main content - padding for bottom nav on mobile */}
-          <main className="min-h-screen pb-20 md:pb-0">
+          <main className="min-h-screen pb-16 md:pb-0">
             {children}
           </main>
 
-          {/* Footer - hidden on mobile (app feel) */}
-          <div className="hidden md:block">
-            <Footer />
-          </div>
+          {/* Modern Footer */}
+          <Footer />
 
           {/* Bottom navigation - mobile only */}
           <BottomNav />
