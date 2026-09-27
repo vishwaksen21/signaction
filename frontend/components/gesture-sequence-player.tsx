@@ -6,13 +6,19 @@ import { Play, Pause, SkipBack, SkipForward, Hand } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { SignViewer } from './sign-viewer';
 
+export interface GestureSequencePlayerProps {
+  gestures: string[];
+  tokens?: string[];
+  onIndexChange?: (index: number) => void;
+  loading?: boolean;
+}
+
 export function GestureSequencePlayer({
   gestures,
+  tokens,
+  onIndexChange,
   loading,
-}: {
-  gestures: string[];
-  loading?: boolean;
-}) {
+}: GestureSequencePlayerProps) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -21,6 +27,11 @@ export function GestureSequencePlayer({
     () => gestures[index] ?? null,
     [gestures, index]
   );
+
+  // Notify parent component of current gesture/token index
+  useEffect(() => {
+    onIndexChange?.(index);
+  }, [index, onIndexChange]);
 
   // Reset whenever a completely new gesture sequence arrives
   useEffect(() => {
