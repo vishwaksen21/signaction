@@ -4,4 +4,7 @@ dist/
 .env
 .env.*
 .next/
-frontend/public/signaction.apk
+out/
+.tmp-api-routes/
+public/signaction.apk
+signaction.apk

@@ -59,12 +59,14 @@ export async function translateText(req: TranslateTextRequest): Promise<Translat
     });
     return { ...data, gestures: (data.gestures || []).map(resolveApiUrl) };
   } catch {
-    // Offline fallback: use client-side glossification
-    const { glossify } = await import('./glossify');
-    const { tokens, gloss } = glossify(req.text);
-    // Don't encodeURIComponent — tokens are already uppercase safe filenames
-    const gestures = tokens.map((t) => `/assets/signs/${t}.mp4`);
-    return { tokens, gestures: gestures.map(resolveApiUrl), gloss };
+    // Offline fallback: use robust client-side offline translation with fingerspelling
+    const { translateTextOffline } = await import('./offline-translate');
+    const offlineRes = translateTextOffline(req.text);
+    return {
+      tokens: offlineRes.tokens,
+      gestures: offlineRes.gestures.map(resolveApiUrl),
+      gloss: offlineRes.gloss,
+    };
   }
 }
 

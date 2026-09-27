@@ -50,6 +50,11 @@ echo "=== Step 4: Capacitor sync ==="
 npx cap sync android
 
 echo "=== Step 5: Build Android APK ==="
+if [ -d "/opt/homebrew/opt/openjdk@21" ]; then
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@21"
+  export PATH="$JAVA_HOME/bin:$PATH"
+fi
+
 cd android
 ./gradlew assembleDebug
 
@@ -59,6 +64,8 @@ if [ -f "$APK_PATH" ]; then
   echo "=== APK built successfully ==="
   echo "Location: android/$APK_PATH"
   echo "Size: $(du -h "$APK_PATH" | cut -f1)"
+  cp "$APK_PATH" "../public/signaction.apk"
+  echo "Updated public/signaction.apk"
 else
   echo "ERROR: APK not found at $APK_PATH"
   exit 1

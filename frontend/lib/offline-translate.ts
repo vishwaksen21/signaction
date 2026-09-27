@@ -5,7 +5,7 @@
  */
 
 import { glossify, type GlossResult } from './glossify';
-import { resolveGestureUrls } from './asset-resolver';
+import { resolveTokensWithFingerspelling, resolveGestureUrls } from './asset-resolver';
 import { createVoskSTT, type VoskSTT, type VoskSTTOptions } from './vosk-stt';
 import { isModelCached, downloadModel, cacheModel } from './model-cache';
 
@@ -29,7 +29,7 @@ export interface ModelDownloadProgress {
 
 /**
  * Translate text offline (no server needed).
- * Uses the JS glossify port + client-side asset resolution.
+ * Uses the JS glossify port + client-side fingerspelling asset resolution.
  */
 export function translateTextOffline(
   text: string,
@@ -38,11 +38,10 @@ export function translateTextOffline(
   const { assetsBaseUrl = '/assets/signs' } = options;
 
   const glossResult = glossify(text);
-  // Use the robust asset resolver
-  const gestures = resolveGestureUrls(glossResult.tokens);
+  const { tokens, gestures } = resolveTokensWithFingerspelling(glossResult.tokens, assetsBaseUrl);
 
   return {
-    tokens: glossResult.tokens,
+    tokens,
     gestures,
     gloss: glossResult.gloss,
   };

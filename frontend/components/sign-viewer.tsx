@@ -432,6 +432,11 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
             setError(
               `Playback error${err?.code ? ` (${err.code})` : ''}`
             );
+
+            // Auto-advance sequence after error display so sequence does not freeze
+            setTimeout(() => {
+              handleEndedOnce();
+            }, 1200);
           }}
         />
         {error && (
