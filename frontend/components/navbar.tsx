@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/lib/theme-context';
-import { Moon, Sun, Menu, X, Sparkles, BookOpen } from 'lucide-react';
+import { Moon, Sun, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -45,19 +45,19 @@ export function Navbar() {
               : 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-800/70 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_24px_-2px_rgba(0,0,0,0.3)]'
           }`}
         >
-          {/* Left: Brand Logo & Title */}
-          <Link href="/" className="flex items-center gap-2.5 pl-1 group">
-            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-500 p-0.5 shadow-xs transition-transform group-hover:scale-105 flex items-center justify-center">
+          {/* Left: Brand Logo & Title (Enlarged) */}
+          <Link href="/" className="flex items-center gap-3 pl-1 group">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-500 p-0.5 shadow-xs transition-transform group-hover:scale-105 flex items-center justify-center shrink-0">
               <Image
                 src="/signaction-.png"
                 alt="SignAction Logo"
-                width={28}
-                height={28}
-                className="rounded-[9px] object-contain bg-white dark:bg-slate-950"
+                width={38}
+                height={38}
+                className="w-full h-full rounded-[14px] object-contain bg-white dark:bg-slate-950 p-0.5"
                 priority
               />
             </div>
-            <span className="font-bold text-base sm:text-lg tracking-tight text-slate-950 dark:text-white">
+            <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-950 dark:text-white">
               SignAction
             </span>
           </Link>
@@ -82,40 +82,22 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Docs link with purple book icon */}
-            <Link
-              href="/about"
-              className="hidden lg:inline-flex items-center gap-1.5 text-sm font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors px-2.5 py-1 rounded-full hover:bg-purple-50 dark:hover:bg-purple-950/30"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Docs</span>
-            </Link>
-
-            {/* Theme Toggle */}
+          {/* Right: Only Theme Toggle & Mobile Menu */}
+          <div className="flex items-center gap-2">
+            {/* Dark/Light Mode Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2.5 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Toggle theme"
             >
-              <Sun className="w-4 h-4 hidden dark:block" />
-              <Moon className="w-4 h-4 block dark:hidden" />
+              <Sun className="w-5 h-5 hidden dark:block text-amber-400" />
+              <Moon className="w-5 h-5 block dark:hidden text-slate-700" />
             </button>
-
-            {/* Signature Black Pill CTA Button */}
-            <Link
-              href="/translator"
-              className="inline-flex items-center gap-1.5 bg-black hover:bg-neutral-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-purple-300 dark:text-purple-600" />
-              <span>Beta Access</span>
-            </Link>
 
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="md:hidden p-2.5 text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -151,14 +133,6 @@ export function Navbar() {
                     </Link>
                   );
                 })}
-                <Link
-                  href="/about"
-                  onClick={() => setMobileOpen(false)}
-                  className="px-4 py-2.5 rounded-2xl text-sm font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Documentation</span>
-                </Link>
               </div>
             </motion.div>
           )}

@@ -44,128 +44,53 @@ export function Footer() {
         </svg>
       </div>
 
-      {/* Giant Background Watermark Text - Exact Match to Reference */}
-      <div className="absolute inset-x-0 bottom-24 sm:bottom-18 flex justify-center items-center pointer-events-none select-none overflow-hidden z-0">
-        <span className="text-[12vw] font-black tracking-widest text-sky-100/60 dark:text-slate-800/40 uppercase leading-none text-center">
+      {/* Giant Background Watermark Text - Clearly visible, matching reference */}
+      <div className="absolute inset-x-0 bottom-24 sm:bottom-20 flex justify-center lg:justify-end items-end max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none select-none overflow-hidden z-0">
+        <span className="text-[14vw] sm:text-[12vw] lg:text-[10vw] font-black tracking-widest text-[#93c5fd]/60 dark:text-slate-800/80 uppercase leading-none select-none pr-0 lg:pr-4">
           SIGNACTION
         </span>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Grid: Left Brand Block + Right 4 Categorized Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16 sm:mb-20">
-          
-          {/* Left Column: Status Badge, 3D Logo, Wordmark, Headline, CTA Button */}
-          <div className="lg:col-span-5 flex flex-col items-start">
-            {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50/90 dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/60 shadow-2xs mb-6 text-[11px] font-semibold text-sky-700 dark:text-sky-300 tracking-wide">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-              </span>
-              SYSTEM OPERATIONAL • v1.0
-            </div>
-
-            {/* 3D Wave Logo Icon */}
-            <div className="mb-2">
-              <Image
-                src="/logo.png"
-                alt="SignAction Logo"
-                width={80}
-                height={80}
-                className="object-contain drop-shadow-sm select-none"
-                priority
-              />
-            </div>
-
-            {/* Brand Wordmark */}
-            <div className="mb-4">
-              <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Sign<span className="text-blue-600 dark:text-blue-500">Action</span>
-              </span>
-            </div>
-
-            {/* Headline matching reference */}
-            <div className="mb-6 space-y-1">
-              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Communicate better.
-              </h3>
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-400 dark:text-slate-500">
-                A more <span className="text-sky-500 dark:text-sky-400">inclusive world.</span>
-              </p>
-            </div>
-
-            {/* Vibrant Blue Gradient Pill CTA Button */}
-            <Link
-              href="/translator"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-semibold text-sm px-6 py-2.5 rounded-full shadow-[0_4px_16px_rgba(2,132,199,0.35)] hover:shadow-[0_6px_22px_rgba(2,132,199,0.45)] transition-all group"
-            >
-              <span>Get Started</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+        {/* Main Brand Section (Left side hero) */}
+        <div className="flex flex-col items-start max-w-xl mb-14 sm:mb-20">
+          {/* 3D Wave Logo Icon */}
+          <div className="mb-3">
+            <Image
+              src="/logo.png"
+              alt="SignAction Logo"
+              width={84}
+              height={84}
+              className="object-contain drop-shadow-md select-none"
+              priority
+            />
           </div>
 
-          {/* Right 4 Columns: PRODUCT | DEVELOPERS | RESOURCES | ABOUT */}
-          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
-            
-            {/* Column 1: PRODUCT */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                Product
-              </h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                <Link href="/translator" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Features</Link>
-                <Link href="/about#how-it-works" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">How it Works</Link>
-                <Link href="/about#use-cases" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Use Cases</Link>
-                <Link href="/translator" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Screenshots</Link>
-                <Link href="/about#roadmap" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Roadmap</Link>
-              </div>
-            </div>
-
-            {/* Column 2: DEVELOPERS */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                Developers
-              </h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                <Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Documentation</Link>
-                <Link href="/api-status" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">API Reference</Link>
-                <Link href="/offline-setup" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Offline Setup</Link>
-                <Link href="/offline-setup" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Download Assets</Link>
-                <a href="https://github.com/vishwaksen21/signaction" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contribute</a>
-              </div>
-            </div>
-
-            {/* Column 3: RESOURCES */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                Resources
-              </h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                <Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">User Guide</Link>
-                <Link href="/about#faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">FAQs</Link>
-                <Link href="/api-status" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Troubleshooting</Link>
-                <Link href="/dictionary" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dataset Guide</Link>
-                <Link href="/about#privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Privacy & Security</Link>
-              </div>
-            </div>
-
-            {/* Column 4: ABOUT */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                About
-              </h4>
-              <div className="flex flex-col gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                <Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About SignAction</Link>
-                <Link href="/about#mission" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Our Mission</Link>
-                <Link href="/about#accessibility" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Accessibility</Link>
-                <Link href="/about#contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</Link>
-                <Link href="/about#terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Terms of Service</Link>
-              </div>
-            </div>
-
+          {/* Brand Wordmark */}
+          <div className="mb-4">
+            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Sign<span className="text-blue-600 dark:text-blue-500">Action</span>
+            </span>
           </div>
 
+          {/* Headline matching reference */}
+          <div className="mb-6 space-y-1">
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Communicate better.
+            </h3>
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-400 dark:text-slate-500">
+              A more <span className="text-sky-500 dark:text-sky-400">inclusive world.</span>
+            </p>
+          </div>
+
+          {/* Vibrant Blue Gradient Pill CTA Button */}
+          <Link
+            href="/translator"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-full shadow-[0_4px_20px_rgba(2,132,199,0.38)] hover:shadow-[0_6px_24px_rgba(2,132,199,0.48)] transition-all group"
+          >
+            <span>Get Started</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
 
         {/* Bottom Bar: Privacy Shield + Copyright + Links & Social Icons */}
