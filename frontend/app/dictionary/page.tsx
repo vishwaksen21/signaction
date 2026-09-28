@@ -28,7 +28,7 @@ export default function DictionaryPage() {
   }, [data, query, letter]);
 
   return (
-    <div className="min-h-screen bg-sign-soft/40 dark:bg-slate-950 text-sign-darktext dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 md:py-16">
         
         {/* Header */}
@@ -38,15 +38,15 @@ export default function DictionaryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sign-verylight dark:bg-sign-navy/40 border border-sign-border/60 text-sign-blue dark:text-sign-cyan text-xs font-semibold uppercase tracking-wider mb-5 shadow-sm">
-              <BookOpen size={14} className="text-sign-bright" />
-              Sign Gesture Library
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+              <span>Linguistic Gesture Library</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-sign-navy dark:text-white mb-4">
-              Sign <span className="sign-text-gradient">Dictionary</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-4">
+              Sign Gesture <span className="text-[#0757E8] dark:text-[#12CFF3]">Dictionary</span>
             </h1>
-            <p className="text-base sm:text-lg text-sign-muted dark:text-slate-400">
-              Explore available gesture assets, verified Indian & American sign tokens, and fingerspelling sequences.
+            <p className="text-base sm:text-lg text-[#64748B] dark:text-slate-400">
+              Explore verified Indian & American sign tokens, video gesture demonstrations, and alphabet fingerspellings.
             </p>
           </motion.div>
         </div>
@@ -62,20 +62,20 @@ export default function DictionaryPage() {
           <div className="relative mb-6">
             <Search
               size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-sign-muted"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748B]"
             />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search gestures by keyword (e.g. HELLO, THANK YOU, WATER)..."
-              className="w-full pl-12 pr-10 py-3.5 bg-sign-soft/70 dark:bg-slate-900 border border-sign-border/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sign-cyan/40 focus:border-sign-bright transition-all text-sign-darktext dark:text-white placeholder:text-sign-muted/70 text-sm md:text-base font-medium"
+              placeholder="Search gestures by keyword (e.g. HELLO, THANK YOU, HELP, WATER)..."
+              className="w-full pl-12 pr-10 py-3.5 bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#0757E8]/20 focus:border-[#0757E8] transition-all text-[#062B5C] dark:text-white placeholder:text-slate-400 text-sm md:text-base font-medium"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-sign-muted hover:text-sign-navy dark:hover:text-white"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-[#062B5C] dark:hover:text-white"
                 aria-label="Clear search"
               >
                 <X size={16} />
@@ -86,15 +86,15 @@ export default function DictionaryPage() {
           {/* Letter Filter */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-sign-muted dark:text-slate-400 flex items-center gap-2">
-                <Filter size={14} className="text-sign-bright" />
+              <label className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 flex items-center gap-2">
+                <Filter size={14} className="text-[#0757E8]" />
                 Filter by First Letter
               </label>
               {letter && (
                 <button
                   type="button"
                   onClick={() => setLetter('')}
-                  className="text-xs text-sign-bright hover:underline font-semibold"
+                  className="text-xs text-[#0757E8] hover:underline font-semibold"
                 >
                   Clear filter
                 </button>
@@ -103,10 +103,10 @@ export default function DictionaryPage() {
             <div className="flex flex-wrap gap-1.5 md:gap-2">
               <button
                 onClick={() => setLetter('')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 ${
                   letter === ''
-                    ? 'btn-sign-primary shadow-sm'
-                    : 'bg-sign-soft/90 dark:bg-slate-800 text-sign-darktext dark:text-slate-300 hover:bg-sign-verylight dark:hover:bg-slate-700 border border-sign-border/40'
+                    ? 'bg-[#0757E8] text-white shadow-xs'
+                    : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
                 }`}
               >
                 All
@@ -116,10 +116,10 @@ export default function DictionaryPage() {
                 <button
                   key={l}
                   onClick={() => setLetter(letter === l ? '' : l)}
-                  className={`w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-xl text-xs md:text-sm font-bold transition-all duration-200 ${
+                  className={`w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 ${
                     letter === l
-                      ? 'btn-sign-primary shadow-sm'
-                      : 'bg-sign-soft/90 dark:bg-slate-800 text-sign-darktext dark:text-slate-300 hover:bg-sign-verylight dark:hover:bg-slate-700 border border-sign-border/40'
+                      ? 'bg-[#0757E8] text-white shadow-xs'
+                      : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
                   }`}
                 >
                   {l}
@@ -131,9 +131,9 @@ export default function DictionaryPage() {
 
         {/* Result count & status */}
         {!isLoading && !error && (
-          <div className="flex items-center justify-center gap-2 text-sm font-medium text-sign-muted dark:text-slate-400 mb-8">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-[#64748B] dark:text-slate-400 mb-8">
             <span>Showing</span>
-            <span className="font-extrabold text-sign-navy dark:text-white bg-sign-verylight dark:bg-sign-navy/50 px-2.5 py-0.5 rounded-full border border-sign-border/60">
+            <span className="font-extrabold text-[#062B5C] dark:text-white bg-blue-50 dark:bg-blue-950/50 px-2.5 py-0.5 rounded-full border border-blue-200/80">
               {filtered.length}
             </span>
             <span>gesture{filtered.length !== 1 ? 's' : ''}</span>
@@ -144,7 +144,7 @@ export default function DictionaryPage() {
 
         {/* Error State */}
         {error && (
-          <div className="mb-8 max-w-4xl mx-auto p-5 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 text-sm flex items-center justify-center text-center">
+          <div className="mb-8 max-w-4xl mx-auto p-5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 text-rose-700 dark:text-rose-400 text-sm flex items-center justify-center text-center">
             {(error as Error).message || 'Unable to load dictionary items. Check backend connection.'}
           </div>
         )}
@@ -153,9 +153,9 @@ export default function DictionaryPage() {
         {isLoading ? (
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="sign-card p-4 space-y-3">
-                <Skeleton className="h-5 w-24 rounded-lg bg-sign-border/40" />
-                <Skeleton className="h-44 w-full rounded-2xl bg-sign-border/30" />
+              <div key={i} className="sign-card p-5 space-y-3">
+                <Skeleton className="h-5 w-24 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                <Skeleton className="h-44 w-full rounded-xl bg-slate-100 dark:bg-slate-800" />
               </div>
             ))}
           </div>
@@ -188,11 +188,11 @@ export default function DictionaryPage() {
         ) : !error && (
           <div className="text-center py-16">
             <div className="inline-flex flex-col items-center justify-center p-10 max-w-md mx-auto sign-card">
-              <div className="w-16 h-16 rounded-2xl bg-sign-verylight dark:bg-sign-navy/40 text-sign-bright flex items-center justify-center mb-4">
-                <Search size={32} />
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] flex items-center justify-center mb-4">
+                <Search size={30} />
               </div>
-              <p className="text-lg font-bold text-sign-navy dark:text-white mb-2">No gestures found</p>
-              <p className="text-sm text-sign-muted dark:text-slate-400 mb-6">
+              <p className="font-heading text-lg font-bold text-[#062B5C] dark:text-white mb-2">No gestures found</p>
+              <p className="text-sm text-[#64748B] dark:text-slate-400 mb-6">
                 Try searching for another word or clearing your filter to view all tokens.
               </p>
               <button
@@ -201,7 +201,7 @@ export default function DictionaryPage() {
                   setQuery('');
                   setLetter('');
                 }}
-                className="btn-sign-primary text-xs px-5 py-2.5"
+                className="btn-sign-primary text-xs px-6 py-2.5"
               >
                 Reset All Filters
               </button>

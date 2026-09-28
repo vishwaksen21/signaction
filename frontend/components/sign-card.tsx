@@ -12,19 +12,19 @@ export function SignCard({
   mediaType: 'gif' | 'mp4' | 'img';
 }) {
   return (
-    <div className="sign-card p-4 h-full flex flex-col gap-3 group hover:border-sign-bright/40 transition-all duration-300">
+    <div className="sign-card p-5 h-full flex flex-col gap-3.5 group hover:border-[#0757E8]/40 transition-all duration-200">
       {/* Header info */}
       <div className="flex items-center justify-between gap-2">
-        <span className="font-bold text-base text-sign-darktext dark:text-white tracking-wide truncate">
+        <span className="font-heading font-bold text-base text-[#062B5C] dark:text-white tracking-tight truncate">
           {token}
         </span>
-        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-sign-verylight dark:bg-sign-navy/50 text-sign-blue dark:text-sign-cyan border border-sign-border/60">
+        <span className="text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/70 dark:border-blue-900/50">
           {mediaType}
         </span>
       </div>
 
       {/* Video Container */}
-      <div className="relative w-full aspect-video md:aspect-square rounded-2xl border border-sign-border/60 bg-sign-soft/70 dark:bg-slate-900/60 overflow-hidden flex items-center justify-center group-hover:shadow-inner transition-all">
+      <div className="relative w-full aspect-video md:aspect-square rounded-xl border border-slate-200/80 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-950 overflow-hidden flex items-center justify-center transition-all">
         <div className="w-full h-full flex items-center justify-center">
           <SignViewer url={url} />
         </div>

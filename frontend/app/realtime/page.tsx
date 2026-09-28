@@ -200,42 +200,43 @@ export default function RealtimePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4FAFF] dark:bg-[#020b24] text-[#062B5C] dark:text-slate-100 py-10 md:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Mode Toggle & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF9FF] dark:bg-blue-950/80 border border-[rgba(7,87,232,0.15)] text-xs font-bold text-[#0757E8] dark:text-[#7DEBFA] mb-2">
-              <Activity size={14} className="text-[#12CFF3]" />
-              <span>Continuous Audio Stream</span>
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-8 sm:py-14 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        {/* Header & Mode Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-2">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3]">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+              <span>Real-Time Audio Stream</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#062B5C] dark:text-white">
-              Real-time <span className="sign-text-gradient">Speech Translator</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#062B5C] dark:text-white tracking-[-0.03em] leading-tight">
+              Live Speech to <span className="text-[#0757E8] dark:text-[#12CFF3]">Signs</span>
             </h1>
-            <p className="text-sm text-[#60759A] dark:text-slate-400 mt-1">
+            <p className="text-sm sm:text-base text-[#64748B] dark:text-slate-400 max-w-lg">
               {mode === 'online'
-                ? 'Translates via server API with continuous voice streaming'
-                : 'Translates locally on device via Vosk (100% offline ready)'}
+                ? 'Stream voice audio continuously to generate instant sign gestures in real time.'
+                : 'Process speech recognition 100% on your device via Vosk for total privacy.'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Offline model status */}
             {mode === 'offline' && (
-              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-2xs">
+              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs">
                 <Check size={12} className="stroke-[3]" />
                 <span>Model Ready</span>
               </div>
             )}
 
             {/* Mode toggle */}
-            <div className="flex items-center bg-white dark:bg-[#03133b] border border-[rgba(7,87,232,0.16)] dark:border-blue-900/60 rounded-full p-1 shadow-sm">
+            <div className="flex items-center bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 rounded-full p-1 shadow-2xs">
               <button
                 onClick={() => setMode('online')}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   mode === 'online'
-                    ? 'bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white shadow-sm'
-                    : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
+                    ? 'bg-[#0757E8] text-white shadow-xs'
+                    : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
                 }`}
               >
                 <Wifi size={13} />
@@ -249,14 +250,14 @@ export default function RealtimePage() {
                     setMode('offline');
                   }
                 }}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   mode === 'offline'
-                    ? 'bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white shadow-sm'
-                    : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
+                    ? 'bg-[#0757E8] text-white shadow-xs'
+                    : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
                 }`}
               >
                 <WifiOff size={13} />
-                Offline
+                100% Offline
               </button>
             </div>
           </div>
@@ -269,27 +270,27 @@ export default function RealtimePage() {
             animate={{ opacity: 1, height: 'auto' }}
             className="mb-6"
           >
-            <div className="rounded-[24px] border border-[rgba(7,87,232,0.18)] dark:border-blue-900/60 bg-[#EAF9FF]/70 dark:bg-blue-950/40 p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-white dark:bg-blue-900/40 rounded-2xl text-[#0757E8] dark:text-[#12CFF3] shadow-sm shrink-0">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/60 rounded-xl text-[#0757E8] dark:text-[#12CFF3] shadow-xs shrink-0">
                   <Download size={22} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-bold text-[#062B5C] dark:text-white mb-0.5">
-                    Download Speech Model (~40MB)
+                  <h3 className="font-heading text-base font-bold text-[#062B5C] dark:text-white mb-1">
+                    Download On-Device Speech Model (~40MB)
                   </h3>
-                  <p className="text-xs text-[#60759A] dark:text-slate-300 mb-3">
-                    Required for offline speech recognition. Downloaded once and cached securely on your device.
+                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 mb-3">
+                    Enables on-device speech recognition without network access. Downloaded once and cached securely in your browser.
                   </p>
                   {downloading ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-[#0757E8] dark:text-[#7DEBFA]">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3]">
                         <Loader2 size={14} className="animate-spin" />
                         <span>Downloading model... {downloadProgress}%</span>
                       </div>
-                      <div className="h-2 w-full bg-white dark:bg-blue-950 rounded-full overflow-hidden p-0.5 border border-[rgba(7,87,232,0.1)]">
+                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-gradient-to-r from-[#0757E8] to-[#12CFF3] rounded-full"
+                          className="h-full bg-[#0757E8] rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${downloadProgress}%` }}
                           transition={{ duration: 0.3 }}
@@ -299,7 +300,7 @@ export default function RealtimePage() {
                   ) : (
                     <button
                       onClick={handleDownloadModel}
-                      className="btn-sign-primary text-xs px-5 py-2 shadow-sm"
+                      className="btn-sign-primary text-xs px-5 py-2 shadow-xs"
                     >
                       <Download size={14} className="mr-1.5" />
                       Download Model
@@ -311,27 +312,27 @@ export default function RealtimePage() {
           </motion.div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           {/* Left Column: Input */}
           <div className="sign-card flex flex-col justify-between">
             <div>
               {/* LIVE Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF9FF] dark:bg-blue-950/80 border border-[rgba(7,87,232,0.15)] text-[#0757E8] dark:text-[#7DEBFA] text-xs font-bold tracking-wide mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 border border-blue-200/80 dark:border-blue-900/50 text-[#0757E8] dark:text-[#12CFF3] text-xs font-bold tracking-wider mb-6">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12CFF3] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0757E8] dark:bg-[#12CFF3]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0757E8] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0757E8]"></span>
                 </span>
                 LIVE LISTENING
               </div>
 
               {/* Title */}
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white tracking-tight mb-2">
+              <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white tracking-tight mb-2">
                 Voice Input
               </h2>
-              <p className="text-sm text-[#60759A] dark:text-slate-400 mb-8 leading-relaxed">
+              <p className="text-sm text-[#64748B] dark:text-slate-400 mb-8 leading-relaxed">
                 {mode === 'online'
-                  ? 'Speak naturally and audio chunks will stream continuously to generate signs.'
-                  : 'Speak naturally and words will be processed entirely on your device via Vosk.'}
+                  ? 'Speak naturally into your microphone to continuously transcribe speech into sign gestures.'
+                  : 'Speak naturally into your microphone. Audio stays private on your device.'}
               </p>
 
               {/* Actions */}
@@ -341,16 +342,16 @@ export default function RealtimePage() {
                   disabled={running}
                   className="btn-sign-primary flex items-center gap-2 px-7 py-3 text-sm"
                 >
-                  <Mic size={18} />
-                  Start Listening
+                  <Mic size={17} />
+                  <span>Start Listening</span>
                 </button>
                 <button
                   onClick={stop}
                   disabled={!running}
                   className="btn-sign-secondary flex items-center gap-2 px-6 py-3 text-sm"
                 >
-                  <Square size={16} />
-                  Stop
+                  <Square size={15} />
+                  <span>Stop</span>
                 </button>
               </div>
 
@@ -363,24 +364,24 @@ export default function RealtimePage() {
 
               {/* Live Transcript Card */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#60759A] dark:text-slate-400">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
                   <div className="flex items-center gap-2">
                     <FileText size={16} className="text-[#0757E8]" />
                     <span>Live Transcript</span>
                   </div>
                   {mode === 'offline' && (
-                    <span className="text-[10px] font-bold bg-[#EAF9FF] text-[#0757E8] px-2 py-0.5 rounded-full border border-[rgba(7,87,232,0.15)]">
+                    <span className="text-[10px] font-semibold bg-blue-50 text-[#0757E8] px-2.5 py-0.5 rounded-full border border-blue-200/80">
                       ON-DEVICE
                     </span>
                   )}
                 </div>
 
-                <div className="rounded-[20px] border border-[rgba(7,87,232,0.14)] dark:border-blue-900/50 bg-[#F4FAFF] dark:bg-[#03133b] p-6 min-h-[160px] md:min-h-[200px] flex flex-col justify-between relative overflow-hidden">
+                <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-900 p-6 min-h-[160px] md:min-h-[200px] flex flex-col justify-between relative overflow-hidden">
                   <p
                     className={`text-sm sm:text-base leading-relaxed ${
                       transcript
                         ? 'text-[#062B5C] dark:text-white font-medium'
-                        : 'text-[#60759A] dark:text-slate-400 italic'
+                        : 'text-[#64748B] dark:text-slate-400 italic'
                     }`}
                   >
                     {transcript || 'Listening for speech… Click Start to begin recording.'}
@@ -392,7 +393,7 @@ export default function RealtimePage() {
                       {[...Array(32)].map((_, i) => (
                         <motion.div
                           key={i}
-                          className="w-1.5 bg-gradient-to-t from-[#0757E8] to-[#12CFF3] rounded-full"
+                          className="w-1.5 bg-[#0757E8] rounded-full"
                           animate={{
                             height: [
                               Math.random() * 8 + 8,
@@ -411,26 +412,26 @@ export default function RealtimePage() {
                   )}
 
                   {/* Status Bar */}
-                  <div className="flex items-center justify-between mt-6 pt-3 border-t border-[rgba(7,87,232,0.1)] dark:border-blue-900/40">
+                  <div className="flex items-center justify-between mt-6 pt-3 border-t border-slate-200/80 dark:border-slate-800">
                     <div className="flex items-center gap-2 text-xs font-semibold">
                       {running ? (
                         <>
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                           <span className="text-emerald-600 dark:text-emerald-400">
-                            Active stream
+                            Active audio stream
                           </span>
                         </>
                       ) : (
                         <>
                           <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
-                          <span className="text-[#60759A] dark:text-slate-400">
+                          <span className="text-[#64748B] dark:text-slate-400">
                             Idle
                           </span>
                         </>
                       )}
                     </div>
                     {running && (
-                      <Activity size={16} className="text-[#12CFF3] animate-pulse" />
+                      <Activity size={16} className="text-[#0757E8] animate-pulse" />
                     )}
                   </div>
                 </div>
@@ -442,22 +443,22 @@ export default function RealtimePage() {
           <div className="sign-card flex flex-col justify-between">
             <div>
               {/* Output Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-[rgba(7,87,232,0.08)] dark:border-blue-900/40 mb-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-6">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <Hand size={20} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-[#062B5C] dark:text-white">
+                    <h3 className="font-heading text-lg sm:text-xl font-bold text-[#062B5C] dark:text-white">
                       Gesture Output
                     </h3>
-                    <p className="text-xs text-[#60759A] dark:text-slate-400">
+                    <p className="text-xs text-[#64748B] dark:text-slate-400">
                       Synchronized sequence
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-[#EAF9FF] dark:bg-blue-950/70 border border-[rgba(7,87,232,0.15)] rounded-full">
-                  <span className="text-xs font-bold text-[#0757E8] dark:text-[#7DEBFA]">
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/70 border border-blue-200/80 dark:border-blue-900/50 rounded-full">
+                  <span className="text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3]">
                     {tokens.length} {tokens.length === 1 ? 'Token' : 'Tokens'}
                   </span>
                 </div>

@@ -33,7 +33,7 @@ export default function ApiStatusPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-sign-soft/40 dark:bg-slate-950 text-sign-darktext dark:text-white py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
@@ -43,15 +43,15 @@ export default function ApiStatusPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sign-verylight dark:bg-sign-navy/40 text-sign-blue dark:text-sign-cyan font-semibold text-xs tracking-wider uppercase mb-5 border border-sign-border/60 shadow-sm">
-              <Server size={14} className="text-sign-bright" />
-              Infrastructure Status
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-5">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+              <span>Infrastructure Health</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-sign-navy dark:text-white mb-3">
-              API <span className="sign-text-gradient">Status</span>
+            <h1 className="font-heading font-extrabold text-3xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-3">
+              System & API <span className="text-[#0757E8] dark:text-[#12CFF3]">Status</span>
             </h1>
-            <p className="text-sm md:text-base text-sign-muted dark:text-slate-400">
-              Live health monitor and latency check for the SignAction backend services.
+            <p className="text-sm md:text-base text-[#64748B] dark:text-slate-400">
+              Live health monitor and roundtrip latency check for SignAction backend services.
             </p>
           </motion.div>
         </div>
@@ -65,9 +65,9 @@ export default function ApiStatusPage() {
         >
           {status === 'loading' && (
             <div className="flex flex-col items-center py-12">
-              <Loader2 size={36} className="text-sign-bright animate-spin mb-4" />
-              <p className="text-sign-muted dark:text-slate-400 font-semibold text-sm">
-                Pinging SignAction backend...
+              <Loader2 size={36} className="text-[#0757E8] animate-spin mb-4" />
+              <p className="text-[#64748B] dark:text-slate-400 font-semibold text-sm">
+                Checking SignAction services…
               </p>
             </div>
           )}
@@ -75,31 +75,35 @@ export default function ApiStatusPage() {
           {status === 'ok' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-13 h-13 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-center shrink-0">
-                  <CheckCircle size={26} className="text-emerald-500" />
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-center shrink-0">
+                  <CheckCircle size={24} className="text-emerald-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-sign-navy dark:text-white">Backend Systems Online</h2>
-                  <p className="text-xs text-sign-muted dark:text-slate-400">All microservices and translation endpoints operational</p>
+                  <h2 className="font-heading text-xl font-bold text-[#062B5C] dark:text-white">
+                    All Systems Operational
+                  </h2>
+                  <p className="text-xs text-[#64748B] dark:text-slate-400">
+                    FastAPI microservice endpoints and gesture databases are responding normally
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-sign-soft/70 dark:bg-slate-900 border border-sign-border/60">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sign-muted dark:text-slate-400 mb-2">
-                    <Activity size={14} className="text-sign-bright" />
+                <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-2">
+                    <Activity size={14} className="text-[#0757E8]" />
                     Roundtrip Latency
                   </div>
-                  <div className="text-3xl font-extrabold text-sign-navy dark:text-white">
-                    {latencyMs}<span className="text-base font-normal text-sign-muted ml-1">ms</span>
+                  <div className="font-heading text-3xl font-extrabold text-[#062B5C] dark:text-white">
+                    {latencyMs}<span className="text-base font-normal text-[#64748B] ml-1">ms</span>
                   </div>
                 </div>
-                <div className="p-5 rounded-2xl bg-sign-soft/70 dark:bg-slate-900 border border-sign-border/60">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sign-muted dark:text-slate-400 mb-2">
+                <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-2">
                     <Activity size={14} className="text-emerald-500" />
                     HTTP Status
                   </div>
-                  <div className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                  <div className="font-heading text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
                     200 OK
                   </div>
                 </div>
@@ -110,23 +114,27 @@ export default function ApiStatusPage() {
           {status === 'error' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-13 h-13 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex items-center justify-center shrink-0">
-                  <XCircle size={26} className="text-red-500" />
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-center justify-center shrink-0">
+                  <XCircle size={24} className="text-rose-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-sign-navy dark:text-white">Backend Service Unreachable</h2>
-                  <p className="text-xs text-sign-muted dark:text-slate-400">Offline fallback mode is automatically active</p>
+                  <h2 className="font-heading text-xl font-bold text-[#062B5C] dark:text-white">
+                    Backend Service Unreachable
+                  </h2>
+                  <p className="text-xs text-[#64748B] dark:text-slate-400">
+                    Automatic offline fallback mode is currently engaged
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-2xl p-5">
-                <p className="text-xs font-mono text-red-700 dark:text-red-400">
-                  {error ?? 'Unknown connection error'}
+              <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 rounded-2xl p-5">
+                <p className="text-xs font-mono text-rose-700 dark:text-rose-400">
+                  {error ?? 'Network connection timeout'}
                 </p>
               </div>
 
-              <p className="text-xs text-sign-muted dark:text-slate-400">
-                Tip: SignAction supports 100% offline translation! You can continue translating English to sign language locally via client-side Vosk and rule engines.
+              <p className="text-xs text-[#64748B] dark:text-slate-400">
+                Note: SignAction is designed offline-first. Even when backend APIs are unreachable, local text translation, speech recognition, and gesture playback function smoothly.
               </p>
             </div>
           )}
@@ -136,10 +144,10 @@ export default function ApiStatusPage() {
         <div className="text-center">
           <Link
             href="/translator"
-            className="inline-flex items-center gap-2 text-xs font-bold text-sign-bright hover:underline uppercase tracking-wider"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#0757E8] hover:underline uppercase tracking-wider"
           >
             <ArrowLeft size={14} />
-            Back to Translator
+            <span>Return to Translator</span>
           </Link>
         </div>
 

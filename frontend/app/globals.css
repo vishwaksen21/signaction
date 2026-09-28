@@ -95,54 +95,53 @@
   /* Buttons */
   .btn-primary,
   .btn-sign-primary {
-    @apply inline-flex items-center justify-center font-semibold text-white bg-gradient-to-r from-[#0757E8] via-[#087FF5] to-[#12CFF3] hover:from-[#064ad1] hover:to-[#0ebde0] rounded-full px-6 py-3 shadow-[0_6px_20px_rgba(7,87,232,0.28)] hover:shadow-[0_8px_25px_rgba(7,87,232,0.36)] transition-all duration-200 active:scale-95 focus-ring cursor-pointer;
+    @apply inline-flex items-center justify-center font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 py-3 shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.32)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-ring cursor-pointer;
   }
 
   .btn-secondary-pill,
   .btn-sign-secondary {
-    @apply inline-flex items-center justify-center font-semibold text-[#0757E8] dark:text-[#7DEBFA] bg-white dark:bg-slate-900 border border-[rgba(7,87,232,0.2)] dark:border-blue-900/60 hover:bg-[#F4FAFF] dark:hover:bg-slate-800 rounded-full px-6 py-3 shadow-sm transition-all duration-200 active:scale-95 focus-ring cursor-pointer;
+    @apply inline-flex items-center justify-center font-semibold text-[#062B5C] dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full px-6 py-3 shadow-xs transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-ring cursor-pointer;
   }
 
   .btn-dark-utility {
-    @apply inline-flex items-center justify-center bg-[#062B87] text-white rounded-full px-4 py-2 text-sm font-medium transition-all hover:bg-[#0757E8] focus-ring;
+    @apply inline-flex items-center justify-center bg-[#0A192F] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all hover:bg-[#062B5C] focus-ring;
   }
   
   .btn-pearl-capsule {
-    @apply inline-flex items-center justify-center bg-[#EAF9FF] text-[#062B5C] border border-[rgba(7,87,232,0.15)] rounded-full px-4 py-2 text-xs font-semibold transition-all focus-ring;
+    @apply inline-flex items-center justify-center bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 rounded-full px-4 py-2 text-xs font-semibold transition-all focus-ring;
   }
 
   .btn-store-hero {
-    @apply inline-flex items-center justify-center bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white rounded-full px-8 py-4 font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 focus-ring;
+    @apply inline-flex items-center justify-center bg-[#0757E8] hover:bg-[#064BD1] text-white rounded-full px-8 py-4 font-semibold shadow-[0_4px_16px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.35)] transition-all active:scale-95 focus-ring;
   }
 
   /* Structural Cards */
   .sign-card,
   .store-utility-card {
-    @apply bg-white dark:bg-[#051642]/60 dark:backdrop-blur-xl text-[#062B5C] dark:text-slate-100 border border-[rgba(7,87,232,0.12)] dark:border-blue-900/50 rounded-[24px] p-6 md:p-8 shadow-[0_10px_40px_rgba(7,87,232,0.08)] dark:shadow-none transition-all duration-300;
+    @apply bg-white dark:bg-[#07132C] text-[#0A192F] dark:text-slate-100 border border-slate-200/90 dark:border-slate-800 rounded-[28px] p-6 md:p-8 shadow-[0_4px_24px_rgba(10,25,47,0.04)] dark:shadow-none transition-all duration-300;
   }
 
   .sign-card-subtle {
-    @apply bg-[#F4FAFF] dark:bg-slate-900/50 border border-[rgba(7,87,232,0.08)] dark:border-slate-800 rounded-[20px] p-5;
+    @apply bg-[#F0F4F8] dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5;
   }
 
   /* Token Chips */
   .configurator-chip {
-    @apply inline-flex items-center justify-center bg-white dark:bg-slate-900 text-[#062B5C] dark:text-slate-200 text-sm font-semibold rounded-full px-4 py-2 border border-[rgba(7,87,232,0.15)] dark:border-blue-900/50 cursor-pointer shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(18,207,243,0.25)] hover:border-[#12CFF3] focus-ring;
+    @apply inline-flex items-center justify-center bg-white dark:bg-slate-900 text-[#0A192F] dark:text-slate-200 text-sm font-semibold rounded-full px-4 py-2 border border-slate-200/90 dark:border-slate-800 cursor-pointer shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0757E8] focus-ring;
   }
   
   .configurator-chip[aria-selected="true"],
   .configurator-chip.active {
-    @apply border-[#0757E8] bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white shadow-[0_4px_16px_rgba(7,87,232,0.35)];
+    @apply border-[#0757E8] bg-[#0757E8] text-white shadow-[0_4px_14px_rgba(7,87,232,0.25)];
   }
 
   /* Inputs */
   .sign-textarea {
-    @apply w-full resize-none rounded-[20px] border border-[rgba(7,87,232,0.16)] dark:border-blue-900/60 bg-white dark:bg-[#03133b] p-5 text-[#062B5C] dark:text-white placeholder-[#60759A] dark:placeholder-slate-500 outline-none transition-all duration-200 focus:border-[#0757E8] focus:ring-4 focus:ring-[#12CFF3]/20 shadow-sm;
+    @apply w-full resize-none rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-900 p-5 text-[#0A192F] dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all duration-200 focus:border-[#0757E8] focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-[#0757E8]/10 shadow-xs;
   }
 
-
   .search-input {
-    @apply bg-white dark:bg-slate-900 text-[#062B5C] dark:text-white rounded-full px-5 py-3 h-[48px] border border-[rgba(7,87,232,0.15)] dark:border-blue-900/50 focus:border-[#0757E8] focus:ring-4 focus:ring-[#12CFF3]/20 transition-all outline-none;
+    @apply bg-white dark:bg-slate-900 text-[#0A192F] dark:text-white rounded-full px-5 py-3 h-[48px] border border-slate-200/90 dark:border-slate-800 focus:border-[#0757E8] focus:ring-4 focus:ring-[#0757E8]/10 transition-all outline-none;
   }
 
   /* Safe area insets for bottom navigation on mobile */

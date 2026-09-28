@@ -79,7 +79,7 @@ export default function OfflineSetupPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-sign-soft/40 dark:bg-slate-950 text-sign-darktext dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
       {/* Hero */}
       <section className="relative overflow-hidden py-14 lg:py-20">
         <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
@@ -89,14 +89,14 @@ export default function OfflineSetupPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sign-verylight dark:bg-sign-navy/40 border border-sign-border/60 text-sign-blue dark:text-sign-cyan text-xs font-semibold uppercase tracking-wider mb-5 shadow-sm">
-              <ShieldCheck size={14} className="text-sign-bright" />
-              100% Offline Capability
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-5">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+              <span>100% Offline Capability</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-sign-navy dark:text-white mb-4">
-              Go <span className="sign-text-gradient">Offline</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl tracking-tight text-[#062B5C] dark:text-white mb-4">
+              Private, on-device <span className="text-[#0757E8] dark:text-[#12CFF3]">sign translation.</span>
             </h1>
-            <p className="text-base sm:text-xl text-sign-muted dark:text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+            <p className="text-base sm:text-xl text-[#64748B] dark:text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
               {isNative
                 ? 'SignAction Android APK is packaged with local offline speech recognition and bundled sign assets. Completely offline from first launch.'
                 : 'Download everything you need to use SignAction without an internet connection. One click, one time, works forever.'}
@@ -135,22 +135,22 @@ export default function OfflineSetupPage() {
                   ? 'Local Android application shell'
                   : 'Cached offline application shell & dictionary assets',
               },
-            ].map((item, i) => (
+            ].map((item) => (
               <div
                 key={item.title}
-                className="sign-card p-6 flex flex-col justify-between hover:border-sign-bright/40 transition-all duration-300"
+                className="sign-card p-6 flex flex-col justify-between hover:border-[#0757E8]/40 transition-all duration-200"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-11 h-11 bg-sign-verylight dark:bg-sign-navy/40 text-sign-bright rounded-2xl flex items-center justify-center border border-sign-border/60">
+                    <div className="w-11 h-11 bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] rounded-xl flex items-center justify-center border border-blue-200/80 dark:border-blue-900/50">
                       {item.icon}
                     </div>
-                    <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-sign-soft dark:bg-slate-800 text-sign-blue dark:text-sign-cyan border border-sign-border/50">
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#F0F4F8] dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] border border-slate-200/80 dark:border-slate-700">
                       {item.size}
                     </span>
                   </div>
-                  <h3 className="font-bold text-base text-sign-navy dark:text-white mb-1.5">{item.title}</h3>
-                  <p className="text-xs text-sign-muted dark:text-slate-400 leading-relaxed">
+                  <h3 className="font-heading font-bold text-base text-[#062B5C] dark:text-white mb-1.5">{item.title}</h3>
+                  <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function OfflineSetupPage() {
                     ? 'Offline speech model: ✓ Available locally'
                     : '100% Offline Ready on This Device'}
                 </div>
-                <p className="text-sm text-sign-muted dark:text-slate-400">
+                <p className="text-sm text-[#64748B] dark:text-slate-400">
                   All models and gesture clips are cached locally. You can use SignAction without Wi-Fi or mobile data.
                 </p>
                 <div>
@@ -181,7 +181,7 @@ export default function OfflineSetupPage() {
                     href="/translator"
                     className="btn-sign-primary inline-flex items-center gap-2 px-8 py-3.5"
                   >
-                    Start Translating
+                    <span>Start Translating</span>
                     <ArrowRight size={18} />
                   </Link>
                 </div>
@@ -190,16 +190,16 @@ export default function OfflineSetupPage() {
               <div className="space-y-4 text-center">
                 <button
                   onClick={handleDownload}
-                  className="btn-sign-primary inline-flex items-center justify-center gap-3 text-base px-10 py-4 w-full sm:w-auto shadow-lg shadow-sign-blue/20"
+                  className="btn-sign-primary inline-flex items-center justify-center gap-3 text-base px-10 py-4 w-full sm:w-auto shadow-md"
                 >
                   <Download size={20} />
-                  Download for Offline Use
+                  <span>Download for Offline Use</span>
                 </button>
-                <p className="text-xs text-sign-muted dark:text-slate-400">
+                <p className="text-xs text-[#64748B] dark:text-slate-400">
                   Total download: ~59MB · Stored in device browser cache · Works completely offline
                 </p>
                 {error && (
-                  <p className="text-xs font-semibold text-red-600 dark:text-red-400 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40">
+                  <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40">
                     {error}
                   </p>
                 )}
@@ -224,7 +224,7 @@ export default function OfflineSetupPage() {
                           key={phase}
                           className={`flex items-center gap-3.5 p-3.5 rounded-2xl transition-all ${
                             isCurrentPhase
-                              ? 'bg-sign-verylight dark:bg-sign-navy/40 border border-sign-border'
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50'
                               : isPhaseDone
                               ? 'bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-900/30'
                               : 'opacity-50 border border-transparent'
@@ -235,8 +235,8 @@ export default function OfflineSetupPage() {
                               isPhaseDone
                                 ? 'bg-emerald-500 text-white'
                                 : isCurrentPhase
-                                ? 'bg-gradient-to-r from-sign-blue to-sign-cyan text-white'
-                                : 'bg-sign-soft dark:bg-slate-800 text-sign-muted'
+                                ? 'bg-[#0757E8] text-white'
+                                : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#64748B]'
                             }`}
                           >
                             {isPhaseDone ? (
@@ -261,13 +261,13 @@ export default function OfflineSetupPage() {
                               className={`text-sm font-bold ${
                                 isPhaseDone
                                   ? 'text-emerald-700 dark:text-emerald-400'
-                                  : 'text-sign-navy dark:text-white'
+                                  : 'text-[#062B5C] dark:text-white'
                               }`}
                             >
                               {PHASE_LABELS[phase]}
                             </p>
                             {isCurrentPhase && progress && (
-                              <p className="text-xs text-sign-muted dark:text-slate-400">
+                              <p className="text-xs text-[#64748B] dark:text-slate-400">
                                 {progress.message}
                               </p>
                             )}
@@ -281,16 +281,16 @@ export default function OfflineSetupPage() {
                 {/* Overall progress bar */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-sign-muted dark:text-slate-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
                       Overall Progress
                     </span>
-                    <span className="text-sm font-extrabold text-sign-bright">
+                    <span className="text-sm font-bold text-[#0757E8] dark:text-[#12CFF3]">
                       {progress?.overallPercent ?? 0}%
                     </span>
                   </div>
-                  <div className="h-3 w-full bg-sign-soft dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-sign-border/40">
+                  <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-sign-blue to-sign-cyan rounded-full"
+                      className="h-full bg-[#0757E8] rounded-full"
                       initial={{ width: 0 }}
                       animate={{
                         width: `${progress?.overallPercent ?? 0}%`,
@@ -310,10 +310,10 @@ export default function OfflineSetupPage() {
                   <Check size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-extrabold text-sign-navy dark:text-white mb-2">
+                  <h2 className="font-heading text-2xl font-extrabold text-[#062B5C] dark:text-white mb-2">
                     Ready for Offline Use!
                   </h2>
-                  <p className="text-sm text-sign-muted dark:text-slate-300">
+                  <p className="text-sm text-[#64748B] dark:text-slate-300">
                     SignAction speech AI and gesture library are now saved locally. You can use it anywhere without data connectivity.
                   </p>
                 </div>
@@ -322,14 +322,14 @@ export default function OfflineSetupPage() {
                     href="/translator"
                     className="btn-sign-primary inline-flex items-center gap-2 px-8 py-3"
                   >
-                    Start Translating
+                    <span>Start Translating</span>
                     <ArrowRight size={18} />
                   </Link>
                   <Link
                     href="/"
                     className="btn-sign-secondary inline-flex items-center gap-2 px-6 py-3"
                   >
-                    Back to Home
+                    <span>Back to Home</span>
                   </Link>
                 </div>
               </motion.div>
@@ -339,11 +339,11 @@ export default function OfflineSetupPage() {
       </section>
 
       {/* How it works */}
-      <section className="border-t border-sign-border/60 py-16">
+      <section className="border-t border-slate-200/80 dark:border-slate-800 py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-sign-bright uppercase tracking-wider">Simple 3-Step Process</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-sign-navy dark:text-white mt-1">
+            <span className="text-xs font-bold text-[#0757E8] uppercase tracking-wider">Simple 3-Step Process</span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white mt-1">
               How Offline Mode Works
             </h2>
           </div>
@@ -352,25 +352,25 @@ export default function OfflineSetupPage() {
               {
                 step: '01',
                 title: 'One-Time Cache',
-                desc: 'Download the ~59MB package once on Wi-Fi.',
+                desc: 'Download the ~59MB package once on Wi-Fi or broadband.',
               },
               {
                 step: '02',
-                title: 'PWA / Native Storage',
-                desc: 'IndexedDB & CacheStorage store the AI weights securely.',
+                title: 'Browser & PWA Storage',
+                desc: 'IndexedDB & CacheStorage store the AI weights securely on device.',
               },
               {
                 step: '03',
-                title: 'True Offline Run',
-                desc: 'Switch to Airplane mode; speech & gestures run instantly on-device.',
+                title: 'True Offline Execution',
+                desc: 'Disconnect internet completely; speech & gestures run instantly on-device.',
               },
             ].map((item) => (
               <div key={item.step} className="sign-card p-6 text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-sign-verylight dark:bg-sign-navy/40 text-sign-bright font-extrabold text-xs mb-4 border border-sign-border/60">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] font-mono font-bold text-xs mb-4 border border-blue-200/80 dark:border-blue-900/50">
                   {item.step}
                 </div>
-                <h3 className="font-bold text-base text-sign-navy dark:text-white mb-2">{item.title}</h3>
-                <p className="text-xs text-sign-muted dark:text-slate-400 leading-relaxed">
+                <h3 className="font-heading font-bold text-base text-[#062B5C] dark:text-white mb-2">{item.title}</h3>
+                <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
                   {item.desc}
                 </p>
               </div>

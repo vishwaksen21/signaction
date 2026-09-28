@@ -92,19 +92,19 @@ export function GestureSequencePlayer({
   return (
     <div className="flex flex-col gap-4">
       {/* Player Top Header matching specification */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-base sm:text-lg font-bold text-[#062B5C] dark:text-white">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-slate-800">
+        <h3 className="font-heading text-base sm:text-lg font-bold text-[#062B5C] dark:text-white">
           Gesture Playback
         </h3>
         {gestures.length > 0 && (
-          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#EAF9FF] dark:bg-blue-950/70 border border-[rgba(7,87,232,0.15)] text-[#0757E8] dark:text-[#7DEBFA]">
-            Gesture {index + 1} / {gestures.length}
+          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#F0F4F8] dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3]">
+            Gesture {index + 1} of {gestures.length}
           </span>
         )}
       </div>
 
       {/* Playback Frame */}
-      <div className="relative group aspect-video w-full rounded-[24px] border border-[rgba(7,87,232,0.16)] dark:border-blue-900/60 bg-[#F4FAFF] dark:bg-[#020d2b] overflow-hidden shadow-sm">
+      <div className="relative group aspect-video w-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-950 overflow-hidden shadow-xs">
         {current ? (
           <div className="absolute inset-0">
             <SignViewer
@@ -115,16 +115,16 @@ export function GestureSequencePlayer({
             />
           </div>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="absolute inset-0 flex items-center justify-center p-6 bg-[#FAF9F6] dark:bg-slate-900">
             <div className="text-center space-y-3">
-              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF9FF] dark:bg-blue-950/80 text-[#0757E8] dark:text-[#12CFF3] border border-[rgba(7,87,232,0.15)] shadow-sm">
-                <Hand size={26} />
+              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] border border-slate-200/90 dark:border-slate-700 shadow-xs">
+                <Hand size={24} />
               </div>
               <div className="space-y-1">
-                <p className="text-base font-bold text-[#062B5C] dark:text-white">
+                <p className="font-heading text-base font-bold text-[#062B5C] dark:text-white">
                   No gestures queued
                 </p>
-                <p className="text-xs text-[#60759A] dark:text-slate-400 max-w-xs mx-auto">
+                <p className="text-xs text-[#64748B] dark:text-slate-400 max-w-xs mx-auto">
                   Enter text or speech above to generate animated sign gestures.
                 </p>
               </div>
@@ -134,15 +134,15 @@ export function GestureSequencePlayer({
 
         {/* Floating Active Word Tag */}
         {tokens && tokens[index] && gestures.length > 0 && (
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-[rgba(7,87,232,0.18)] shadow-sm z-10">
-            <span className="text-xs font-mono font-bold text-[#0757E8] dark:text-[#7DEBFA]">
+          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xs z-10">
+            <span className="text-xs font-mono font-bold text-[#0757E8] dark:text-[#12CFF3]">
               {tokens[index]}
             </span>
           </div>
         )}
       </div>
 
-      {/* Blue / Cyan Progress Bar */}
+      {/* Solid Royal Blue Progress Bar */}
       {gestures.length > 0 && (
         <button
           type="button"
@@ -151,11 +151,11 @@ export function GestureSequencePlayer({
             const pct = (e.clientX - rect.left) / rect.width;
             seekFromPercent(pct);
           }}
-          className="h-2.5 w-full rounded-full bg-[#EAF9FF] dark:bg-blue-950/60 overflow-hidden cursor-pointer p-0.5 focus-ring"
+          className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden cursor-pointer focus-ring"
           aria-label="Playback timeline"
         >
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-[#0757E8] to-[#12CFF3]"
+            className="h-full rounded-full bg-[#0757E8]"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.25 }}
@@ -174,17 +174,17 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index === 0}
-            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-[#EAF9FF] dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#0757E8] dark:text-[#7DEBFA] border border-[rgba(7,87,232,0.18)] dark:border-blue-900/50 flex items-center justify-center focus-ring shadow-2xs"
+            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs"
             aria-label="Previous gesture"
           >
-            <SkipBack size={18} />
+            <SkipBack size={16} />
           </button>
 
           {/* Play / Pause Primary Button */}
           <button
             onClick={() => setPlaying((p) => !p)}
             disabled={!gestures.length}
-            className="w-11 h-11 rounded-full bg-gradient-to-r from-[#0757E8] to-[#12CFF3] hover:from-[#064ad1] hover:to-[#0ebde0] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_16px_rgba(7,87,232,0.3)] hover:scale-105 active:scale-95 focus-ring"
+            className="w-11 h-11 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:scale-105 active:scale-95 focus-ring"
             aria-label={playing ? 'Pause playback' : 'Play gestures'}
           >
             {playing ? (
@@ -203,16 +203,16 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index >= gestures.length - 1}
-            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-[#EAF9FF] dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#0757E8] dark:text-[#7DEBFA] border border-[rgba(7,87,232,0.18)] dark:border-blue-900/50 flex items-center justify-center focus-ring shadow-2xs"
+            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs"
             aria-label="Next gesture"
           >
-            <SkipForward size={18} />
+            <SkipForward size={16} />
           </button>
         </div>
 
         {/* Counter Summary */}
         {gestures.length > 0 && (
-          <div className="text-xs font-semibold text-[#0757E8] dark:text-[#7DEBFA] px-3 py-1.5 rounded-full bg-[#EAF9FF] dark:bg-blue-950/60 border border-[rgba(7,87,232,0.15)]">
+          <div className="text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3] px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900/50">
             {gestures.length === 1 ? '1 gesture' : `${gestures.length} gestures`}
           </div>
         )}
