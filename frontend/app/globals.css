@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +15,8 @@
   --sign-darktext: #062B5C;
   --sign-muted: #60759A;
   --sign-border: rgba(7, 87, 232, 0.12);
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 @layer base {
@@ -24,8 +28,13 @@
   html,
   body {
     min-height: 100%;
-    @apply text-base font-sans antialiased text-[#062B5C] dark:text-slate-100 bg-[#F4FAFF] dark:bg-[#020b24] selection:bg-[#12CFF3] selection:text-[#062B87];
+    font-family: var(--font-sans);
+    @apply text-base antialiased text-[#062B5C] dark:text-slate-100 bg-[#FAF9F6] dark:bg-[#050B14] selection:bg-[#12CFF3] selection:text-[#062B87];
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
   body {
     position: relative;
     -webkit-tap-highlight-color: transparent;

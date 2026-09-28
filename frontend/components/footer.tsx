@@ -8,41 +8,13 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden bg-white dark:bg-[#020b24] border-t border-[rgba(7,87,232,0.12)] dark:border-blue-900/40 pt-16 sm:pt-20 pb-12">
-      {/* Background Subtle Gradient Wave & Glow */}
+    <footer className="relative overflow-hidden bg-[#FAF9F6] dark:bg-[#040913] border-t border-slate-200/80 dark:border-slate-800 pt-16 sm:pt-20 pb-12 transition-colors duration-300">
+      {/* Background Subtle Gradient Wave */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden z-0">
-        <div className="absolute -bottom-24 -right-24 w-[750px] h-[450px] bg-gradient-to-tl from-[#12CFF3]/15 via-[#0757E8]/10 to-transparent dark:from-blue-950/40 dark:via-sky-950/20 dark:to-transparent rounded-full blur-3xl" />
-        <div className="absolute -bottom-12 left-1/3 w-[600px] h-[350px] bg-[#EAF9FF]/50 dark:bg-blue-950/20 rounded-full blur-2xl" />
-
-        {/* Sweeping Soft Blue Wave matching reference */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-40 dark:opacity-20"
-          viewBox="0 0 1440 600"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M-50 480 C350 560, 720 280, 1500 360 L1500 600 L-50 600 Z"
-            fill="url(#footer-wave-grad)"
-          />
-          <path
-            d="M-50 530 C450 580, 800 380, 1500 450 L1500 600 L-50 600 Z"
-            fill="url(#footer-wave-grad-2)"
-          />
-          <defs>
-            <linearGradient id="footer-wave-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#12CFF3" stopOpacity="0.18" />
-              <stop offset="60%" stopColor="#0757E8" stopOpacity="0.12" />
-              <stop offset="100%" stopColor="#7DEBFA" stopOpacity="0.04" />
-            </linearGradient>
-            <linearGradient id="footer-wave-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0757E8" stopOpacity="0.12" />
-              <stop offset="100%" stopColor="#12CFF3" stopOpacity="0.03" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <div className="absolute -bottom-24 -right-24 w-[600px] h-[350px] bg-blue-100/30 dark:bg-blue-950/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-12 left-1/3 w-[500px] h-[250px] bg-[#EAF9FF]/40 dark:bg-blue-950/10 rounded-full blur-2xl" />
       </div>
+
 
       {/* Giant Background Watermark Text - Subtle & elegant */}
       <div className="absolute inset-x-0 bottom-20 sm:bottom-16 flex justify-center items-end max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none select-none overflow-hidden z-0">
@@ -86,14 +58,15 @@ export function Footer() {
               </p>
             </div>
 
-            {/* Vibrant Blue/Cyan Gradient Pill CTA Button */}
+            {/* Refined Royal Blue Pill CTA Button */}
             <Link
               href="/translator"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0757E8] via-[#087FF5] to-[#12CFF3] hover:from-[#064ad1] hover:to-[#0ebde0] text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-full shadow-[0_4px_20px_rgba(7,87,232,0.35)] hover:shadow-[0_6px_25px_rgba(7,87,232,0.45)] transition-all group"
+              className="inline-flex items-center gap-2 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-sm sm:text-base px-7 py-3 rounded-full shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.34)] transition-all group"
             >
               <span>Get Started</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
+
           </div>
 
           {/* Right 4 Columns: PRODUCT | DEVELOPERS | RESOURCES | ABOUT */}

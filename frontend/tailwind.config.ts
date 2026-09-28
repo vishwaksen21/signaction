@@ -37,14 +37,20 @@ const config: Config = {
         'apple-surface-tile-2': '#041c5c',
         'apple-surface-tile-3': '#021038',
         'apple-surface-black': '#03143f',
-        'apple-surface-chip': 'rgba(7, 87, 232, 0.12)',
-        'apple-on-primary': '#ffffff',
-        'apple-on-dark': '#ffffff',
+        // Editorial & Warm Human Palette
+        'warm-ivory': '#FAF9F6',
+        'warm-surface': '#F0F4F8',
+        'brand-navy': '#0A192F',
+        'brand-blue': '#0757E8',
+        'brand-cyan': '#12CFF3',
+        'brand-turquoise': '#00B4D8',
       },
       fontFamily: {
+        heading: ['"Plus Jakarta Sans"', 'Manrope', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        display: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'Manrope', 'system-ui', 'sans-serif'],
       },
+
       borderRadius: {
         'card': '20px',
         'card-lg': '28px',
