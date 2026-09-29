@@ -133,11 +133,11 @@ export function TranslatorInput({
           </div>
 
           {/* Text / Speech Tabs */}
-          <div className="inline-flex p-1 rounded-full bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80">
+          <div className="inline-flex p-1 rounded-full bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setActiveTab('text')}
-              className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`min-h-[40px] px-5 py-2 rounded-full text-xs font-semibold transition-all ${
                 activeTab === 'text'
                   ? 'bg-[#0757E8] text-white shadow-xs'
                   : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
@@ -148,7 +148,7 @@ export function TranslatorInput({
             <button
               type="button"
               onClick={() => setActiveTab('speech')}
-              className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`min-h-[40px] px-5 py-2 rounded-full text-xs font-semibold transition-all ${
                 activeTab === 'speech'
                   ? 'bg-[#0757E8] text-white shadow-xs'
                   : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
@@ -171,7 +171,7 @@ export function TranslatorInput({
           <div className="space-y-4">
             <div className="relative">
               <textarea
-                className="sign-textarea"
+                className="sign-textarea min-h-[140px] text-base leading-relaxed"
                 rows={5}
                 value={text}
                 onChange={(e) => onTextChange(e.target.value)}
@@ -184,7 +184,7 @@ export function TranslatorInput({
                   <button
                     type="button"
                     onClick={() => onTextChange('')}
-                    className="text-[#0757E8] hover:underline transition-colors font-medium"
+                    className="text-[#0757E8] hover:underline transition-colors font-medium p-1"
                   >
                     Clear
                   </button>
@@ -203,7 +203,7 @@ export function TranslatorInput({
                     key={phrase}
                     type="button"
                     onClick={() => onTextChange(phrase)}
-                    className="text-xs px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 hover:bg-[#F0F4F8] dark:hover:bg-slate-700 border border-slate-200/90 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 font-medium transition-colors shadow-2xs"
+                    className="text-xs px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 hover:bg-[#F0F4F8] dark:hover:bg-slate-700 border border-slate-200/90 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 font-medium transition-colors shadow-2xs min-h-[38px] flex items-center active:scale-95"
                   >
                     {phrase}
                   </button>
@@ -215,7 +215,7 @@ export function TranslatorInput({
             <button
               onClick={onTranslateText}
               disabled={loading || !text.trim()}
-              className="btn-sign-primary w-full flex items-center justify-center gap-2 mt-4 text-base py-3.5"
+              className="btn-sign-primary w-full flex items-center justify-center gap-2 mt-4 text-base py-3.5 min-h-[48px]"
             >
               <span>{loading ? 'Translating…' : 'Translate to Signs'}</span>
               <Send size={16} />

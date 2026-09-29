@@ -142,7 +142,7 @@ export function GestureSequencePlayer({
         )}
       </div>
 
-      {/* Solid Royal Blue Progress Bar */}
+      {/* Solid Royal Blue Progress Bar with touch-friendly hit area */}
       {gestures.length > 0 && (
         <button
           type="button"
@@ -151,22 +151,24 @@ export function GestureSequencePlayer({
             const pct = (e.clientX - rect.left) / rect.width;
             seekFromPercent(pct);
           }}
-          className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden cursor-pointer focus-ring"
+          className="h-4 w-full py-1 rounded-full cursor-pointer focus-ring flex items-center"
           aria-label="Playback timeline"
         >
-          <motion.div
-            className="h-full rounded-full bg-[#0757E8]"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.25 }}
-          />
+          <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-[#0757E8]"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.25 }}
+            />
+          </div>
         </button>
       )}
 
       {/* Controls Bar */}
       <div className="flex items-center justify-between gap-3 pt-1">
-        <div className="flex items-center gap-2">
-          {/* Previous Button */}
+        <div className="flex items-center gap-2.5">
+          {/* Previous Button - 44x44px touch target */}
           <button
             onClick={() => {
               setDirection(-1);
@@ -174,27 +176,27 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index === 0}
-            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs"
+            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-95"
             aria-label="Previous gesture"
           >
-            <SkipBack size={16} />
+            <SkipBack size={17} />
           </button>
 
-          {/* Play / Pause Primary Button */}
+          {/* Play / Pause Primary Button - 48x48px touch target */}
           <button
             onClick={() => setPlaying((p) => !p)}
             disabled={!gestures.length}
-            className="w-11 h-11 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:scale-105 active:scale-95 focus-ring"
+            className="w-12 h-12 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:scale-105 active:scale-95 focus-ring"
             aria-label={playing ? 'Pause playback' : 'Play gestures'}
           >
             {playing ? (
-              <Pause size={18} className="fill-current" />
+              <Pause size={19} className="fill-current" />
             ) : (
-              <Play size={18} className="fill-current ml-0.5" />
+              <Play size={19} className="fill-current ml-0.5" />
             )}
           </button>
 
-          {/* Next Button */}
+          {/* Next Button - 44x44px touch target */}
           <button
             onClick={() => {
               if (index >= gestures.length - 1) return;
@@ -203,10 +205,10 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index >= gestures.length - 1}
-            className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs"
+            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-95"
             aria-label="Next gesture"
           >
-            <SkipForward size={16} />
+            <SkipForward size={17} />
           </button>
         </div>
 

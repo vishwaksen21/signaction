@@ -8,6 +8,7 @@
  */
 
 import { isModelCached, downloadModel, cacheModel } from './model-cache';
+import { isNativeApk } from './platform';
 
 export type DownloadPhase = 'model' | 'assets' | 'appshell' | 'done';
 
@@ -97,16 +98,20 @@ export async function isFullyOfflineReady(): Promise<{
   assets: boolean;
   isNative: boolean;
 }> {
-  const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+  const isNative = isNativeApk();
 
   if (isNative) {
     // In native Android APK, both the sign assets and the Vosk model are bundled locally in the APK.
     return { ready: true, model: true, assets: true, isNative: true };
   }
 
-  const model = await isModelCached();
+  const locallyMarked =
+    typeof localStorage !== 'undefined' &&
+    localStorage.getItem('signaction_offline_installed') === 'true';
 
-  let assets = false;
+  const model = (await isModelCached()) || locallyMarked;
+
+  let assets = locallyMarked;
   if ('caches' in window) {
     try {
       const cache = await caches.open('signaction-v1');
@@ -117,13 +122,13 @@ export async function isFullyOfflineReady(): Promise<{
       const requiredCount = Math.ceil(
         ASSET_FILES.length * ASSET_READINESS_THRESHOLD
       );
-      assets = cachedAssetCount >= requiredCount;
+      assets = assets || cachedAssetCount >= requiredCount;
     } catch {
-      assets = false;
+      // keep fallback
     }
   }
 
-  return { ready: model && assets, model, assets, isNative: false };
+  return { ready: (model && assets) || locallyMarked, model, assets, isNative: false };
 }
 
 /**
@@ -146,8 +151,15 @@ export async function setupOffline(
   let assetsCached = false;
   let appShellCached = false;
 
-  const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+  const isNative = isNativeApk();
   if (isNative) {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('signaction_offline_installed', 'true');
+      }
+    } catch {
+      // ignore
+    }
     report('model', 50, 20, 'Speech model available locally in APK');
     const alreadyCached = await isModelCached();
     if (!alreadyCached) {
@@ -270,6 +282,14 @@ export async function setupOffline(
 
     report('appshell', 100, 95, 'App shell ready');
     report('done', 100, 100, 'Offline mode ready!');
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('signaction_offline_installed', 'true');
+      }
+    } catch {
+      // ignore
+    }
 
     return {
       success: true,

@@ -38,6 +38,25 @@
   body {
     position: relative;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  /* Web Interface Guidelines: Touch manipulation & Typography balance */
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Prevent iOS Safari auto-zoom on form inputs by ensuring >= 16px font size */
+  input, textarea, select {
+    font-size: 16px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -144,13 +163,25 @@
     @apply bg-white dark:bg-slate-900 text-[#0A192F] dark:text-white rounded-full px-5 py-3 h-[48px] border border-slate-200/90 dark:border-slate-800 focus:border-[#0757E8] focus:ring-4 focus:ring-[#0757E8]/10 transition-all outline-none;
   }
 
-  /* Safe area insets for bottom navigation on mobile */
+  /* Safe area insets for notches & bottom navigation on mobile */
   .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.25rem);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Prevent overscroll on Android */
+  /* Prevent overscroll bounce in drawers/modals */
   .no-overscroll {
-    overscroll-behavior: none;
+    overscroll-behavior: contain;
+  }
+
+  /* Horizontal scroll utilities for chip bars */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

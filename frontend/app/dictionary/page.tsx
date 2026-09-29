@@ -100,10 +100,10 @@ export default function DictionaryPage() {
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-1.5 md:gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               <button
                 onClick={() => setLetter('')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 ${
+                className={`min-h-[40px] px-4 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 active:scale-95 ${
                   letter === ''
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
@@ -116,11 +116,12 @@ export default function DictionaryPage() {
                 <button
                   key={l}
                   onClick={() => setLetter(letter === l ? '' : l)}
-                  className={`w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 ${
+                  className={`min-w-[38px] h-10 px-2 flex items-center justify-center rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 active:scale-95 ${
                     letter === l
                       ? 'bg-[#0757E8] text-white shadow-xs'
                       : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
                   }`}
+                  aria-label={`Filter gestures by letter ${l}`}
                 >
                   {l}
                 </button>

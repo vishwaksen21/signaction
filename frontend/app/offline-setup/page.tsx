@@ -21,6 +21,7 @@ import {
   type OfflineSetupProgress,
   type DownloadPhase,
 } from '../../lib/offline-setup';
+import { isNativeApk } from '../../lib/platform';
 
 type SetupState = 'idle' | 'downloading' | 'complete' | 'error';
 
@@ -37,15 +38,31 @@ export default function OfflineSetupPage() {
   const [error, setError] = useState<string | null>(null);
   const [alreadyReady, setAlreadyReady] = useState(false);
   const [isNative, setIsNative] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const mountedRef = useRef(true);
 
   // Check if already set up (with cleanup)
   useEffect(() => {
     mountedRef.current = true;
-    isFullyOfflineReady().then(({ ready, isNative: native }) => {
+    const native = isNativeApk();
+    const locallyDone =
+      typeof localStorage !== 'undefined' &&
+      localStorage.getItem('signaction_offline_installed') === 'true';
+
+    if (native || locallyDone) {
+      setIsNative(native);
+      setAlreadyReady(true);
+      setIsChecking(false);
+    }
+
+    isFullyOfflineReady().then(({ ready, isNative: detectedNative }) => {
       if (mountedRef.current) {
-        setIsNative(native);
-        if (ready || native) setAlreadyReady(true);
+        const isApk = detectedNative || native;
+        setIsNative(isApk);
+        if (ready || isApk || locallyDone) {
+          setAlreadyReady(true);
+        }
+        setIsChecking(false);
       }
     });
     return () => {
@@ -165,16 +182,42 @@ export default function OfflineSetupPage() {
             transition={{ delay: 0.25, duration: 0.5 }}
             className="sign-card p-8 md:p-10 max-w-xl mx-auto"
           >
-            {(alreadyReady || isNative) && state === 'idle' ? (
+            {isChecking ? (
+              <div className="flex flex-col items-center justify-center py-6 gap-3 text-slate-500">
+                <Loader2 size={24} className="animate-spin text-[#0757E8]" />
+                <span className="text-sm font-medium">Checking offline readiness…</span>
+              </div>
+            ) : (alreadyReady || isNative) && state === 'idle' ? (
               <div className="space-y-5 text-center">
                 <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-full text-sm font-semibold">
                   <Check size={18} />
                   {isNative
-                    ? 'Offline speech model: ✓ Available locally'
+                    ? 'Native Android APK · 100% Offline Ready'
                     : '100% Offline Ready on This Device'}
                 </div>
                 <p className="text-sm text-[#64748B] dark:text-slate-400">
-                  All models and gesture clips are cached locally. You can use SignAction without Wi-Fi or mobile data.
+                  {isNative
+                    ? 'All speech models, vocabulary, and 182 gesture videos are bundled directly inside this Android app. No downloads required.'
+                    : 'All models and gesture clips are cached locally. You can use SignAction without Wi-Fi or mobile data.'}
+                </p>
+                <div>
+                  <Link
+                    href="/translator"
+                    className="btn-sign-primary inline-flex items-center gap-2 px-8 py-3.5"
+                  >
+                    <span>Start Translating</span>
+                    <ArrowRight size={18} />
+                  </Link>
+                </div>
+              </div>
+            ) : isNative ? (
+              <div className="space-y-5 text-center">
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-full text-sm font-semibold">
+                  <Check size={18} />
+                  <span>Native Android APK · Ready Offline</span>
+                </div>
+                <p className="text-sm text-[#64748B] dark:text-slate-400">
+                  All models and assets are pre-installed in your APK.
                 </p>
                 <div>
                   <Link

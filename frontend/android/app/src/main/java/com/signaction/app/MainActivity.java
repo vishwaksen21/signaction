@@ -15,6 +15,10 @@ public class MainActivity extends BridgeActivity {
             settings.setMediaPlaybackRequiresUserGesture(false);
             settings.setAllowFileAccess(true);
             settings.setAllowContentAccess(true);
+            String defaultUa = settings.getUserAgentString();
+            if (defaultUa != null && !defaultUa.contains("SignActionAPK")) {
+                settings.setUserAgentString(defaultUa + " SignActionAPK/1.0");
+            }
         }
     }
 }

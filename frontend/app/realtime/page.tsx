@@ -23,6 +23,7 @@ import {
   translateTextOffline,
 } from '../../lib/offline-translate';
 import type { ModelDownloadProgress } from '../../lib/offline-translate';
+import { isNativeApk } from '../../lib/platform';
 
 type Mode = 'online' | 'offline';
 
@@ -33,6 +34,7 @@ export default function RealtimePage() {
   const [tokens, setTokens] = useState<string[]>([]);
   const [gestures, setGestures] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isNative, setIsNative] = useState(false);
 
   // Offline model state
   const [modelReady, setModelReady] = useState(false);
@@ -44,14 +46,16 @@ export default function RealtimePage() {
 
   // Check if offline model is ready on mount, defaulting to offline if native or offline
   useEffect(() => {
-    const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+    const native = isNativeApk();
+    setIsNative(native);
     const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    if (isNative || isOffline) {
+    if (native || isOffline) {
       setMode('offline');
+      if (native) setModelReady(true);
     }
     isOfflineSTTReady().then((ready) => {
-      setModelReady(ready);
-      if (ready && (isNative || isOffline)) {
+      setModelReady(ready || native);
+      if ((ready || native) && (native || isOffline)) {
         setMode('offline');
       }
     }).catch(() => {});
@@ -263,8 +267,8 @@ export default function RealtimePage() {
           </div>
         </div>
 
-        {/* Download banner for offline mode */}
-        {mode === 'offline' && !modelReady && (
+        {/* Download banner for offline mode (Web only; APK has it bundled) */}
+        {mode === 'offline' && !modelReady && !isNative && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -336,11 +340,11 @@ export default function RealtimePage() {
               </p>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
                 <button
                   onClick={start}
                   disabled={running}
-                  className="btn-sign-primary flex items-center gap-2 px-7 py-3 text-sm"
+                  className="btn-sign-primary flex items-center justify-center gap-2 px-7 py-3.5 text-sm min-h-[48px] w-full sm:w-auto"
                 >
                   <Mic size={17} />
                   <span>Start Listening</span>
@@ -348,7 +352,7 @@ export default function RealtimePage() {
                 <button
                   onClick={stop}
                   disabled={!running}
-                  className="btn-sign-secondary flex items-center gap-2 px-6 py-3 text-sm"
+                  className="btn-sign-secondary flex items-center justify-center gap-2 px-6 py-3.5 text-sm min-h-[48px] w-full sm:w-auto"
                 >
                   <Square size={15} />
                   <span>Stop</span>

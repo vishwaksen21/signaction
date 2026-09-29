@@ -89,31 +89,32 @@ export function Navbar() {
         </nav>
 
         {/* Right: Clear Primary CTA & Clean Theme Toggle */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Primary CTA Button */}
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+          {/* Primary CTA Button - Compact on small mobile, expanded on tablet/desktop */}
           <Link
             href="/translator"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-5 sm:px-6 py-2.5 sm:py-3 shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.34)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+            className="hidden sm:inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.34)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
             <span>Start Translating</span>
             <ArrowRight size={15} />
           </Link>
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle with 44px touch target */}
           <button
             onClick={toggleTheme}
-            className="p-2 sm:p-2.5 text-[#64748B] hover:text-[#062B5C] dark:text-slate-300 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none"
+            className="w-10 h-10 flex items-center justify-center text-[#64748B] hover:text-[#062B5C] dark:text-slate-300 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring"
             aria-label="Toggle theme"
           >
             <Sun size={18} className="hidden dark:block text-amber-400" />
             <Moon size={18} className="block dark:hidden text-[#0757E8]" />
           </button>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button with 44px touch target */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            aria-label="Toggle menu"
+            className="md:hidden w-10 h-10 flex items-center justify-center text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring"
+            aria-label="Toggle mobile navigation menu"
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -129,8 +130,20 @@ export function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-[#050B14]/98 backdrop-blur-xl px-5 py-4 space-y-2 shadow-lg"
+            className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-[#050B14]/98 backdrop-blur-xl px-5 py-4 space-y-2 shadow-lg overscroll-contain"
           >
+            {/* Start translating mobile CTA */}
+            <div className="pb-2">
+              <Link
+                href="/translator"
+                onClick={() => setMobileOpen(false)}
+                className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-xl px-5 py-3 shadow-md transition-all active:scale-[0.98]"
+              >
+                <span>Start Translating</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
             {links.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -138,7 +151,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                  className={`flex items-center min-h-[48px] px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                     isActive
                       ? 'bg-blue-50 dark:bg-blue-950/50 text-[#0757E8] dark:text-[#12CFF3] font-semibold'
                       : 'text-[#4A5568] dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
