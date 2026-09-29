@@ -56,183 +56,8 @@
       "media_type": "mp4"
     },
     {
-      "token": "B",
-      "url": "/assets/signs/B.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "C",
-      "url": "/assets/signs/C.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "D",
-      "url": "/assets/signs/D.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "E",
-      "url": "/assets/signs/E.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "F",
-      "url": "/assets/signs/F.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "G",
-      "url": "/assets/signs/G.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "H",
-      "url": "/assets/signs/H.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "I",
-      "url": "/assets/signs/I.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "J",
-      "url": "/assets/signs/J.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "K",
-      "url": "/assets/signs/K.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "L",
-      "url": "/assets/signs/L.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "M",
-      "url": "/assets/signs/M.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "N",
-      "url": "/assets/signs/N.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "O",
-      "url": "/assets/signs/O.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "P",
-      "url": "/assets/signs/P.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "Q",
-      "url": "/assets/signs/Q.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "R",
-      "url": "/assets/signs/R.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "S",
-      "url": "/assets/signs/S.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "T",
-      "url": "/assets/signs/T.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "U",
-      "url": "/assets/signs/U.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "V",
-      "url": "/assets/signs/V.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "W",
-      "url": "/assets/signs/W.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "X",
-      "url": "/assets/signs/X.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "Y",
-      "url": "/assets/signs/Y.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "Z",
-      "url": "/assets/signs/Z.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "0",
-      "url": "/assets/signs/0.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "1",
-      "url": "/assets/signs/1.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "2",
-      "url": "/assets/signs/2.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "3",
-      "url": "/assets/signs/3.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "4",
-      "url": "/assets/signs/4.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "5",
-      "url": "/assets/signs/5.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "6",
-      "url": "/assets/signs/6.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "7",
-      "url": "/assets/signs/7.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "8",
-      "url": "/assets/signs/8.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "9",
-      "url": "/assets/signs/9.mp4",
-      "media_type": "mp4"
-    },
-    {
-      "token": "A",
-      "url": "/assets/signs/A.mp4",
+      "token": "ACCIDENT",
+      "url": "/assets/signs/ACCIDENT.mp4",
       "media_type": "mp4"
     },
     {
@@ -243,6 +68,11 @@
     {
       "token": "AFTER",
       "url": "/assets/signs/AFTER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "AFTERNOON",
+      "url": "/assets/signs/AFTERNOON.mp4",
       "media_type": "mp4"
     },
     {
@@ -266,13 +96,28 @@
       "media_type": "mp4"
     },
     {
+      "token": "AIR",
+      "url": "/assets/signs/AIR.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ALL",
       "url": "/assets/signs/ALL.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "ALLERGY",
+      "url": "/assets/signs/ALLERGY.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ALONE",
       "url": "/assets/signs/ALONE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ALREADY",
+      "url": "/assets/signs/ALREADY.mp4",
       "media_type": "mp4"
     },
     {
@@ -301,6 +146,31 @@
       "media_type": "mp4"
     },
     {
+      "token": "ANY",
+      "url": "/assets/signs/ANY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "APPLE",
+      "url": "/assets/signs/APPLE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ARM",
+      "url": "/assets/signs/ARM.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "AROUND",
+      "url": "/assets/signs/AROUND.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ART",
+      "url": "/assets/signs/ART.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ASK",
       "url": "/assets/signs/ASK.mp4",
       "media_type": "mp4"
@@ -321,6 +191,21 @@
       "media_type": "mp4"
     },
     {
+      "token": "BAG",
+      "url": "/assets/signs/BAG.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BANANA",
+      "url": "/assets/signs/BANANA.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BATHROOM",
+      "url": "/assets/signs/BATHROOM.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "BE",
       "url": "/assets/signs/BE.mp4",
       "media_type": "mp4"
@@ -331,8 +216,23 @@
       "media_type": "mp4"
     },
     {
+      "token": "BEDROOM",
+      "url": "/assets/signs/BEDROOM.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "BEFORE",
       "url": "/assets/signs/BEFORE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BEHIND",
+      "url": "/assets/signs/BEHIND.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BELIEVE",
+      "url": "/assets/signs/BELIEVE.mp4",
       "media_type": "mp4"
     },
     {
@@ -346,13 +246,78 @@
       "media_type": "mp4"
     },
     {
+      "token": "BIG",
+      "url": "/assets/signs/BIG.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BLACK",
+      "url": "/assets/signs/BLACK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BLOOD",
+      "url": "/assets/signs/BLOOD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BLUE",
+      "url": "/assets/signs/BLUE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BLUETOOTH",
+      "url": "/assets/signs/BLUETOOTH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BOAT",
+      "url": "/assets/signs/BOAT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BODY",
+      "url": "/assets/signs/BODY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BOOK",
+      "url": "/assets/signs/BOOK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BOX",
+      "url": "/assets/signs/BOX.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "BRAVE",
       "url": "/assets/signs/BRAVE.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "BREAD",
+      "url": "/assets/signs/BREAD.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "BREAK",
       "url": "/assets/signs/BREAK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BRIGHT",
+      "url": "/assets/signs/BRIGHT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BROWN",
+      "url": "/assets/signs/BROWN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "BUS",
+      "url": "/assets/signs/BUS.mp4",
       "media_type": "mp4"
     },
     {
@@ -396,8 +361,23 @@
       "media_type": "mp4"
     },
     {
+      "token": "CAR",
+      "url": "/assets/signs/CAR.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "CAREFUL",
       "url": "/assets/signs/CAREFUL.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CARROT",
+      "url": "/assets/signs/CARROT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CAT",
+      "url": "/assets/signs/CAT.mp4",
       "media_type": "mp4"
     },
     {
@@ -416,6 +396,36 @@
       "media_type": "mp4"
     },
     {
+      "token": "CITY",
+      "url": "/assets/signs/CITY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CLOCK",
+      "url": "/assets/signs/CLOCK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CLOSE",
+      "url": "/assets/signs/CLOSE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CLOUD",
+      "url": "/assets/signs/CLOUD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "COLD",
+      "url": "/assets/signs/COLD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "COLLECT",
+      "url": "/assets/signs/COLLECT.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "COLLEGE",
       "url": "/assets/signs/COLLEGE.mp4",
       "media_type": "mp4"
@@ -423,6 +433,11 @@
     {
       "token": "COME",
       "url": "/assets/signs/COME.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "COMFORTABLE",
+      "url": "/assets/signs/COMFORTABLE.mp4",
       "media_type": "mp4"
     },
     {
@@ -436,8 +451,23 @@
       "media_type": "mp4"
     },
     {
+      "token": "COOK",
+      "url": "/assets/signs/COOK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "COUNTRY",
+      "url": "/assets/signs/COUNTRY.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "CRY",
       "url": "/assets/signs/CRY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "CUT",
+      "url": "/assets/signs/CUT.mp4",
       "media_type": "mp4"
     },
     {
@@ -448,6 +478,21 @@
     {
       "token": "DAY",
       "url": "/assets/signs/DAY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DECIDE",
+      "url": "/assets/signs/DECIDE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DIFFERENT",
+      "url": "/assets/signs/DIFFERENT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DINNER",
+      "url": "/assets/signs/DINNER.mp4",
       "media_type": "mp4"
     },
     {
@@ -476,8 +521,33 @@
       "media_type": "mp4"
     },
     {
+      "token": "DOG",
+      "url": "/assets/signs/DOG.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DOOR",
+      "url": "/assets/signs/DOOR.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "DO_NOT",
       "url": "/assets/signs/DO_NOT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DRAW",
+      "url": "/assets/signs/DRAW.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DREAM",
+      "url": "/assets/signs/DREAM.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DRESS",
+      "url": "/assets/signs/DRESS.mp4",
       "media_type": "mp4"
     },
     {
@@ -486,8 +556,38 @@
       "media_type": "mp4"
     },
     {
+      "token": "DRIVE",
+      "url": "/assets/signs/DRIVE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DRY",
+      "url": "/assets/signs/DRY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "DURING",
+      "url": "/assets/signs/DURING.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "E",
       "url": "/assets/signs/E.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EAR",
+      "url": "/assets/signs/EAR.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EARTH",
+      "url": "/assets/signs/EARTH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EASY",
+      "url": "/assets/signs/EASY.mp4",
       "media_type": "mp4"
     },
     {
@@ -496,8 +596,73 @@
       "media_type": "mp4"
     },
     {
+      "token": "EGG",
+      "url": "/assets/signs/EGG.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ELEPHANT",
+      "url": "/assets/signs/ELEPHANT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EMAIL",
+      "url": "/assets/signs/EMAIL.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EMERGENCY",
+      "url": "/assets/signs/EMERGENCY.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ENGINEER",
       "url": "/assets/signs/ENGINEER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ENGLISH",
+      "url": "/assets/signs/ENGLISH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ENOUGH",
+      "url": "/assets/signs/ENOUGH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EVENING",
+      "url": "/assets/signs/EVENING.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EVERYTHING",
+      "url": "/assets/signs/EVERYTHING.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EXAM",
+      "url": "/assets/signs/EXAM.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EXCUSE_ME",
+      "url": "/assets/signs/EXCUSE_ME.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EXPENSIVE",
+      "url": "/assets/signs/EXPENSIVE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EXPLAIN",
+      "url": "/assets/signs/EXPLAIN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "EYE",
+      "url": "/assets/signs/EYE.mp4",
       "media_type": "mp4"
     },
     {
@@ -516,8 +681,43 @@
       "media_type": "mp4"
     },
     {
+      "token": "FLY",
+      "url": "/assets/signs/FLY.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "FOLLOW",
       "url": "/assets/signs/FOLLOW.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FOOD",
+      "url": "/assets/signs/FOOD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FOREST",
+      "url": "/assets/signs/FOREST.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FREE",
+      "url": "/assets/signs/FREE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FRESH",
+      "url": "/assets/signs/FRESH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FRIDAY",
+      "url": "/assets/signs/FRIDAY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "FRIEND",
+      "url": "/assets/signs/FRIEND.mp4",
       "media_type": "mp4"
     },
     {
@@ -526,8 +726,33 @@
       "media_type": "mp4"
     },
     {
+      "token": "FULL",
+      "url": "/assets/signs/FULL.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "G",
       "url": "/assets/signs/G.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GARAGE",
+      "url": "/assets/signs/GARAGE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GARDEN",
+      "url": "/assets/signs/GARDEN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GEOGRAPHY",
+      "url": "/assets/signs/GEOGRAPHY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GET",
+      "url": "/assets/signs/GET.mp4",
       "media_type": "mp4"
     },
     {
@@ -556,13 +781,53 @@
       "media_type": "mp4"
     },
     {
+      "token": "GOOD_AFTERNOON",
+      "url": "/assets/signs/GOOD_AFTERNOON.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GOOD_MORNING",
+      "url": "/assets/signs/GOOD_MORNING.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GOOD_NIGHT",
+      "url": "/assets/signs/GOOD_NIGHT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GRANDFATHER",
+      "url": "/assets/signs/GRANDFATHER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GRANDMOTHER",
+      "url": "/assets/signs/GRANDMOTHER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "GRASS",
+      "url": "/assets/signs/GRASS.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "GREAT",
       "url": "/assets/signs/GREAT.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "GREEN",
+      "url": "/assets/signs/GREEN.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "H",
       "url": "/assets/signs/H.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HALF",
+      "url": "/assets/signs/HALF.mp4",
       "media_type": "mp4"
     },
     {
@@ -576,8 +841,33 @@
       "media_type": "mp4"
     },
     {
+      "token": "HAPPEN",
+      "url": "/assets/signs/HAPPEN.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "HAPPY",
       "url": "/assets/signs/HAPPY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HARD",
+      "url": "/assets/signs/HARD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HAT",
+      "url": "/assets/signs/HAT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HATE",
+      "url": "/assets/signs/HATE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HAVE",
+      "url": "/assets/signs/HAVE.mp4",
       "media_type": "mp4"
     },
     {
@@ -586,8 +876,23 @@
       "media_type": "mp4"
     },
     {
+      "token": "HEAD",
+      "url": "/assets/signs/HEAD.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HEADACHE",
+      "url": "/assets/signs/HEADACHE.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "HEAR",
       "url": "/assets/signs/HEAR.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HEARING",
+      "url": "/assets/signs/HEARING.mp4",
       "media_type": "mp4"
     },
     {
@@ -611,6 +916,11 @@
       "media_type": "mp4"
     },
     {
+      "token": "HI",
+      "url": "/assets/signs/HI.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "HIS",
       "url": "/assets/signs/HIS.mp4",
       "media_type": "mp4"
@@ -626,13 +936,63 @@
       "media_type": "mp4"
     },
     {
+      "token": "HOT",
+      "url": "/assets/signs/HOT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HOTEL",
+      "url": "/assets/signs/HOTEL.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HOUR",
+      "url": "/assets/signs/HOUR.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "HOW",
       "url": "/assets/signs/HOW.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "HUGE",
+      "url": "/assets/signs/HUGE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HUNGRY",
+      "url": "/assets/signs/HUNGRY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "HUSBAND",
+      "url": "/assets/signs/HUSBAND.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "I",
       "url": "/assets/signs/I.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "IDEA",
+      "url": "/assets/signs/IDEA.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "IN",
+      "url": "/assets/signs/IN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "INJURY",
+      "url": "/assets/signs/INJURY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "INTERNET",
+      "url": "/assets/signs/INTERNET.mp4",
       "media_type": "mp4"
     },
     {
@@ -646,8 +1006,23 @@
       "media_type": "mp4"
     },
     {
+      "token": "I_UNDERSTAND",
+      "url": "/assets/signs/I_UNDERSTAND.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "J",
       "url": "/assets/signs/J.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "JOB",
+      "url": "/assets/signs/JOB.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "JUICE",
+      "url": "/assets/signs/JUICE.mp4",
       "media_type": "mp4"
     },
     {
@@ -661,13 +1036,48 @@
       "media_type": "mp4"
     },
     {
+      "token": "KITCHEN",
+      "url": "/assets/signs/KITCHEN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "KNOW",
+      "url": "/assets/signs/KNOW.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "L",
       "url": "/assets/signs/L.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "LAKE",
+      "url": "/assets/signs/LAKE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LAMP",
+      "url": "/assets/signs/LAMP.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "LANGUAGE",
       "url": "/assets/signs/LANGUAGE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LAPTOP",
+      "url": "/assets/signs/LAPTOP.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LARGE",
+      "url": "/assets/signs/LARGE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LATE",
+      "url": "/assets/signs/LATE.mp4",
       "media_type": "mp4"
     },
     {
@@ -681,8 +1091,48 @@
       "media_type": "mp4"
     },
     {
+      "token": "LETTER",
+      "url": "/assets/signs/LETTER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LIBRARY",
+      "url": "/assets/signs/LIBRARY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LIFE",
+      "url": "/assets/signs/LIFE.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "LIKE",
       "url": "/assets/signs/LIKE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LION",
+      "url": "/assets/signs/LION.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LIVE",
+      "url": "/assets/signs/LIVE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LONG",
+      "url": "/assets/signs/LONG.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LOSE",
+      "url": "/assets/signs/LOSE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "LUNCH",
+      "url": "/assets/signs/LUNCH.mp4",
       "media_type": "mp4"
     },
     {
@@ -691,8 +1141,73 @@
       "media_type": "mp4"
     },
     {
+      "token": "MAKE",
+      "url": "/assets/signs/MAKE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MAN",
+      "url": "/assets/signs/MAN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MANGO",
+      "url": "/assets/signs/MANGO.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MAY",
+      "url": "/assets/signs/MAY.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ME",
       "url": "/assets/signs/ME.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MEAN",
+      "url": "/assets/signs/MEAN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MEASURE",
+      "url": "/assets/signs/MEASURE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MEAT",
+      "url": "/assets/signs/MEAT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MEET",
+      "url": "/assets/signs/MEET.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MIGHT",
+      "url": "/assets/signs/MIGHT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MILK",
+      "url": "/assets/signs/MILK.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MONDAY",
+      "url": "/assets/signs/MONDAY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MONKEY",
+      "url": "/assets/signs/MONKEY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MONTH",
+      "url": "/assets/signs/MONTH.mp4",
       "media_type": "mp4"
     },
     {
@@ -701,8 +1216,53 @@
       "media_type": "mp4"
     },
     {
+      "token": "MOTHER",
+      "url": "/assets/signs/MOTHER.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MOUNTAIN",
+      "url": "/assets/signs/MOUNTAIN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MOUSE",
+      "url": "/assets/signs/MOUSE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MOUTH",
+      "url": "/assets/signs/MOUTH.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MOVE",
+      "url": "/assets/signs/MOVE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MUSEUM",
+      "url": "/assets/signs/MUSEUM.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MUSIC",
+      "url": "/assets/signs/MUSIC.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "MY",
       "url": "/assets/signs/MY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MYSELF",
+      "url": "/assets/signs/MYSELF.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "MY_NAME_IS",
+      "url": "/assets/signs/MY_NAME_IS.mp4",
       "media_type": "mp4"
     },
     {
@@ -716,13 +1276,43 @@
       "media_type": "mp4"
     },
     {
+      "token": "NARROW",
+      "url": "/assets/signs/NARROW.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "NEAT",
+      "url": "/assets/signs/NEAT.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "NEIGHBOR",
+      "url": "/assets/signs/NEIGHBOR.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "NEW",
+      "url": "/assets/signs/NEW.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "NEXT",
       "url": "/assets/signs/NEXT.mp4",
       "media_type": "mp4"
     },
     {
+      "token": "NICE",
+      "url": "/assets/signs/NICE.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "NO",
       "url": "/assets/signs/NO.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "NOSE",
+      "url": "/assets/signs/NOSE.mp4",
       "media_type": "mp4"
     },
     {
@@ -736,6 +1326,11 @@
       "media_type": "mp4"
     },
     {
+      "token": "NURSE",
+      "url": "/assets/signs/NURSE.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "O",
       "url": "/assets/signs/O.mp4",
       "media_type": "mp4"
@@ -746,8 +1341,38 @@
       "media_type": "mp4"
     },
     {
+      "token": "OFFICE",
+      "url": "/assets/signs/OFFICE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "OFTEN",
+      "url": "/assets/signs/OFTEN.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "ON",
       "url": "/assets/signs/ON.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ONCE",
+      "url": "/assets/signs/ONCE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "OPEN",
+      "url": "/assets/signs/OPEN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "ORANGE",
+      "url": "/assets/signs/ORANGE.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "OTHER",
+      "url": "/assets/signs/OTHER.mp4",
       "media_type": "mp4"
     },
     {
@@ -766,8 +1391,28 @@
       "media_type": "mp4"
     },
     {
+      "token": "PAIN",
+      "url": "/assets/signs/PAIN.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "PAY",
+      "url": "/assets/signs/PAY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "PENCIL",
+      "url": "/assets/signs/PENCIL.mp4",
+      "media_type": "mp4"
+    },
+    {
       "token": "PLAY",
       "url": "/assets/signs/PLAY.mp4",
+      "media_type": "mp4"
+    },
+    {
+      "token": "POTATO",
+      "url": "/assets/signs/POTATO.mp4",
       "media_type": "mp4"
     },
     {
