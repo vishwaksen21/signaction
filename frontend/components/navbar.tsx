@@ -31,33 +31,33 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full pt-[env(safe-area-inset-top,0px)] transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full pt-[env(safe-area-inset-top,0px)] transition-all duration-200 ${
         scrolled
-          ? 'bg-white/95 dark:bg-[#050B14]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)]'
-          : 'bg-white/85 dark:bg-[#050B14]/85 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-800/60'
+          ? 'bg-[#FAF9F6]/95 dark:bg-[#050B14]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-xs'
+          : 'bg-[#FAF9F6]/85 dark:bg-[#050B14]/85 backdrop-blur-sm border-b border-slate-200/60 dark:border-slate-800/60'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-22 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
         
-        {/* Left: Brand Logo & Wordmark (Enlarged) */}
-        <Link href="/" className="flex items-center gap-3 sm:gap-3.5 group focus-ring rounded-2xl">
-          <div className="relative w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
+        {/* Left: Brand Logo & Wordmark */}
+        <Link href="/" className="flex items-center gap-3 group focus-ring rounded-xl">
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
             <Image
               src="/logo.png"
               alt="SignAction Logo"
-              width={52}
-              height={52}
-              className="w-full h-full object-contain select-none drop-shadow-sm"
+              width={44}
+              height={44}
+              className="w-full h-full object-contain select-none"
               priority
             />
           </div>
-          <span className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tight text-[#062B5C] dark:text-white">
-            Sign<span className="text-[#0757E8] dark:text-[#12CFF3]">Action</span>
+          <span className="font-heading font-extrabold text-xl sm:text-2xl tracking-tight text-[#062B5C] dark:text-white">
+            Sign<span className="text-[#0757E8] dark:text-[#38BDF8]">Action</span>
           </span>
         </Link>
 
         {/* Center: Clean Editorial Nav Links (Desktop) */}
-        <nav className="hidden md:flex items-center gap-8 lg:gap-10" aria-label="Main Navigation">
+        <nav className="hidden md:flex items-center gap-8" aria-label="Main Navigation">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -67,7 +67,7 @@ export function Navbar() {
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative text-sm font-semibold transition-colors py-1.5 ${
                   isActive
-                    ? 'text-[#0757E8] dark:text-[#12CFF3]'
+                    ? 'text-[#0757E8] dark:text-[#38BDF8]'
                     : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
                 }`}
               >
@@ -75,8 +75,8 @@ export function Navbar() {
                 {isActive && (
                   <motion.span
                     layoutId="navbar-active-line"
-                    className="absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-[#0757E8] dark:bg-[#12CFF3]"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#0757E8] dark:bg-[#38BDF8]"
+                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                   />
                 )}
               </Link>
@@ -84,15 +84,15 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Right: Only the Dark/Light Mode Toggle */}
+        {/* Right: Dark/Light Mode Toggle */}
         <div className="flex items-center">
           <button
             onClick={toggleTheme}
-            className="w-11 h-11 flex items-center justify-center text-[#64748B] hover:text-[#062B5C] dark:text-slate-300 dark:hover:text-white rounded-full bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700 transition-colors focus-ring"
+            className="w-10 h-10 flex items-center justify-center text-[#64748B] hover:text-[#062B5C] dark:text-slate-300 dark:hover:text-white rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-ring"
             aria-label="Toggle dark/light mode"
           >
-            <Sun size={20} className="hidden dark:block text-amber-400" />
-            <Moon size={20} className="block dark:hidden text-[#0757E8]" />
+            <Sun size={18} className="hidden dark:block text-amber-400" />
+            <Moon size={18} className="block dark:hidden text-[#0757E8]" />
           </button>
         </div>
 
@@ -100,3 +100,4 @@ export function Navbar() {
     </header>
   );
 }
+

@@ -12,7 +12,6 @@ import {
   ArrowRight,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Smartphone,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -108,14 +107,14 @@ export default function OfflineSetupPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-5">
-              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#38BDF8] mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0757E8] dark:bg-[#38BDF8]" />
               <span>100% Offline Capability</span>
             </div>
             <h1 className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl tracking-tight text-[#062B5C] dark:text-white mb-4">
-              Private, on-device <span className="text-[#0757E8] dark:text-[#12CFF3]">sign translation.</span>
+              Private, on-device <span className="text-[#0757E8] dark:text-[#38BDF8]">sign translation.</span>
             </h1>
-            <p className="text-base sm:text-xl text-[#64748B] dark:text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+            <p className="text-base sm:text-lg text-[#475569] dark:text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed">
               {isNative
                 ? 'SignAction Android APK is packaged with local offline speech recognition and bundled sign assets. Completely offline from first launch.'
                 : 'Download everything you need to use SignAction without an internet connection. One click, one time, works forever.'}
