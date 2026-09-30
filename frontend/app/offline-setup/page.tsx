@@ -16,6 +16,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import Link from 'next/link';
+import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
 import {
   setupOffline,
   isFullyOfflineReady,
@@ -245,8 +246,7 @@ export default function OfflineSetupPage() {
 
                 <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
-                    href="/download-apk"
-                    download="signaction.apk"
+                    href={OFFICIAL_APK_DOWNLOAD_URL}
                     className="btn-sign-secondary inline-flex items-center justify-center gap-2 text-sm px-6 py-3 w-full sm:w-auto"
                   >
                     <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />

@@ -7,6 +7,7 @@ import {
   isApkPromptDismissed,
   dismissApkPrompt,
   markApkDownloaded,
+  OFFICIAL_APK_DOWNLOAD_URL,
 } from '@/lib/platform';
 
 export function ApkDownloadFab() {
@@ -52,11 +53,10 @@ export function ApkDownloadFab() {
       >
         <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] shadow-lg rounded-full pl-3 pr-2 py-1.5 transition-all duration-200 hover:scale-105 active:scale-95">
           <a
-            href="/download-apk"
-            download="signaction.apk"
+            href={OFFICIAL_APK_DOWNLOAD_URL}
             onClick={handleDownload}
             className="flex items-center gap-2 text-xs font-heading font-bold"
-            title="Download SignAction Android APK"
+            title="Download SignAction Android APK (145MB)"
           >
             <Smartphone size={15} className="text-[#0757E8] dark:text-[#12CFF3]" />
             <span>APK (145MB)</span>
@@ -106,11 +106,10 @@ export function ApkDownloadFab() {
         {/* Right: Download Button & Dismiss */}
         <div className="flex items-center gap-1.5 shrink-0">
           <a
-            href="/download-apk"
-            download="signaction.apk"
+            href={OFFICIAL_APK_DOWNLOAD_URL}
             onClick={handleDownload}
             className="inline-flex items-center gap-1.5 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-xs px-3.5 py-2 rounded-xl sm:rounded-full shadow-sm transition-all duration-200 active:scale-95 focus-ring"
-            aria-label="Download SignAction Android APK"
+            aria-label="Download SignAction Android APK (145MB)"
           >
             {downloaded ? (
               <>

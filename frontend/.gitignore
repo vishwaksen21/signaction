@@ -6,5 +6,3 @@ dist/
 .next/
 out/
 .tmp-api-routes/
-public/signaction.apk
-signaction.apk

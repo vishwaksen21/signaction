@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Shield, Github, Youtube, Linkedin, Smartphone, Download } from 'lucide-react';
+import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -86,8 +87,7 @@ export function Footer() {
             </Link>
 
             <a
-              href="/download-apk"
-              download="signaction.apk"
+              href={OFFICIAL_APK_DOWNLOAD_URL}
               className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95 focus-ring"
             >
               <Smartphone className="w-4 h-4 text-[#0757E8] dark:text-[#12CFF3]" />
@@ -107,8 +107,7 @@ export function Footer() {
 
           <div className="flex flex-wrap items-center gap-3.5 sm:gap-4 text-xs font-medium text-[#64748B] dark:text-slate-400">
             <a
-              href="/download-apk"
-              download="signaction.apk"
+              href={OFFICIAL_APK_DOWNLOAD_URL}
               className="font-semibold text-[#0757E8] dark:text-[#12CFF3] hover:underline transition-colors flex items-center gap-1"
             >
               <Smartphone size={13} />

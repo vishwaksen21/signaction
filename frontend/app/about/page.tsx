@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Heart, Server, Code, Mic, Layers, ArrowRight, Video, BookOpen, ShieldCheck, Smartphone } from 'lucide-react';
 import Link from 'next/link';
+import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
 
 export default function AboutPage() {
   return (
@@ -164,8 +165,7 @@ export default function AboutPage() {
             <ArrowRight size={16} />
           </Link>
           <a
-            href="/download-apk"
-            download="signaction.apk"
+            href={OFFICIAL_APK_DOWNLOAD_URL}
             className="btn-sign-secondary px-7 py-3 text-sm inline-flex items-center gap-2"
           >
             <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />

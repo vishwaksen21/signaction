@@ -1,8 +1,4 @@
-/**
- * Platform and Native APK Detection Utilities
- * Accurately detects whether the app is running inside the Android APK (Capacitor),
- * installed as a PWA, or running on the public website.
- */
+export const OFFICIAL_APK_DOWNLOAD_URL = '/signaction.apk';
 
 export function isNativeApk(): boolean {
   if (typeof window === 'undefined') return false;

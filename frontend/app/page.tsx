@@ -23,6 +23,7 @@ import {
   Smartphone,
   Download,
 } from 'lucide-react';
+import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
 
 interface InteractiveGesture {
   token: string;
@@ -126,8 +127,7 @@ export default function LandingPage() {
                 </Link>
 
                 <a
-                  href="/download-apk"
-                  download="signaction.apk"
+                  href={OFFICIAL_APK_DOWNLOAD_URL}
                   className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-6 py-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                 >
                   <Smartphone size={17} className="text-[#0757E8] dark:text-[#12CFF3]" />
@@ -826,8 +826,7 @@ export default function LandingPage() {
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
                   <a
-                    href="/download-apk"
-                    download="signaction.apk"
+                    href={OFFICIAL_APK_DOWNLOAD_URL}
                     className="inline-flex items-center gap-2.5 text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-8 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
                   >
                     <Download size={18} />
@@ -854,8 +853,7 @@ export default function LandingPage() {
                       </span>
                     </div>
                     <a
-                      href="/download-apk"
-                      download="signaction.apk"
+                      href={OFFICIAL_APK_DOWNLOAD_URL}
                       className="w-full py-3 rounded-full bg-[#0757E8] text-white text-xs font-bold shadow-md hover:bg-[#064BD1] transition-all"
                     >
                       Install on Phone
@@ -901,8 +899,7 @@ export default function LandingPage() {
               </Link>
 
               <a
-                href="/download-apk"
-                download="signaction.apk"
+                href={OFFICIAL_APK_DOWNLOAD_URL}
                 className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-8 py-3.5 transition-all"
               >
                 <Smartphone size={16} className="text-[#12CFF3]" />
