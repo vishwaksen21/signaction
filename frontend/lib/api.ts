@@ -135,22 +135,34 @@ export async function translateSpeechOnce(file: File): Promise<TranslateResponse
   }
 }
 
+import STATIC_DICTIONARY from '@/public/dictionary.json';
+
 export type DictionaryItem = { token: string; url: string; media_type: 'gif' | 'mp4' | 'img' };
 
 export async function fetchDictionary(): Promise<{ items: DictionaryItem[] }> {
   try {
     const res = await fetch('/dictionary.json', { cache: 'no-store' });
-    if (!res.ok) return { items: [] };
-    const data = await res.json();
-    return {
-      items: (data.items || []).map((i: DictionaryItem) => ({
-        ...i,
-        url: resolveApiUrl(i.url),
-      })),
-    };
-  } catch {
-    return { items: [] };
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data?.items) && data.items.length > 0) {
+        return {
+          items: data.items.map((i: DictionaryItem) => ({
+            ...i,
+            url: resolveApiUrl(i.url),
+          })),
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Network fetch for dictionary.json failed, using bundled fallback:', err);
   }
+
+  // Guaranteed fallback for offline Android APK, PWA, and disconnected environments
+  const items = ((STATIC_DICTIONARY as { items?: DictionaryItem[] })?.items || []).map((i) => ({
+    ...i,
+    url: resolveApiUrl(i.url),
+  }));
+  return { items };
 }
 
 /**

@@ -8,6 +8,10 @@ interface SignViewerProps {
   /** Display duration in ms for static images/SVGs. Defaults to 3000. */
   durationMs?: number;
   playing?: boolean;
+  loop?: boolean;
+  preload?: 'auto' | 'metadata' | 'none';
+  controls?: boolean;
+  muted?: boolean;
 }
 
 function extractYoutubeVideoId(url: string): string | null {
@@ -51,7 +55,16 @@ function extractYoutubeVideoId(url: string): string | null {
   return null;
 }
 
-export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }: SignViewerProps) {
+export function SignViewer({
+  url,
+  onEnded,
+  durationMs = 3000,
+  playing = false,
+  loop = false,
+  preload = 'auto',
+  controls = false,
+  muted = true,
+}: SignViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const youtubeContainerRef = useRef<HTMLDivElement>(null);
@@ -414,6 +427,20 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
     );
   }
 
+  const handleMetadataOrCanPlay = useCallback(() => {
+    setError(null);
+    const el = videoRef.current;
+    if (!el) return;
+    // On mobile / Android WebView, cue to 0.001s to force first frame to paint
+    if (!playing && el.currentTime === 0) {
+      try {
+        el.currentTime = 0.001;
+      } catch {
+        // ignore
+      }
+    }
+  }, [playing]);
+
   // For video files, use native playback
   if (lower.endsWith('.mp4')) {
     return (
@@ -424,13 +451,16 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
           className="w-full h-full rounded-lg object-contain"
           playsInline
           webkit-playsinline="true"
-          preload="auto"
-          autoPlay
-          muted
-          controls={false}
+          preload={preload}
+          autoPlay={playing}
+          muted={muted}
+          loop={loop}
+          controls={controls}
           disablePictureInPicture
+          onLoadedMetadata={handleMetadataOrCanPlay}
+          onCanPlay={handleMetadataOrCanPlay}
           onLoadedData={() => setError(null)}
-          onEnded={handleEndedOnce}
+          onEnded={loop ? undefined : handleEndedOnce}
           onError={(e) => {
             const video = e.currentTarget;
             const err = video.error;
@@ -444,9 +474,11 @@ export function SignViewer({ url, onEnded, durationMs = 3000, playing = false }:
             setError('Gesture unavailable');
 
             // Auto-advance sequence after clean display so sequence does not freeze
-            setTimeout(() => {
-              handleEndedOnce();
-            }, 1800);
+            if (!loop) {
+              setTimeout(() => {
+                handleEndedOnce();
+              }, 1800);
+            }
           }}
         />
         {error && (
