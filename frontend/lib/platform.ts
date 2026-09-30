@@ -1,7 +1,7 @@
 /**
  * Platform and Native APK Detection Utilities
- * Detects whether the app is running inside the Android APK (Capacitor),
- * installed as a PWA, or if the user has already downloaded the APK.
+ * Accurately detects whether the app is running inside the Android APK (Capacitor),
+ * installed as a PWA, or running on the public website.
  */
 
 export function isNativeApk(): boolean {
@@ -17,30 +17,32 @@ export function isNativeApk(): boolean {
     // ignore
   }
 
-  // 2. Capacitor Scheme & Origin (androidScheme: 'https' -> https://localhost)
-  if (
-    window.location.origin === 'https://localhost' ||
-    window.location.protocol === 'capacitor:' ||
-    window.location.protocol === 'file:'
-  ) {
-    return true;
+  // 2. Capacitor Scheme & Origin (androidScheme: 'https' -> https://localhost or capacitor://)
+  try {
+    if (
+      (window.location.origin === 'https://localhost' && window.location.port === '') ||
+      window.location.protocol === 'capacitor:'
+    ) {
+      return true;
+    }
+  } catch {
+    // ignore
   }
 
-  // 3. UserAgent checks (Custom SignActionAPK header or Android WebView)
-  if (typeof navigator !== 'undefined' && navigator.userAgent) {
-    const ua = navigator.userAgent;
-    if (/SignActionAPK/i.test(ua)) {
-      return true;
+  // 3. Custom SignActionAPK user-agent flag injected in Android MainActivity
+  try {
+    if (typeof navigator !== 'undefined' && navigator.userAgent) {
+      if (/SignActionAPK/i.test(navigator.userAgent)) {
+        return true;
+      }
     }
-    // Android WebView signature: Android + 'wv' or 'Version/x.x'
-    if (/Android/i.test(ua) && (/; wv\b/i.test(ua) || (/Version\/[0-9.]+/i.test(ua) && /Chrome/i.test(ua)))) {
-      return true;
-    }
+  } catch {
+    // ignore
   }
 
   // 4. Stored native flag check
   try {
-    if (localStorage.getItem('signaction_is_native_apk') === 'true') {
+    if (sessionStorage.getItem('signaction_is_native_apk') === 'true') {
       return true;
     }
   } catch {
@@ -50,34 +52,34 @@ export function isNativeApk(): boolean {
   return false;
 }
 
-export function isApkAlreadyDownloaded(): boolean {
+/**
+ * Check if the user has dismissed the floating APK prompt for the current session.
+ */
+export function isApkPromptDismissed(): boolean {
   if (typeof window === 'undefined') return false;
   if (isNativeApk()) return true;
 
   try {
-    return (
-      localStorage.getItem('signaction_apk_downloaded') === 'true' ||
-      localStorage.getItem('signaction_apk_dismissed') === 'true'
-    );
+    return sessionStorage.getItem('signaction_apk_dismissed') === 'true';
   } catch {
     return false;
   }
 }
 
-export function markApkDownloaded(): void {
+export function dismissApkPrompt(): void {
   try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('signaction_apk_downloaded', 'true');
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('signaction_apk_dismissed', 'true');
     }
   } catch {
     // ignore
   }
 }
 
-export function dismissApkPrompt(): void {
+export function markApkDownloaded(): void {
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('signaction_apk_dismissed', 'true');
+      localStorage.setItem('signaction_apk_downloaded_at', new Date().toISOString());
     }
   } catch {
     // ignore

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Heart, Server, Code, Mic, Layers, ArrowRight, Video, BookOpen, ShieldCheck } from 'lucide-react';
+import { Sparkles, Heart, Server, Code, Mic, Layers, ArrowRight, Video, BookOpen, ShieldCheck, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AboutPage() {
@@ -163,6 +163,14 @@ export default function AboutPage() {
             <span>Start Translating</span>
             <ArrowRight size={16} />
           </Link>
+          <a
+            href="/download-apk"
+            download="signaction.apk"
+            className="btn-sign-secondary px-7 py-3 text-sm inline-flex items-center gap-2"
+          >
+            <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
+            <span>Download Android APK</span>
+          </a>
           <Link href="/offline-setup" className="btn-sign-secondary px-7 py-3 text-sm">
             <span>Offline Setup</span>
           </Link>

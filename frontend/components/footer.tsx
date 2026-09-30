@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Shield, Github, Youtube, Linkedin } from 'lucide-react';
+import { ArrowRight, Shield, Github, Youtube, Linkedin, Smartphone, Download } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -44,7 +44,7 @@ export function Footer() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Brand Section: Clean Editorial Layout (Product/Developers/Resources columns removed) */}
+        {/* Brand Section: Clean Editorial Layout */}
         <div className="flex flex-col items-start max-w-2xl mb-14 sm:mb-20">
           {/* Logo */}
           <div className="mb-4">
@@ -75,14 +75,25 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Royal Blue Pill CTA Button */}
-          <Link
-            href="/translator"
-            className="inline-flex items-center gap-2 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.38)] transition-all duration-200 group active:scale-95 focus-ring"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          {/* Action Buttons: Get Started + Download Android APK */}
+          <div className="flex flex-wrap items-center gap-3.5">
+            <Link
+              href="/translator"
+              className="inline-flex items-center gap-2 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.38)] transition-all duration-200 group active:scale-95 focus-ring"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+
+            <a
+              href="/download-apk"
+              download="signaction.apk"
+              className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95 focus-ring"
+            >
+              <Smartphone className="w-4 h-4 text-[#0757E8] dark:text-[#12CFF3]" />
+              <span>Download Android APK</span>
+            </a>
+          </div>
         </div>
 
         {/* Bottom Bar: Privacy Shield + Copyright + Links & Social Icons */}
@@ -94,7 +105,16 @@ export function Footer() {
             <span>© {currentYear} SignAction. All rights reserved.</span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-medium text-[#64748B] dark:text-slate-400">
+          <div className="flex flex-wrap items-center gap-3.5 sm:gap-4 text-xs font-medium text-[#64748B] dark:text-slate-400">
+            <a
+              href="/download-apk"
+              download="signaction.apk"
+              className="font-semibold text-[#0757E8] dark:text-[#12CFF3] hover:underline transition-colors flex items-center gap-1"
+            >
+              <Smartphone size={13} />
+              <span>Android APK</span>
+            </a>
+            <span className="text-slate-300 dark:text-slate-700">|</span>
             <Link href="/about" className="hover:text-[#062B5C] dark:hover:text-white transition-colors">Docs</Link>
             <span className="text-slate-300 dark:text-slate-700">|</span>
             <Link href="/about#faq" className="hover:text-[#062B5C] dark:hover:text-white transition-colors">FAQ</Link>

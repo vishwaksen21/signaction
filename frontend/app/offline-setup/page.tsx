@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Smartphone,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -236,11 +237,22 @@ export default function OfflineSetupPage() {
                   className="btn-sign-primary inline-flex items-center justify-center gap-3 text-base px-10 py-4 w-full sm:w-auto shadow-md"
                 >
                   <Download size={20} />
-                  <span>Download for Offline Use</span>
+                  <span>Download for Offline Use (Browser)</span>
                 </button>
                 <p className="text-xs text-[#64748B] dark:text-slate-400">
-                  Total download: ~59MB · Stored in device browser cache · Works completely offline
+                  Stored in device browser cache · Works completely offline
                 </p>
+
+                <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href="/download-apk"
+                    download="signaction.apk"
+                    className="btn-sign-secondary inline-flex items-center justify-center gap-2 text-sm px-6 py-3 w-full sm:w-auto"
+                  >
+                    <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
+                    <span>Download Native Android APK (145 MB)</span>
+                  </a>
+                </div>
                 {error && (
                   <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40">
                     {error}

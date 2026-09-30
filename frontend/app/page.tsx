@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   Zap,
   Globe2,
+  Smartphone,
+  Download,
 } from 'lucide-react';
 
 interface InteractiveGesture {
@@ -114,7 +116,7 @@ export default function LandingPage() {
               </div>
 
               {/* Refined CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-1">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
                 <Link
                   href="/translator"
                   className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-3.5 shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
@@ -124,11 +126,20 @@ export default function LandingPage() {
                 </Link>
 
                 <a
-                  href="#how-it-works"
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-7 py-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                  href="/download-apk"
+                  download="signaction.apk"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-6 py-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                 >
-                  <Play size={14} className="fill-[#0757E8] text-[#0757E8]" />
-                  <span>Discover SignAction</span>
+                  <Smartphone size={17} className="text-[#0757E8] dark:text-[#12CFF3]" />
+                  <span>Download APK</span>
+                </a>
+
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white px-4 py-3.5 transition-colors"
+                >
+                  <Play size={14} className="fill-current text-[#0757E8] dark:text-[#12CFF3]" />
+                  <span>How it works</span>
                 </a>
               </div>
 
@@ -776,7 +787,90 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. REFINED FINAL CALL TO ACTION                                           */}
+      {/* 7. DEDICATED NATIVE ANDROID MOBILE APP SECTION                            */}
+      {/* ========================================================================= */}
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-[#F0F7FF] dark:from-[#050B14] dark:to-[#07132B] border-y border-slate-200/80 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white dark:bg-[#07132C] rounded-[36px] p-8 sm:p-12 lg:p-16 border border-blue-200/80 dark:border-blue-900/60 shadow-[0_12px_40px_rgba(7,87,232,0.12)]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              
+              <div className="lg:col-span-7 space-y-6 text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/80 border border-blue-200/80 dark:border-blue-800 text-xs font-heading font-extrabold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
+                  <Smartphone size={14} />
+                  <span>SignAction for Android</span>
+                </div>
+
+                <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-[#062B5C] dark:text-white leading-[1.18]">
+                  Take Indian Sign Language with you. <br className="hidden sm:inline" />
+                  <span className="text-[#0757E8] dark:text-[#12CFF3]">Everywhere. Completely Offline.</span>
+                </h2>
+
+                <p className="text-base sm:text-lg text-[#4A5568] dark:text-slate-300 leading-relaxed font-normal">
+                  Download the standalone Android APK. All 347 high-definition ISL gesture videos and offline Vosk speech recognition models are bundled directly inside the app — no mobile data, internet, or cloud connection required.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#040913] border border-slate-200/70 dark:border-slate-800/80 space-y-1">
+                    <div className="font-heading font-extrabold text-lg text-[#0757E8] dark:text-[#12CFF3]">347 Signs</div>
+                    <p className="text-xs text-[#64748B] dark:text-slate-400">Pre-installed video gestures</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#040913] border border-slate-200/70 dark:border-slate-800/80 space-y-1">
+                    <div className="font-heading font-extrabold text-lg text-[#0757E8] dark:text-[#12CFF3]">0 KB Data</div>
+                    <p className="text-xs text-[#64748B] dark:text-slate-400">100% offline playback</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#040913] border border-slate-200/70 dark:border-slate-800/80 space-y-1">
+                    <div className="font-heading font-extrabold text-lg text-[#0757E8] dark:text-[#12CFF3]">Instant</div>
+                    <p className="text-xs text-[#64748B] dark:text-slate-400">Speech & text translation</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 pt-4">
+                  <a
+                    href="/download-apk"
+                    download="signaction.apk"
+                    className="inline-flex items-center gap-2.5 text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-8 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                  >
+                    <Download size={18} />
+                    <span>Download Android APK (145 MB)</span>
+                  </a>
+                  <span className="text-xs font-medium text-[#64748B] dark:text-slate-400">
+                    Supports Android 8.0+ • Free & Ad-free
+                  </span>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="relative w-64 sm:w-72 aspect-[9/18.5] bg-black rounded-[48px] p-3 shadow-2xl border-4 border-slate-800 dark:border-slate-700">
+                  <div className="w-full h-full rounded-[40px] overflow-hidden bg-[#FAF9F6] dark:bg-[#050B14] flex flex-col items-center justify-between p-6 text-center">
+                    <div className="w-20 h-4 bg-black rounded-full mb-4" />
+                    <div className="space-y-3">
+                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white shadow-lg">
+                        <Smartphone size={32} />
+                      </div>
+                      <h4 className="font-heading font-extrabold text-xl text-[#062B5C] dark:text-white">SignAction</h4>
+                      <p className="text-xs text-[#64748B] dark:text-slate-400">Indian Sign Language Offline Engine</p>
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                        ✓ All 347 Gestures Offline
+                      </span>
+                    </div>
+                    <a
+                      href="/download-apk"
+                      download="signaction.apk"
+                      className="w-full py-3 rounded-full bg-[#0757E8] text-white text-xs font-bold shadow-md hover:bg-[#064BD1] transition-all"
+                    >
+                      Install on Phone
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 8. REFINED FINAL CALL TO ACTION                                           */}
       {/* ========================================================================= */}
       <section className="py-20 sm:py-28 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -806,11 +900,20 @@ export default function LandingPage() {
                 <ArrowRight size={17} />
               </Link>
 
-              <Link
-                href="/dictionary"
+              <a
+                href="/download-apk"
+                download="signaction.apk"
                 className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-8 py-3.5 transition-all"
               >
-                <span>Explore Sign Dictionary</span>
+                <Smartphone size={16} className="text-[#12CFF3]" />
+                <span>Download Android APK</span>
+              </a>
+
+              <Link
+                href="/dictionary"
+                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-slate-300 hover:text-white px-6 py-3.5 transition-colors"
+              >
+                <span>Explore Dictionary</span>
               </Link>
             </div>
 
