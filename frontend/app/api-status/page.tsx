@@ -43,12 +43,12 @@ export default function ApiStatusPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#38BDF8] mb-5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0757E8] dark:bg-[#38BDF8]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-5">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
               <span>Infrastructure Health</span>
             </div>
             <h1 className="font-heading font-extrabold text-3xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-3">
-              System & API <span className="text-[#0757E8] dark:text-[#38BDF8]">Status</span>
+              System & API <span className="text-[#0757E8] dark:text-[#12CFF3]">Status</span>
             </h1>
             <p className="text-sm md:text-base text-[#64748B] dark:text-slate-400">
               Live health monitor and roundtrip latency check for SignAction backend services.

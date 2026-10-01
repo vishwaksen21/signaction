@@ -7,6 +7,7 @@ import {
   Search,
   Filter,
   BookOpen,
+  Sparkles,
   X,
   Play,
   Pause,
@@ -130,18 +131,18 @@ export default function DictionaryPage() {
         {/* Header */}
         <div className="mb-10 text-center max-w-2xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#38BDF8] mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0757E8] dark:bg-[#38BDF8]" />
-              <span>Offline Gesture Library · 347 ISL Signs</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:text-[#12CFF3]" />
+              <span>Offline Gesture Library • 347 ISL Signs</span>
             </div>
-            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-3">
-              Sign Gesture <span className="text-[#0757E8] dark:text-[#38BDF8]">Dictionary</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-4">
+              Sign Gesture <span className="text-[#0757E8] dark:text-[#12CFF3]">Dictionary</span>
             </h1>
-            <p className="text-sm sm:text-base text-[#64748B] dark:text-slate-400">
+            <p className="text-base sm:text-lg text-[#64748B] dark:text-slate-400">
               Browse and play verified Indian Sign Language gestures, alphabet fingerspellings, and common expressions offline.
             </p>
           </motion.div>
@@ -360,21 +361,21 @@ export default function DictionaryPage() {
       <AnimatePresence>
         {selectedSign && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-xs"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm"
             onClick={() => setSelectedSignIndex(null)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 10 }}
+              initial={{ opacity: 0, scale: 0.94, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 10 }}
-              transition={{ duration: 0.15 }}
+              exit={{ opacity: 0, scale: 0.94, y: 15 }}
+              transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Modal Top Header */}
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#0757E8] flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white font-bold">
                     {selectedSign.token.slice(0, 1)}
                   </div>
                   <div>
@@ -388,16 +389,16 @@ export default function DictionaryPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#38BDF8] border border-blue-200 dark:border-blue-900">
+                  <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/80 dark:border-blue-900/60">
                     {selectedSign.media_type}
                   </span>
                   <button
                     type="button"
                     onClick={() => setSelectedSignIndex(null)}
                     aria-label="Close gesture preview"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <X size={16} />
+                    <X size={18} />
                   </button>
                 </div>
               </div>

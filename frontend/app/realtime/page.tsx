@@ -210,12 +210,12 @@ export default function RealtimePage() {
         {/* Header & Mode Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-2">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#38BDF8]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0757E8] dark:bg-[#38BDF8]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3]">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
               <span>Real-Time Audio Stream</span>
             </div>
-            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#062B5C] dark:text-white tracking-tight leading-tight">
-              Live Speech to <span className="text-[#0757E8] dark:text-[#38BDF8]">Signs</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#062B5C] dark:text-white tracking-[-0.03em] leading-tight">
+              Live Speech to <span className="text-[#0757E8] dark:text-[#12CFF3]">Signs</span>
             </h1>
             <p className="text-sm sm:text-base text-[#64748B] dark:text-slate-400 max-w-lg">
               {mode === 'online'
@@ -227,17 +227,17 @@ export default function RealtimePage() {
           <div className="flex items-center gap-3">
             {/* Offline model status */}
             {mode === 'offline' && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-xs">
+              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs">
                 <Check size={12} className="stroke-[3]" />
                 <span>Model Ready</span>
               </div>
             )}
 
             {/* Mode toggle */}
-            <div className="flex items-center bg-[#F4F6F9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-xs">
+            <div className="flex items-center bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 rounded-full p-1 shadow-2xs">
               <button
                 onClick={() => setMode('online')}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   mode === 'online'
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
@@ -254,7 +254,7 @@ export default function RealtimePage() {
                     setMode('offline');
                   }
                 }}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   mode === 'offline'
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'

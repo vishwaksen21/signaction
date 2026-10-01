@@ -57,11 +57,11 @@ export function SignCard({
       onClick={onClick}
       onMouseEnter={() => setIsPlaying(true)}
       onMouseLeave={() => setIsPlaying(false)}
-      className="sign-card p-4 sm:p-5 h-full flex flex-col gap-3 group hover:border-[#0757E8]/40 hover:shadow-sm transition-all duration-150 cursor-pointer select-none relative"
+      className="sign-card p-4 sm:p-5 h-full flex flex-col gap-3 group hover:border-[#0757E8]/50 hover:shadow-lg transition-all duration-200 cursor-pointer select-none relative"
     >
       {/* Header info */}
       <div className="flex items-center justify-between gap-2">
-        <span className="font-heading font-extrabold text-base sm:text-lg text-[#062B5C] dark:text-white tracking-tight truncate group-hover:text-[#0757E8] dark:group-hover:text-[#38BDF8] transition-colors">
+        <span className="font-heading font-extrabold text-base sm:text-lg text-[#062B5C] dark:text-white tracking-tight truncate group-hover:text-[#0757E8] dark:group-hover:text-[#12CFF3] transition-colors">
           {token}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -71,14 +71,14 @@ export function SignCard({
               LIVE
             </span>
           )}
-          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#38BDF8] border border-blue-200 dark:border-blue-900">
+          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/70 dark:border-blue-900/50">
             {mediaType}
           </span>
         </div>
       </div>
 
       {/* Video Container */}
-      <div className="relative w-full aspect-video md:aspect-square rounded-xl border border-slate-200 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-950 overflow-hidden flex items-center justify-center transition-all">
+      <div className="relative w-full aspect-video md:aspect-square rounded-xl border border-slate-200/80 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-950 overflow-hidden flex items-center justify-center transition-all">
         {isVisible ? (
           <div className="w-full h-full flex items-center justify-center">
             <SignViewer
@@ -106,7 +106,7 @@ export function SignCard({
             type="button"
             onClick={togglePlay}
             aria-label={isPlaying ? `Pause ${token} gesture` : `Play ${token} gesture`}
-            className="w-8 h-8 rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs shadow-xs border border-slate-200 dark:border-slate-700 text-[#0757E8] dark:text-[#38BDF8] flex items-center justify-center transition-colors active:scale-95 focus-ring"
+            className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center transition-transform hover:scale-110 active:scale-95 focus-ring"
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
           </button>
@@ -118,7 +118,7 @@ export function SignCard({
                 onClick();
               }}
               aria-label={`Expand ${token} gesture`}
-              className="w-8 h-8 rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs shadow-xs border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#0757E8] flex items-center justify-center transition-colors active:scale-95 focus-ring"
+              className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#0757E8] flex items-center justify-center transition-transform hover:scale-110 active:scale-95 focus-ring"
             >
               <Maximize2 size={13} />
             </button>
@@ -137,7 +137,7 @@ export function SignCard({
       {/* Footer hint */}
       <div className="flex items-center justify-between text-[11px] text-[#64748B] dark:text-slate-400 font-medium pt-0.5">
         <span className="truncate">Tap to {isPlaying ? 'pause' : 'play'}</span>
-        <span className="text-[#0757E8] dark:text-[#38BDF8] font-semibold group-hover:underline">
+        <span className="text-[#0757E8] dark:text-[#12CFF3] font-semibold group-hover:underline">
           View details →
         </span>
       </div>

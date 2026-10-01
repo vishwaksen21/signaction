@@ -5,10 +5,13 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Hand,
-  Cpu,
+  Sparkles,
+  Zap,
   WifiOff,
   Shield,
   Layers,
+  ArrowDown,
+  CheckCircle2,
 } from 'lucide-react';
 import { TranslatorInput } from '../../components/translator-input';
 import { GestureSequencePlayer } from '../../components/gesture-sequence-player';
@@ -79,12 +82,12 @@ export default function TranslatorPage() {
         {/* Header & Offline-First Badge */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-2">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#38BDF8]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0757E8] dark:bg-[#38BDF8]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3]">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
               <span>English → Indian Sign Language</span>
             </div>
-            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#062B5C] dark:text-white tracking-tight leading-tight">
-              Translate to <span className="text-[#0757E8] dark:text-[#38BDF8]">Sign Gestures</span>
+            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#062B5C] dark:text-white tracking-[-0.03em] leading-tight">
+              Translate to <span className="text-[#0757E8] dark:text-[#12CFF3]">Sign Gestures</span>
             </h1>
             <p className="text-sm sm:text-base text-[#64748B] dark:text-slate-400 max-w-lg">
               Convert written English or spoken audio into continuous, grammatically structured Indian Sign Language.
@@ -93,8 +96,8 @@ export default function TranslatorPage() {
 
           {/* Offline Status Badge */}
           <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>100% Offline Ready</span>
             </div>
             <p className="text-[11px] text-[#64748B] dark:text-slate-400">
@@ -105,7 +108,7 @@ export default function TranslatorPage() {
 
         {/* Global Error Banner */}
         {error && (
-          <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm flex items-center justify-between">
             <span>{error.message}</span>
             <button
               onClick={() => { translateText.reset(); translateSpeech.reset(); }}
@@ -120,9 +123,9 @@ export default function TranslatorPage() {
         {/* SECTION 1: INPUT CARD                                                     */}
         {/* ========================================================================= */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.4 }}
         >
           <TranslatorInput
             text={text}
@@ -137,15 +140,15 @@ export default function TranslatorPage() {
         {/* Pipeline Progression Indicator */}
         {hasResult && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center justify-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 py-1"
+            className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 py-1"
           >
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">English Text</span>
-            <span className="text-[#0757E8] dark:text-[#38BDF8]">→</span>
-            <span className="px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#38BDF8] border border-blue-200 dark:border-blue-900">ISL Gloss</span>
-            <span className="text-[#0757E8] dark:text-[#38BDF8]">→</span>
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">Sign Gestures</span>
+            <span className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">English Text</span>
+            <span className="text-[#0757E8]">→</span>
+            <span className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200 dark:border-blue-900">ISL Gloss</span>
+            <span className="text-[#0757E8]">→</span>
+            <span className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">Sign Gestures</span>
           </motion.div>
         )}
 
@@ -155,15 +158,15 @@ export default function TranslatorPage() {
         <AnimatePresence>
           {hasResult && displayGloss && (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
               className="sign-card"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-5">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#38BDF8] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <Layers size={16} />
                   </div>
                   <h3 className="font-heading text-lg font-bold text-[#062B5C] dark:text-white">
@@ -171,17 +174,17 @@ export default function TranslatorPage() {
                   </h3>
                 </div>
                 <span className="text-xs font-medium text-[#64748B] dark:text-slate-400">
-                  Linguistic Transformation
+                  NLP Grammatical Transformation
                 </span>
               </div>
 
               {/* Gloss Display Typography */}
-              <div className="p-5 rounded-xl bg-[#F4F6F9] dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <div className="font-mono text-base sm:text-lg font-bold tracking-wider text-[#062B5C] dark:text-white uppercase leading-relaxed break-words">
+              <div className="p-6 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+                <div className="font-mono text-lg sm:text-xl font-bold tracking-wider text-[#062B5C] dark:text-white uppercase leading-relaxed break-words">
                   {displayGloss}
                 </div>
                 {displayInputText && (
-                  <p className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-[#64748B] dark:text-slate-400">
+                  <p className="mt-3 pt-3 border-t border-slate-200/80 dark:border-slate-800 text-xs text-[#64748B] dark:text-slate-400">
                     Source text: &ldquo;{displayInputText}&rdquo;
                   </p>
                 )}
@@ -196,16 +199,16 @@ export default function TranslatorPage() {
         <AnimatePresence>
           {hasResult && displayTokens.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3, delay: 0.05 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
               className="sign-card"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-5">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#38BDF8] flex items-center justify-center">
-                    <Cpu size={16} />
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                    <Zap size={16} />
                   </div>
                   <h3 className="font-heading text-lg font-bold text-[#062B5C] dark:text-white">
                     Tokens ({displayTokens.length})
@@ -217,7 +220,7 @@ export default function TranslatorPage() {
               </div>
 
               {/* Token Chips */}
-              <div className="p-4 rounded-xl bg-[#F4F6F9] dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                 <TokenChips
                   tokens={displayTokens}
                   activeIndex={activeTokenIndex}
@@ -231,9 +234,9 @@ export default function TranslatorPage() {
         {/* SECTION 4: GESTURE PLAYBACK SECTION                                       */}
         {/* ========================================================================= */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
           className="sign-card"
         >
           <GestureSequencePlayer

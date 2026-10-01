@@ -6,4 +6,3 @@ dist/
 .next/
 out/
 .tmp-api-routes/
-*.tsbuildinfo

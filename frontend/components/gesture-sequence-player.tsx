@@ -92,19 +92,19 @@ export function GestureSequencePlayer({
   return (
     <div className="flex flex-col gap-4">
       {/* Player Top Header matching specification */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-slate-800">
         <h3 className="font-heading text-base sm:text-lg font-bold text-[#062B5C] dark:text-white">
           Gesture Playback
         </h3>
         {gestures.length > 0 && (
-          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#F4F6F9] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#0757E8] dark:text-[#38BDF8]">
+          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#F0F4F8] dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3]">
             Gesture {index + 1} of {gestures.length}
           </span>
         )}
       </div>
 
       {/* Playback Frame */}
-      <div className="relative group aspect-video w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-950 overflow-hidden shadow-xs">
+      <div className="relative group aspect-video w-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-950 overflow-hidden shadow-xs">
         {current ? (
           <div className="absolute inset-0">
             <SignViewer
@@ -117,8 +117,8 @@ export function GestureSequencePlayer({
         ) : (
           <div className="absolute inset-0 flex items-center justify-center p-6 bg-[#FAF9F6] dark:bg-slate-900">
             <div className="text-center space-y-3">
-              <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#38BDF8] border border-slate-200 dark:border-slate-700 shadow-xs">
-                <Hand size={22} />
+              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] border border-slate-200/90 dark:border-slate-700 shadow-xs">
+                <Hand size={24} />
               </div>
               <div className="space-y-1">
                 <p className="font-heading text-base font-bold text-[#062B5C] dark:text-white">
@@ -134,8 +134,8 @@ export function GestureSequencePlayer({
 
         {/* Floating Active Word Tag */}
         {tokens && tokens[index] && gestures.length > 0 && (
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border border-slate-200 dark:border-slate-700 shadow-xs z-10">
-            <span className="text-xs font-mono font-bold text-[#0757E8] dark:text-[#38BDF8]">
+          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xs z-10">
+            <span className="text-xs font-mono font-bold text-[#0757E8] dark:text-[#12CFF3]">
               {tokens[index]}
             </span>
           </div>

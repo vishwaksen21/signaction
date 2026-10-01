@@ -17,20 +17,23 @@ export function TokenChips({ tokens, activeIndex }: TokenChipsProps) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2.5">
       {tokens.map((token, idx) => {
         const isActive = activeIndex !== undefined && activeIndex === idx;
         return (
-          <div
+          <motion.div
             key={idx}
-            className={`inline-flex items-center justify-center text-xs font-mono font-semibold tracking-wide rounded-lg px-3 py-1.5 border transition-colors duration-150 cursor-default select-none ${
+            whileHover={{ y: -2 }}
+            className={`inline-flex items-center justify-center text-xs sm:text-sm font-semibold tracking-wide rounded-full px-4 py-2 border transition-all duration-200 cursor-default select-none ${
               isActive
-                ? 'bg-[#0757E8] text-white border-[#0757E8] shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-[#0F172A] dark:text-slate-200 border-slate-200 dark:border-slate-800 shadow-xs'
+                ? 'bg-[#0757E8] text-white border-[#0757E8] shadow-[0_4px_14px_rgba(7,87,232,0.25)] scale-105'
+                : 'bg-white dark:bg-slate-900 text-[#062B5C] dark:text-slate-200 border-slate-200/90 dark:border-slate-800 hover:border-[#0757E8] hover:bg-slate-50 dark:hover:bg-slate-800 shadow-2xs'
             }`}
           >
+            <span className="opacity-60 mr-1">[</span>
             <span>{token.toUpperCase()}</span>
-          </div>
+            <span className="opacity-60 ml-1">]</span>
+          </motion.div>
         );
       })}
     </div>

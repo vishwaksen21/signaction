@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Mic2, Upload, Loader2, FileAudio } from 'lucide-react';
+import { Send, Mic2, Upload } from 'lucide-react';
 import { SpeechRecorder } from './speech-recorder';
 
 const TARGET_SAMPLE_RATE = 16000;
@@ -249,17 +249,15 @@ export function TranslatorInput({
             </div>
 
             {converting && (
-              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
-                <Loader2 size={14} className="animate-spin text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>Standardizing audio to 16kHz WAV format…</span>
+              <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+                <span className="animate-spin">⏳</span> Standardizing audio to 16kHz WAV format…
               </div>
             )}
 
             {audioFile && !converting && (
-              <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#38BDF8] text-xs font-semibold flex items-center gap-2">
-                <FileAudio size={15} className="shrink-0 text-[#0757E8] dark:text-[#38BDF8]" />
-                <span>Ready for translation:</span>
-                <span className="font-mono text-[11px]">{audioFile.name}</span>
+              <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] text-xs font-semibold flex items-center gap-2">
+                <span>📁 Ready for translation:</span>
+                <span className="font-mono">{audioFile.name}</span>
               </div>
             )}
 

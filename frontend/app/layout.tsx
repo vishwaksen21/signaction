@@ -8,18 +8,17 @@ import { ApkDownloadFab } from '../components/apk-download-fab';
 import { ServiceWorkerRegister } from '../components/sw-register';
 
 export const metadata: Metadata = {
-  title: 'SignAction — Indian Sign Language Translator',
+  title: 'SignAction - Sign Language Translator',
   description:
-    'Convert spoken audio and written English into verified Indian Sign Language gestures. 100% on-device, private, and offline-first.',
+    'Translate text and speech into sign language gestures.',
   keywords: [
-    'Indian Sign Language',
+    'sign language',
     'ISL',
     'accessibility',
-    'sign language translator',
-    'offline translation',
-    'speech to sign',
+    'translation',
+    'offline',
   ],
-  authors: [{ name: 'SignAction Project' }],
+  authors: [{ name: 'SignAction' }],
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48' },
@@ -37,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0757E8',
+  themeColor: '#0066cc',
   width: 'device-width',
   initialScale: 1,
 };
@@ -49,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-[#FAF9F6] dark:bg-[#050B14] text-[#0F172A] dark:text-slate-100 antialiased selection:bg-[#0EA5E9]/20 selection:text-[#062B5C]">
+      <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
         <Providers>
           {/* Floating Pill Navbar */}
           <Navbar />
