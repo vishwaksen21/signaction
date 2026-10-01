@@ -839,25 +839,127 @@ export default function LandingPage() {
               </div>
 
               <div className="lg:col-span-5 flex justify-center">
-                <div className="relative w-64 sm:w-72 aspect-[9/18.5] bg-black rounded-[48px] p-3 shadow-2xl border-4 border-slate-800 dark:border-slate-700">
-                  <div className="w-full h-full rounded-[40px] overflow-hidden bg-[#FAF9F6] dark:bg-[#050B14] flex flex-col items-center justify-between p-6 text-center">
-                    <div className="w-20 h-4 bg-black rounded-full mb-4" />
-                    <div className="space-y-3">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white shadow-lg">
-                        <Smartphone size={32} />
-                      </div>
-                      <h4 className="font-heading font-extrabold text-xl text-[#062B5C] dark:text-white">SignAction</h4>
-                      <p className="text-xs text-[#64748B] dark:text-slate-400">Indian Sign Language Offline Engine</p>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                        ✓ All 347 Gestures Offline
+                {/* Authentic iPhone 16 / 15 Pro Chassis */}
+                <div className="relative w-[280px] sm:w-[310px] aspect-[9/19.2] bg-gradient-to-b from-[#383A40] via-[#1D1E22] to-[#2E2F35] rounded-[52px] p-[10px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.12)_inset,0_0_35px_rgba(7,87,232,0.18)] ring-1 ring-slate-800">
+                  {/* Physical Hardware Buttons */}
+                  {/* Left: Action Button */}
+                  <div className="absolute -left-[3.5px] top-[88px] w-[3.5px] h-[24px] bg-[#42444A] rounded-l-sm border-r border-[#1B1B1E] shadow-sm" />
+                  {/* Left: Volume Up */}
+                  <div className="absolute -left-[3.5px] top-[126px] w-[3.5px] h-[48px] bg-[#42444A] rounded-l-sm border-r border-[#1B1B1E] shadow-sm" />
+                  {/* Left: Volume Down */}
+                  <div className="absolute -left-[3.5px] top-[186px] w-[3.5px] h-[48px] bg-[#42444A] rounded-l-sm border-r border-[#1B1B1E] shadow-sm" />
+                  {/* Right: Side / Power Button */}
+                  <div className="absolute -right-[3.5px] top-[138px] w-[3.5px] h-[68px] bg-[#42444A] rounded-r-sm border-l border-[#1B1B1E] shadow-sm" />
+
+                  {/* Top Bezel Ear-Speaker Slit */}
+                  <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-12 h-[3px] bg-[#111215] rounded-full z-30" />
+
+                  {/* Antenna Breaks */}
+                  <div className="absolute top-[68px] -left-[1px] w-[2px] h-[4px] bg-slate-500/40 rounded-full" />
+                  <div className="absolute bottom-[68px] -left-[1px] w-[2px] h-[4px] bg-slate-500/40 rounded-full" />
+                  <div className="absolute top-[68px] -right-[1px] w-[2px] h-[4px] bg-slate-500/40 rounded-full" />
+                  <div className="absolute bottom-[68px] -right-[1px] w-[2px] h-[4px] bg-slate-500/40 rounded-full" />
+
+                  {/* Inner Screen Display */}
+                  <div className="relative w-full h-full rounded-[42px] overflow-hidden bg-[#FAF9F6] dark:bg-[#050B14] flex flex-col justify-between border-[2.5px] border-black select-none p-5 pt-3">
+                    
+                    {/* iOS Status Bar */}
+                    <div className="relative w-full flex items-center justify-between z-20 px-1 pt-1 pb-1">
+                      {/* Left: Current Time */}
+                      <span className="text-[12px] font-semibold tracking-tight text-slate-900 dark:text-white pl-1 select-none">
+                        9:41
                       </span>
+
+                      {/* Center: Dynamic Island */}
+                      <div className="relative w-[96px] h-[26px] bg-black rounded-full flex items-center justify-between px-2.5 shadow-sm mx-auto">
+                        {/* Front Camera Lens with Blue Optical Reflection */}
+                        <div className="w-3 h-3 rounded-full bg-[#080A10] ring-[0.5px] ring-[#1E2333] flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#12284C]" />
+                        </div>
+                        {/* Proximity / Light Sensor */}
+                        <div className="w-2 h-2 rounded-full bg-[#040508]" />
+                      </div>
+
+                      {/* Right: Cellular Signal, Wi-Fi & Battery */}
+                      <div className="flex items-center gap-1.5 pr-1 select-none">
+                        {/* Cellular 4-Bar Signal */}
+                        <svg className="w-3.5 h-2.5 fill-slate-900 dark:fill-white" viewBox="0 0 17 12">
+                          <rect x="0" y="9" width="3" height="3" rx="0.5" />
+                          <rect x="4.5" y="6" width="3" height="6" rx="0.5" />
+                          <rect x="9" y="3" width="3" height="9" rx="0.5" />
+                          <rect x="13.5" y="0" width="3" height="12" rx="0.5" />
+                        </svg>
+                        {/* Wi-Fi Icon */}
+                        <svg className="w-3 h-3 fill-slate-900 dark:fill-white" viewBox="0 0 16 12">
+                          <path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM3.05 6.05a7 7 0 019.9 0l-1.4 1.4a5 5 0 00-7.1 0l-1.4-1.4zM.22 3.22a11 11 0 0115.56 0l-1.4 1.4a9 9 0 00-12.76 0L.22 3.22z" />
+                        </svg>
+                        {/* Battery Level Indicator */}
+                        <div className="flex items-center">
+                          <div className="w-[18px] h-[9.5px] rounded-[3px] border border-slate-900 dark:border-white p-[1px] flex items-center">
+                            <div className="w-[12px] h-full bg-slate-900 dark:bg-white rounded-[1.5px]" />
+                          </div>
+                          <div className="w-[1px] h-[3.5px] bg-slate-900 dark:bg-white rounded-r-[1px] ml-[0.5px]" />
+                        </div>
+                      </div>
                     </div>
-                    <a
-                      href={OFFICIAL_APK_DOWNLOAD_URL}
-                      className="w-full py-3 rounded-full bg-[#0757E8] text-white text-xs font-bold shadow-md hover:bg-[#064BD1] transition-all"
-                    >
-                      Install on Phone
-                    </a>
+
+                    {/* App Hero Presentation */}
+                    <div className="space-y-3.5 my-auto text-center">
+                      {/* Official SignAction App Logo */}
+                      <div className="relative w-20 h-20 mx-auto rounded-[22%] p-2.5 bg-white dark:bg-slate-900 shadow-[0_10px_25px_rgba(7,87,232,0.22)] border border-slate-200/80 dark:border-slate-800 flex items-center justify-center overflow-hidden transition-transform duration-300 hover:scale-105">
+                        <Image
+                          src="/logo.png"
+                          alt="SignAction App Icon"
+                          width={72}
+                          height={72}
+                          className="w-full h-full object-contain select-none"
+                          priority
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <h4 className="font-heading font-extrabold text-2xl text-[#062B5C] dark:text-white tracking-tight">
+                          Sign<span className="text-[#0757E8] dark:text-[#12CFF3]">Action</span>
+                        </h4>
+                        <p className="text-xs text-[#64748B] dark:text-slate-400 font-medium">
+                          Indian Sign Language Offline Engine
+                        </p>
+                      </div>
+
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400" />
+                        <span>All 347 Gestures Offline</span>
+                      </div>
+
+                      {/* On-Device Vosk Speech & Gloss Feature Card */}
+                      <div className="p-3 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-left space-y-1.5 shadow-xs">
+                        <div className="flex items-center justify-between text-[11px] font-bold">
+                          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            Vosk Speech-to-Gloss
+                          </span>
+                          <span className="text-[#0757E8] dark:text-[#12CFF3] font-mono text-[10px]">Zero Cloud</span>
+                        </div>
+                        <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                          &ldquo;Namaste, how can I help you?&rdquo;
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom CTA & iOS Home Indicator */}
+                    <div className="w-full space-y-2 pt-2">
+                      <a
+                        href={OFFICIAL_APK_DOWNLOAD_URL}
+                        className="w-full py-3.5 rounded-full bg-[#0757E8] hover:bg-[#064BD1] text-white text-xs font-bold shadow-[0_4px_16px_rgba(7,87,232,0.35)] transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                      >
+                        <Download size={15} />
+                        <span>Install on Phone</span>
+                      </a>
+
+                      {/* iOS Bottom Home Bar */}
+                      <div className="w-32 h-1 bg-slate-900/40 dark:bg-white/40 rounded-full mx-auto mt-2 mb-0.5 shrink-0" />
+                    </div>
+
                   </div>
                 </div>
               </div>
