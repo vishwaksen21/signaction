@@ -114,7 +114,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Research Paper CTA */}
+      {/* Linguistic Architecture & Grammar Engine */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -127,7 +127,7 @@ export default function AboutPage() {
           </div>
           <div className="flex-1">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] text-[11px] font-semibold uppercase tracking-wider mb-3 border border-blue-200/80 dark:border-blue-900/50">
-              Research Architecture
+              Grammar Engine
             </div>
             <h2 className="font-heading text-2xl font-bold text-[#062B5C] dark:text-white mb-2">
               Linguistic Integrity & Low-Latency Synthesis

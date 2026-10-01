@@ -310,7 +310,7 @@ export default function LandingPage() {
                 Community-Led Accessibility
               </div>
               <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-[#062B5C] dark:text-white tracking-tight leading-snug">
-                Designed alongside Deaf educators, researchers, and students across India.
+                Designed alongside Deaf educators, community advocates, and students across India.
               </h3>
             </div>
 
@@ -693,7 +693,7 @@ export default function LandingPage() {
                   href="/about"
                   className="inline-flex items-center gap-2 text-sm font-heading font-bold text-[#0757E8] dark:text-[#12CFF3] hover:underline"
                 >
-                  <span>Explore our research and linguistic documentation</span>
+                  <span>Explore the ISL grammar and translation engine</span>
                   <ArrowRight size={15} />
                 </Link>
               </div>
