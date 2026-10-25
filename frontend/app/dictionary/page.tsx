@@ -1,24 +1,18 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
   Filter,
-  BookOpen,
-  Sparkles,
   X,
-  Play,
-  Pause,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
   Copy,
   Check,
-  RotateCcw,
   Gauge,
-  Video,
 } from 'lucide-react';
 import { useDictionary } from '../../hooks/use-dictionary';
 import { SignCard } from '../../components/sign-card';
@@ -36,9 +30,10 @@ const CATEGORIES = [
 ];
 
 const GREETINGS_KEYWORDS = [
-  'HELLO', 'HI', 'NAMASTE', 'GOOD', 'MORNING', 'AFTERNOON', 'NIGHT',
-  'THANK YOU', 'PLEASE', 'WELCOME', 'SORRY', 'HELP', 'BYE', 'YES', 'NO',
-  'HOW ARE YOU', 'FINE', 'HAPPY', 'LOVE', 'FRIEND', 'WATER', 'FOOD'
+  'HELLO', 'HI', 'NAMASTE', 'GOOD', 'GOOD_MORNING', 'GOOD_AFTERNOON', 'GOOD_NIGHT',
+  'MORNING', 'AFTERNOON', 'NIGHT', 'THANK', 'THANK_YOU', 'PLEASE', 'WELCOME',
+  'SORRY', 'EXCUSE_ME', 'MY_NAME_IS', 'I_UNDERSTAND', 'HELP', 'BYE', 'YES', 'NO',
+  'FINE', 'HAPPY', 'LOVE', 'FRIEND', 'FOOD',
 ];
 
 export default function DictionaryPage() {
@@ -61,10 +56,12 @@ export default function DictionaryPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toUpperCase();
+    const normalizedQ = q.replace(/\s+/g, '_');
     const items: DictionaryItem[] = data?.items ?? [];
 
     return items.filter((i) => {
       const tok = i.token.toUpperCase();
+      const readableTok = tok.replace(/_/g, ' ');
 
       // Category filter
       if (category === 'alpha') {
@@ -72,16 +69,18 @@ export default function DictionaryPage() {
       } else if (category === 'num') {
         if (!/^[0-9]+$/.test(tok)) return false;
       } else if (category === 'greetings') {
-        const matchesGreeting = GREETINGS_KEYWORDS.some((kw) => tok.includes(kw));
+        const matchesGreeting = GREETINGS_KEYWORDS.some(
+          (kw) => tok === kw || tok.startsWith(`${kw}_`) || tok.endsWith(`_${kw}`)
+        );
         if (!matchesGreeting) return false;
       }
 
       // Letter filter
       if (letter && !tok.startsWith(letter)) return false;
 
-      // Search query
+      // Search query (supports spaces or underscores, e.g. "THANK YOU" or "THANK_YOU")
       if (!q) return true;
-      return tok.includes(q);
+      return tok.includes(q) || tok.includes(normalizedQ) || readableTok.includes(q);
     });
   }, [data, query, letter, category]);
 
@@ -93,19 +92,26 @@ export default function DictionaryPage() {
     ? filtered[selectedSignIndex]
     : null;
 
-  const handlePrevSign = () => {
-    if (selectedSignIndex === null) return;
-    setSelectedSignIndex((prev) => (prev! > 0 ? prev! - 1 : filtered.length - 1));
-  };
+  const handlePrevSign = useCallback(() => {
+    setSelectedSignIndex((prev) => {
+      if (prev === null || filtered.length === 0) return null;
+      return prev > 0 ? prev - 1 : filtered.length - 1;
+    });
+  }, [filtered.length]);
 
-  const handleNextSign = () => {
-    if (selectedSignIndex === null) return;
-    setSelectedSignIndex((prev) => (prev! < filtered.length - 1 ? prev! + 1 : 0));
-  };
+  const handleNextSign = useCallback(() => {
+    setSelectedSignIndex((prev) => {
+      if (prev === null || filtered.length === 0) return null;
+      return prev < filtered.length - 1 ? prev + 1 : 0;
+    });
+  }, [filtered.length]);
 
-  // Keyboard navigation for modal
+  // Keyboard navigation + body scroll lock for modal
   useEffect(() => {
     if (selectedSignIndex === null) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedSignIndex(null);
@@ -114,8 +120,11 @@ export default function DictionaryPage() {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedSignIndex, filtered.length]);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedSignIndex, handlePrevSign, handleNextSign]);
 
   const handleCopyToken = () => {
     if (!selectedSign) return;
@@ -165,7 +174,7 @@ export default function DictionaryPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search gestures by name (e.g. HELLO, THANK YOU, HELP, WATER)..."
+              placeholder="Search gestures by name (e.g. HELLO, THANK YOU, HELP, FOOD)..."
               className="w-full pl-12 pr-10 py-3.5 bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#0757E8]/20 focus:border-[#0757E8] transition-all text-[#062B5C] dark:text-white placeholder:text-slate-400 text-sm md:text-base font-medium"
             />
             {query && (
@@ -224,11 +233,11 @@ export default function DictionaryPage() {
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-1 sm:gap-1.5">
+            <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-1.5 pb-1 -mx-1 px-1">
               <button
                 type="button"
                 onClick={() => setLetter('')}
-                className={`min-h-[36px] px-3 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                className={`min-h-[40px] px-3.5 shrink-0 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
                   letter === ''
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
@@ -242,7 +251,7 @@ export default function DictionaryPage() {
                   key={l}
                   type="button"
                   onClick={() => setLetter(letter === l ? '' : l)}
-                  className={`min-w-[34px] h-9 px-1.5 flex items-center justify-center rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                  className={`min-w-[40px] min-h-[40px] px-2 shrink-0 flex items-center justify-center rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
                     letter === l
                       ? 'bg-[#0757E8] text-white shadow-xs'
                       : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
@@ -361,7 +370,7 @@ export default function DictionaryPage() {
       <AnimatePresence>
         {selectedSign && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm"
             onClick={() => setSelectedSignIndex(null)}
           >
             <motion.div
@@ -370,16 +379,16 @@ export default function DictionaryPage() {
               exit={{ opacity: 0, scale: 0.94, y: 15 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90dvh]"
             >
               {/* Modal Top Header */}
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white font-bold">
+              <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white font-bold shrink-0">
                     {selectedSign.token.slice(0, 1)}
                   </div>
-                  <div>
-                    <h3 className="font-heading font-extrabold text-xl text-[#062B5C] dark:text-white tracking-tight">
+                  <div className="min-w-0">
+                    <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#062B5C] dark:text-white tracking-tight truncate">
                       {selectedSign.token}
                     </h3>
                     <p className="text-xs text-[#64748B] dark:text-slate-400">
@@ -388,7 +397,7 @@ export default function DictionaryPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/80 dark:border-blue-900/60">
                     {selectedSign.media_type}
                   </span>
@@ -396,7 +405,7 @@ export default function DictionaryPage() {
                     type="button"
                     onClick={() => setSelectedSignIndex(null)}
                     aria-label="Close gesture preview"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -411,6 +420,7 @@ export default function DictionaryPage() {
                   loop={true}
                   controls={true}
                   preload="auto"
+                  playbackRate={modalSpeed}
                 />
 
                 {/* Left / Right Quick Carousel Nav */}
@@ -418,7 +428,7 @@ export default function DictionaryPage() {
                   type="button"
                   onClick={handlePrevSign}
                   aria-label="Previous sign"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
+                  className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
                 >
                   <ChevronLeft size={20} />
                 </button>
@@ -427,14 +437,14 @@ export default function DictionaryPage() {
                   type="button"
                   onClick={handleNextSign}
                   aria-label="Next sign"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
+                  className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
                 >
                   <ChevronRight size={20} />
                 </button>
               </div>
 
               {/* Modal Bottom Actions */}
-              <div className="p-6 bg-[#FAF9F6] dark:bg-[#050B14] border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <div className="p-4 sm:p-6 bg-[#FAF9F6] dark:bg-[#050B14] border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
                 
                 {/* Left: Speed toggles */}
                 <div className="flex items-center gap-1.5">
@@ -445,12 +455,8 @@ export default function DictionaryPage() {
                     <button
                       key={spd}
                       type="button"
-                      onClick={() => {
-                        setModalSpeed(spd);
-                        const video = document.querySelector('video');
-                        if (video) video.playbackRate = spd;
-                      }}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      onClick={() => setModalSpeed(spd)}
+                      className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         modalSpeed === spd
                           ? 'bg-[#0757E8] text-white shadow-xs'
                           : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-300'
@@ -466,16 +472,16 @@ export default function DictionaryPage() {
                   <button
                     type="button"
                     onClick={handleCopyToken}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                     <span>{copied ? 'Copied' : 'Copy'}</span>
                   </button>
 
                   <Link
-                    href={`/translator?text=${encodeURIComponent(selectedSign.token)}`}
+                    href={`/translator?text=${encodeURIComponent(selectedSign.token.replace(/_/g, ' '))}`}
                     onClick={() => setSelectedSignIndex(null)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl bg-[#0757E8] hover:bg-[#064BD1] text-white shadow-sm transition-all active:scale-95"
+                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-bold px-4 py-2 rounded-xl bg-[#0757E8] hover:bg-[#064BD1] text-white shadow-sm transition-all active:scale-95"
                   >
                     <span>Use in Translator</span>
                     <ExternalLink size={13} />

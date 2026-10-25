@@ -1,80 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mic, Square, Check } from 'lucide-react';
-
-const TARGET_SAMPLE_RATE = 16000;
-
-function encodeWavPCM16(monoSamples: Float32Array, sampleRate: number): Blob {
-  const numChannels = 1;
-  const bytesPerSample = 2;
-  const blockAlign = numChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-  const dataSize = monoSamples.length * bytesPerSample;
-
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-
-  function writeString(offset: number, s: string) {
-    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
-  }
-
-  writeString(0, 'RIFF');
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, 16, true);
-  writeString(36, 'data');
-  view.setUint32(40, dataSize, true);
-
-  let offset = 44;
-  for (let i = 0; i < monoSamples.length; i++) {
-    const s = Math.max(-1, Math.min(1, monoSamples[i]!));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-    offset += 2;
-  }
-
-  return new Blob([buffer], { type: 'audio/wav' });
-}
-
-async function convertToWav16kHz(file: File): Promise<File> {
-  if (file.type.includes('wav') || file.name.toLowerCase().endsWith('.wav')) return file;
-
-  const arrayBuffer = await file.arrayBuffer();
-  const AudioCtx = window.AudioContext;
-  if (!AudioCtx) throw new Error('AudioContext not available');
-
-  const ctx = new AudioCtx();
-  try {
-    const decoded = await ctx.decodeAudioData(arrayBuffer.slice(0));
-
-    const length = Math.max(1, Math.ceil(decoded.duration * TARGET_SAMPLE_RATE));
-    const offline = new OfflineAudioContext(1, length, TARGET_SAMPLE_RATE);
-    const src = offline.createBufferSource();
-    src.buffer = decoded;
-    src.connect(offline.destination);
-    src.start(0);
-    const rendered = await offline.startRendering();
-
-    const mono = rendered.getChannelData(0);
-    const wavBlob = encodeWavPCM16(mono, TARGET_SAMPLE_RATE);
-    const wavName = file.name.replace(/\.[^.]+$/, '') + '.wav';
-    return new File([wavBlob], wavName, { type: 'audio/wav' });
-  } finally {
-    try {
-      await ctx.close();
-    } catch {
-      // ignore
-    }
-  }
-}
+import { Mic, Square, Check, AlertCircle } from 'lucide-react';
+import { convertToWav16kHz } from '../lib/audio-wav';
 
 export function SpeechRecorder({
   onRecorded,
@@ -85,44 +14,109 @@ export function SpeechRecorder({
 }) {
   const [recording, setRecording] = useState(false);
   const [last, setLast] = useState<File | null>(null);
+  const [recError, setRecError] = useState<string | null>(null);
   const recRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  async function start() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
-    const rec = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-    recRef.current = rec;
-    chunksRef.current = [];
-
-    rec.ondataavailable = (e) => {
-      chunksRef.current.push(e.data);
-    };
-
-    rec.onstop = async () => {
+  useEffect(() => {
+    return () => {
       try {
-        const blob = new Blob(chunksRef.current, { type: rec.mimeType });
-        const raw = new File([blob], `recording.${rec.mimeType.includes('webm') ? 'webm' : 'wav'}`, {
-          type: rec.mimeType,
-        });
-
-        const wav = await convertToWav16kHz(raw);
-        setLast(wav);
-        onRecorded(wav);
+        if (recRef.current && recRef.current.state !== 'inactive') {
+          recRef.current.stop();
+        }
       } catch {
-        alert('Failed to process recording. Please try again.');
-      } finally {
-        stream.getTracks().forEach((t) => t.stop());
+        // ignore
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
       }
     };
+  }, []);
 
-    rec.start();
-    setRecording(true);
+  async function start() {
+    setRecError(null);
+
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setRecError('Microphone access is not available in this browser or context.');
+      return;
+    }
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+    } catch (err: any) {
+      const isDenied = err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError';
+      setRecError(
+        isDenied
+          ? 'Microphone permission denied. Please enable microphone access in browser or Android settings.'
+          : 'Unable to access microphone. Check that a microphone is connected and permitted.'
+      );
+      return;
+    }
+
+    try {
+      const preferredTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+      const mimeType =
+        typeof MediaRecorder !== 'undefined'
+          ? preferredTypes.find((t) => MediaRecorder.isTypeSupported(t)) ?? ''
+          : '';
+      const rec = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+      recRef.current = rec;
+      chunksRef.current = [];
+
+      rec.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      rec.onstop = async () => {
+        try {
+          const actualMime = rec.mimeType || mimeType || 'audio/webm';
+          const blob = new Blob(chunksRef.current, { type: actualMime });
+          if (blob.size === 0) {
+            setRecError('No audio captured. Please hold record for at least a second and speak clearly.');
+            return;
+          }
+          const ext = actualMime.includes('mp4')
+            ? 'm4a'
+            : actualMime.includes('ogg')
+              ? 'ogg'
+              : 'webm';
+          const raw = new File([blob], `recording.${ext}`, {
+            type: actualMime,
+          });
+
+          const wav = await convertToWav16kHz(raw);
+          setLast(wav);
+          onRecorded(wav);
+        } catch {
+          setRecError('Failed to process recording. Please try recording again.');
+        } finally {
+          stream.getTracks().forEach((t) => t.stop());
+          if (streamRef.current === stream) {
+            streamRef.current = null;
+          }
+        }
+      };
+
+      rec.start();
+      setRecording(true);
+    } catch {
+      stream.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      setRecError('Audio recording is not supported on this device.');
+    }
   }
 
   function stop() {
     try {
-      recRef.current?.stop();
+      if (recRef.current && recRef.current.state !== 'inactive') {
+        recRef.current.stop();
+      }
     } catch {
       // ignore
     }
@@ -149,12 +143,13 @@ export function SpeechRecorder({
   return (
     <div className="space-y-3">
       {/* Buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap sm:flex-nowrap gap-2">
         {/* Start Button */}
         <button
+          type="button"
           onClick={start}
           disabled={disabled || recording}
-          className="btn-sign-primary flex-1 flex items-center justify-center gap-2 py-3 text-xs md:text-sm font-bold shadow-md shadow-sign-blue/20"
+          className="btn-sign-primary flex-1 min-h-[48px] flex items-center justify-center gap-2 py-3 text-xs md:text-sm font-bold shadow-md shadow-sign-blue/20"
         >
           <Mic size={18} />
           Start Recording
@@ -162,14 +157,23 @@ export function SpeechRecorder({
 
         {/* Stop Button */}
         <button
+          type="button"
           onClick={stop}
           disabled={disabled || !recording}
-          className="btn-sign-secondary flex items-center justify-center gap-2 py-3 px-5 text-xs md:text-sm font-bold"
+          className="btn-sign-secondary min-h-[48px] flex items-center justify-center gap-2 py-3 px-5 text-xs md:text-sm font-bold"
         >
           <Square size={18} />
           Stop
         </button>
       </div>
+
+      {/* Inline Recording Error */}
+      {recError && (
+        <div className="flex items-start gap-2 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 px-3.5 py-2.5 rounded-xl">
+          <AlertCircle size={15} className="shrink-0 mt-0.5" />
+          <span>{recError}</span>
+        </div>
+      )}
 
       {/* Recording Indicator */}
       {recording && (

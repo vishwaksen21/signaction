@@ -40,7 +40,7 @@ def _media_type_for(suffix: str) -> str:
 def dictionary() -> DictionaryResponse:
     settings = get_settings()
 
-    items: list[DictionaryItem] = []
+    by_token: dict[str, DictionaryItem] = {}
     if not settings.assets_dir.exists():
         return DictionaryResponse(items=[])
 
@@ -56,9 +56,14 @@ def dictionary() -> DictionaryResponse:
 
         token = p.stem.upper().strip().replace(" ", "_")
         rel = p.relative_to(settings.assets_dir).as_posix()
-        items.append(DictionaryItem(token=token, url=f"/assets/{rel}", media_type=_media_type_for(p.suffix)))
+        candidate = DictionaryItem(token=token, url=f"/assets/{rel}", media_type=_media_type_for(p.suffix))
 
-    items.sort(key=lambda i: i.token)
+        # Deduplicate tokens across signs/ and alphabet/, preferring signs/
+        existing = by_token.get(token)
+        if existing is None or (existing.url.startswith("/assets/alphabet/") and rel.startswith("signs/")):
+            by_token[token] = candidate
+
+    items = sorted(by_token.values(), key=lambda i: i.token)
     return DictionaryResponse(items=items)
 
 

@@ -18,25 +18,28 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile Bottom Navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 safe-area-bottom md:hidden shadow-[0_-4px_20px_rgba(10,25,47,0.06)]"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] md:hidden shadow-[0_-4px_20px_rgba(10,25,47,0.06)]"
     >
-      <div className="flex items-center justify-around h-16 px-1">
+      <div className="flex items-center justify-around h-16 px-1.5 max-w-lg mx-auto">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative flex flex-col items-center justify-center gap-1 w-16 h-14 rounded-2xl transition-all duration-200 active:scale-95 ${
+              className={`relative flex-1 min-w-0 max-w-[84px] flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-2xl transition-all duration-200 active:scale-95 focus-ring ${
                 isActive
                   ? 'text-[#0757E8] dark:text-[#12CFF3] font-semibold'
                   : 'text-[#64748B] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
               }`}
             >
               <Icon size={20} strokeWidth={isActive ? 2.4 : 1.8} aria-hidden="true" />
-              <span className="text-[11px] tracking-tight">
+              <span className="text-[11px] leading-none tracking-tight truncate max-w-full px-1">
                 {item.label}
               </span>
               {isActive && (

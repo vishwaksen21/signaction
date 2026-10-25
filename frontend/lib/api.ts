@@ -79,11 +79,23 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
   }
 }
 
-export async function apiHealth(): Promise<{ status: string }> {
+export async function apiHealth(): Promise<{ status: string; mode?: string; message?: string }> {
   return http('/health', { method: 'GET' });
 }
 
 export async function translateText(req: TranslateTextRequest): Promise<TranslateResponse> {
+  // When running in the native offline-first Android APK without a configured remote API,
+  // or when the browser reports offline, translate directly on-device with zero network delay.
+  if ((isNativeApp() && !getApiBase()) || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+    const { translateTextOffline } = await import('./offline-translate');
+    const offlineRes = translateTextOffline(req.text, { allowOnlineFallback: false });
+    return {
+      tokens: offlineRes.tokens,
+      gestures: offlineRes.gestures,
+      gloss: offlineRes.gloss,
+    };
+  }
+
   try {
     const data = await http<TranslateResponse>('/translate-text', {
       method: 'POST',
@@ -92,9 +104,9 @@ export async function translateText(req: TranslateTextRequest): Promise<Translat
     });
     return { ...data, gestures: (data.gestures || []).map(resolveApiUrl) };
   } catch {
-    // Offline fallback: use robust client-side offline translation with fingerspelling
+    // Offline fallback: use robust client-side offline translation with local fingerspelling
     const { translateTextOffline } = await import('./offline-translate');
-    const offlineRes = translateTextOffline(req.text);
+    const offlineRes = translateTextOffline(req.text, { allowOnlineFallback: false });
     return {
       tokens: offlineRes.tokens,
       gestures: offlineRes.gestures,
@@ -104,34 +116,50 @@ export async function translateText(req: TranslateTextRequest): Promise<Translat
 }
 
 export async function translateSpeechOnce(file: File): Promise<TranslateResponse> {
-  try {
-    const form = new FormData();
-    form.append('file', file);
-    const data = await http<TranslateResponse>('/translate-speech', {
-      method: 'POST',
-      body: form,
-    });
-    return { ...data, gestures: (data.gestures || []).map(resolveApiUrl) };
-  } catch (err) {
-    // Offline fallback: transcribe with client-side Vosk WASM + client-side glossify
+  const shouldUseOfflineDirectly =
+    (isNativeApp() && !getApiBase()) ||
+    (typeof navigator !== 'undefined' && !navigator.onLine);
+
+  if (!shouldUseOfflineDirectly) {
     try {
-      const { transcribeAudioFile } = await import('./vosk-stt');
-      const transcript = await transcribeAudioFile(file);
-      const { translateTextOffline } = await import('./offline-translate');
-      const offlineRes = translateTextOffline(transcript || 'hello');
-      return {
-        transcript,
-        tokens: offlineRes.tokens,
-        gestures: offlineRes.gestures,
-        gloss: offlineRes.gloss,
-      };
-    } catch (offlineErr) {
-      throw new Error(
-        `Speech recognition error: ${
-          offlineErr instanceof Error ? offlineErr.message : 'Speech recognition requires an online connection or backend.'
-        }`
-      );
+      const form = new FormData();
+      form.append('file', file);
+      const data = await http<TranslateResponse>('/translate-speech', {
+        method: 'POST',
+        body: form,
+      });
+      if (!data.transcript?.trim() && (!data.tokens || data.tokens.length === 0)) {
+        throw new Error('NO_SPEECH_DETECTED');
+      }
+      return { ...data, gestures: (data.gestures || []).map(resolveApiUrl) };
+    } catch (err) {
+      if (err instanceof Error && err.message === 'NO_SPEECH_DETECTED') {
+        throw new Error('No speech detected. Please speak clearly near the microphone and try again.');
+      }
+      // Fall through to client-side Vosk WASM offline speech recognition
     }
+  }
+
+  try {
+    const { transcribeAudioFile } = await import('./vosk-stt');
+    const transcript = (await transcribeAudioFile(file)).trim();
+    if (!transcript) {
+      throw new Error('No speech detected. Please speak clearly near the microphone and try again.');
+    }
+    const { translateTextOffline } = await import('./offline-translate');
+    const offlineRes = translateTextOffline(transcript, { allowOnlineFallback: false });
+    return {
+      transcript,
+      tokens: offlineRes.tokens,
+      gestures: offlineRes.gestures,
+      gloss: offlineRes.gloss,
+    };
+  } catch (offlineErr) {
+    const msg =
+      offlineErr instanceof Error
+        ? offlineErr.message
+        : 'Speech recognition failed. Ensure microphone access and the offline speech model are available.';
+    throw new Error(msg.startsWith('No speech detected') ? msg : `Speech recognition error: ${msg}`);
   }
 }
 

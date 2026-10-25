@@ -15,9 +15,9 @@ class TranslationResult:
 
 
 def _fingerspell_tokens(token: str) -> list[str]:
-    # Keep only A-Z for a minimal baseline.
-    letters = [c for c in token.upper() if "A" <= c <= "Z"]
-    return letters if letters else [token]
+    # Keep A-Z and 0-9 characters that map to fingerspelling / digit signs.
+    chars = [c for c in token.upper() if ("A" <= c <= "Z") or ("0" <= c <= "9")]
+    return chars if chars else [token]
 
 
 def tokens_to_signs(
@@ -27,6 +27,8 @@ def tokens_to_signs(
     fingerspell_unknown: bool = True,
 ) -> TranslationResult:
     lex_cfg = load_lexicon_config(assets_dir)
+    tokens = [t.upper().strip() for t in tokens if t and t.strip()]
+    tokens = apply_phrase_mapping(tokens, lex_cfg.phrases)
     tokens = apply_aliases(tokens, lex_cfg.aliases)
     tokens = apply_phrase_mapping(tokens, lex_cfg.phrases)
 

@@ -95,8 +95,8 @@ export async function downloadModel(
 ): Promise<ArrayBuffer> {
   // Try local bundled model first (for APK & offline web), then API proxy fallback
   const MODEL_URLS = [
-    '/models/vosk-model-small-en-us-0.15.tar',
     '/models/vosk-model-small-en-us-0.15.tar.gz',
+    '/models/vosk-model-small-en-us-0.15.tar',
     '/api/vosk-model',
   ];
 

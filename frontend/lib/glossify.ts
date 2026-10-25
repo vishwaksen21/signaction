@@ -33,7 +33,64 @@ const AUXILIARIES = new Set([
   'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
   'do', 'does', 'did',
 ]);
-const FILLERS = new Set(['um', 'uh', 'like']);
+const FILLERS = new Set(['um', 'uh']);
+
+const CONTRACTIONS: Record<string, string[]> = {
+  "don't": ['do', 'not'],
+  dont: ['do', 'not'],
+  "doesn't": ['does', 'not'],
+  doesnt: ['does', 'not'],
+  "didn't": ['did', 'not'],
+  didnt: ['did', 'not'],
+  "can't": ['cannot'],
+  cant: ['cannot'],
+  "won't": ['do', 'not'],
+  wont: ['do', 'not'],
+  "isn't": ['is', 'not'],
+  isnt: ['is', 'not'],
+  "aren't": ['are', 'not'],
+  arent: ['are', 'not'],
+  "wasn't": ['was', 'not'],
+  wasnt: ['was', 'not'],
+  "weren't": ['were', 'not'],
+  werent: ['were', 'not'],
+  "i'm": ['i', 'am'],
+  im: ['i', 'am'],
+  "i've": ['i', 'have'],
+  "i'll": ['i', 'will'],
+  "you're": ['you', 'are'],
+  youre: ['you', 'are'],
+  "you've": ['you', 'have'],
+  "you'll": ['you', 'will'],
+  "we're": ['we', 'are'],
+  "we'll": ['we', 'will'],
+  "they're": ['they', 'are'],
+  "they'll": ['they', 'will'],
+  "he's": ['he', 'is'],
+  "she's": ['she', 'is'],
+  "it's": ['it', 'is'],
+  "that's": ['that', 'is'],
+  "what's": ['what', 'is'],
+  whats: ['what', 'is'],
+  "where's": ['where', 'is'],
+  wheres: ['where', 'is'],
+  "who's": ['who', 'is'],
+  whos: ['who', 'is'],
+  "how's": ['how', 'is'],
+  hows: ['how', 'is'],
+  "let's": ['let', 'us'],
+};
+
+const SILENT_E_PAST = new Set([
+  'agreed', 'baked', 'believed', 'cared', 'changed', 'closed', 'compared',
+  'continued', 'created', 'danced', 'decided', 'disagreed', 'escaped',
+  'excited', 'explained', 'hated', 'hoped', 'improved', 'included',
+  'invited', 'liked', 'lived', 'loved', 'measured', 'moved', 'named',
+  'noticed', 'opened', 'phoned', 'placed', 'prepared', 'promised',
+  'received', 'refused', 'removed', 'saved', 'shared', 'smiled', 'solved',
+  'stared', 'stated', 'survived', 'tasted', 'tired', 'typed', 'used',
+  'voted', 'waved', 'wiped',
+]);
 
 /**
  * Simple lemmatizer using common English rules.
@@ -72,8 +129,6 @@ function simpleLemma(word: string): string {
     got: 'get',
     gotten: 'get',
     getting: 'get',
-    better: 'good',
-    best: 'good',
     worse: 'bad',
     worst: 'bad',
     knew: 'know',
@@ -199,18 +254,19 @@ function simpleLemma(word: string): string {
 
   // Past tense: -ed
   if (lower.endsWith('ed') && lower.length > 3) {
-    // Try removing -ed
+    if (SILENT_E_PAST.has(lower)) {
+      return lower.slice(0, -1);
+    }
+    // Handle -ied → -y (e.g., studied → study, cried → cry)
+    if (lower.endsWith('ied') && lower.length > 4) {
+      return lower.slice(0, -3) + 'y';
+    }
     const base = lower.slice(0, -2);
     if (base.length >= 3) {
       // Handle doubled consonant: stopped → stop
       if (base.length >= 4 && base[base.length - 1] === base[base.length - 2]) {
         return base.slice(0, -1);
       }
-      // Handle -ied → -y
-      if (lower.endsWith('ied')) {
-        return lower.slice(0, -3) + 'y';
-      }
-      // Try adding 'e' (e.g., "walked" → "walked" no e needed, "liked" → "like")
       return base;
     }
     return base;
@@ -289,8 +345,21 @@ export function glossify(
     return { originalText, normalizedText, tokens: [], gloss: '' };
   }
 
-  // Simple tokenizer: split on whitespace, strip punctuation
-  const words = normalizedText.split(/\s+/).filter(Boolean);
+  // Simple tokenizer: split on whitespace and expand common contractions
+  const rawWords = normalizedText.split(/\s+/).filter(Boolean);
+  const words: string[] = [];
+  for (const rawWord of rawWords) {
+    const stripped = rawWord.replace(/^[^\w']+|[^\w']+$/g, '');
+    if (!stripped) continue;
+    const lowerStripped = stripped.toLowerCase();
+    if (CONTRACTIONS[lowerStripped]) {
+      words.push(...CONTRACTIONS[lowerStripped]);
+    } else if (lowerStripped.endsWith("'s") && lowerStripped.length > 2) {
+      words.push(stripped.slice(0, -2));
+    } else {
+      words.push(stripped);
+    }
+  }
   const tokens: string[] = [];
 
   for (const word of words) {
@@ -303,16 +372,21 @@ export function glossify(
     // Drop fillers
     if (dropFillers && FILLERS.has(lower)) continue;
 
+    // Optional stopword filtering (matching Python nlp.py)
+    if (removeStopwords && !NEGATION_WORDS.has(lower) && !WH_WORDS.has(lower) && !PRONOUN_MAP[lower] && !AUXILIARIES.has(lower) && lower !== 'name') {
+      if (['a', 'an', 'the'].includes(lower)) continue;
+    }
+
     // Pronoun mapping
     if (PRONOUN_MAP[lower]) {
       tokens.push(PRONOUN_MAP[lower]);
       continue;
     }
 
-    // Auxiliaries — lemmatize to base form (be/do/have have video assets)
+    // Auxiliaries — keep exact uppercase form (IS, ARE, DO, etc.) for phrase matching;
+    // asset-resolver aliases standalone auxiliaries to BE / DO.
     if (AUXILIARIES.has(lower)) {
-      const base = simpleLemma(lower);
-      tokens.push(base.toUpperCase());
+      tokens.push(lower.toUpperCase());
       continue;
     }
 

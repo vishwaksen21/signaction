@@ -382,6 +382,19 @@ const ASSET_FILES = [
   "signs/Z.mp4"
 ];
 
+const ALPHABET_FILES = [
+  "alphabet/0.mp4", "alphabet/1.mp4", "alphabet/2.mp4", "alphabet/3.mp4", "alphabet/4.mp4",
+  "alphabet/5.mp4", "alphabet/6.mp4", "alphabet/7.mp4", "alphabet/8.mp4", "alphabet/9.mp4",
+  "alphabet/A.mp4", "alphabet/B.mp4", "alphabet/C.mp4", "alphabet/D.mp4", "alphabet/E.mp4",
+  "alphabet/F.mp4", "alphabet/G.mp4", "alphabet/H.mp4", "alphabet/I.mp4", "alphabet/J.mp4",
+  "alphabet/K.mp4", "alphabet/L.mp4", "alphabet/M.mp4", "alphabet/N.mp4", "alphabet/O.mp4",
+  "alphabet/P.mp4", "alphabet/Q.mp4", "alphabet/R.mp4", "alphabet/S.mp4", "alphabet/T.mp4",
+  "alphabet/U.mp4", "alphabet/V.mp4", "alphabet/W.mp4", "alphabet/X.mp4", "alphabet/Y.mp4",
+  "alphabet/Z.mp4",
+];
+
+const ALL_OFFLINE_ASSET_FILES = [...ASSET_FILES, ...ALPHABET_FILES];
+
 const ASSET_READINESS_THRESHOLD = 0.8;
 
 /**
@@ -511,17 +524,18 @@ export async function setupOffline(
       const keyRequests = await cache.keys();
       keyRequests.forEach((r) => existingKeys.add(r.url));
 
-      const totalAssets = ASSET_FILES.length;
+      const totalAssets = ALL_OFFLINE_ASSET_FILES.length;
       let cachedCount = 0;
       let failedCount = 0;
 
-      const BATCH_SIZE = 10;
-      for (let i = 0; i < ASSET_FILES.length; i += BATCH_SIZE) {
-        const batch = ASSET_FILES.slice(i, i + BATCH_SIZE);
+      const BATCH_SIZE = 12;
+      for (let i = 0; i < ALL_OFFLINE_ASSET_FILES.length; i += BATCH_SIZE) {
+        const batch = ALL_OFFLINE_ASSET_FILES.slice(i, i + BATCH_SIZE);
         await Promise.allSettled(
           batch.map(async (file) => {
             const url = `/assets/${file}`;
-            if (existingKeys.has(url)) {
+            const fullUrl = new URL(url, window.location.origin).href;
+            if (existingKeys.has(fullUrl) || existingKeys.has(url)) {
               cachedCount++;
               return;
             }
@@ -544,6 +558,16 @@ export async function setupOffline(
         const pct = Math.round(((i + batch.length) / totalAssets) * 100);
         const overall = 30 + Math.round(pct * 0.5);
         report('assets', pct, overall, `Caching assets... ${cachedCount}/${totalAssets}`);
+      }
+
+      // Also cache dictionary.json & lexicon.json for offline lookup
+      for (const metaPath of ['/dictionary.json', '/lexicon.json']) {
+        try {
+          const resp = await fetch(metaPath);
+          if (resp.ok) await cache.put(metaPath, resp);
+        } catch {
+          // ignore
+        }
       }
 
       assetsCached = failedCount === 0;

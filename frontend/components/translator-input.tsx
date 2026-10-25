@@ -1,81 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Mic2, Upload } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { SpeechRecorder } from './speech-recorder';
-
-const TARGET_SAMPLE_RATE = 16000;
-
-function encodeWavPCM16(monoSamples: Float32Array, sampleRate: number): Blob {
-  const numChannels = 1;
-  const bytesPerSample = 2;
-  const blockAlign = numChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-  const dataSize = monoSamples.length * bytesPerSample;
-
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-
-  function writeString(offset: number, s: string) {
-    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
-  }
-
-  writeString(0, 'RIFF');
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, 16, true);
-  writeString(36, 'data');
-  view.setUint32(40, dataSize, true);
-
-  let offset = 44;
-  for (let i = 0; i < monoSamples.length; i++) {
-    const s = Math.max(-1, Math.min(1, monoSamples[i]!));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-    offset += 2;
-  }
-
-  return new Blob([buffer], { type: 'audio/wav' });
-}
-
-async function convertToWav16kHz(file: File): Promise<File> {
-  if (file.type.includes('wav') || file.name.toLowerCase().endsWith('.wav')) return file;
-
-  const arrayBuffer = await file.arrayBuffer();
-  const AudioCtx = window.AudioContext;
-  if (!AudioCtx) throw new Error('AudioContext not available');
-
-  const ctx = new AudioCtx();
-  try {
-    const decoded = await ctx.decodeAudioData(arrayBuffer.slice(0));
-
-    const length = Math.max(1, Math.ceil(decoded.duration * TARGET_SAMPLE_RATE));
-    const offline = new OfflineAudioContext(1, length, TARGET_SAMPLE_RATE);
-    const src = offline.createBufferSource();
-    src.buffer = decoded;
-    src.connect(offline.destination);
-    src.start(0);
-    const rendered = await offline.startRendering();
-
-    const mono = rendered.getChannelData(0);
-    const wavBlob = encodeWavPCM16(mono, TARGET_SAMPLE_RATE);
-    const wavName = file.name.replace(/\.[^.]+$/, '') + '.wav';
-    return new File([wavBlob], wavName, { type: 'audio/wav' });
-  } finally {
-    try {
-      await ctx.close();
-    } catch {
-      // ignore
-    }
-  }
-}
+import { convertToWav16kHz } from '../lib/audio-wav';
 
 export function TranslatorInput({
   text,
@@ -95,17 +23,19 @@ export function TranslatorInput({
   const [activeTab, setActiveTab] = useState<'text' | 'speech'>('text');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.files?.[0];
     if (!raw) return;
+    setUploadError(null);
     setConverting(true);
     try {
       const wav = await convertToWav16kHz(raw);
       setAudioFile(wav);
     } catch {
       setAudioFile(null);
-      alert('Could not convert this audio file. Please upload a WAV, FLAC, or OGG file instead.');
+      setUploadError('Could not convert this audio file. Please upload a valid WAV, FLAC, OGG, MP4/M4A, or WEBM recording.');
     } finally {
       setConverting(false);
     }
@@ -227,26 +157,38 @@ export function TranslatorInput({
         {activeTab === 'speech' && (
           <div className="space-y-5">
             {/* Microphone Recorder Card */}
-            <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
-              <SpeechRecorder disabled={loading} onRecorded={(f) => setAudioFile(f)} />
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+              <SpeechRecorder
+                disabled={loading}
+                onRecorded={(f) => {
+                  setUploadError(null);
+                  setAudioFile(f);
+                }}
+              />
             </div>
 
             {/* Audio File Upload Backup */}
-            <div className="space-y-2 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div className="space-y-2 p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
               <label className="block text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
                 Or upload an audio recording
               </label>
               <input
-                className="block w-full text-xs text-[#062B5C] dark:text-slate-200 file:mr-3 file:rounded-full file:border-0 file:bg-[#F0F4F8] dark:file:bg-slate-800 file:px-4 file:py-1.5 file:text-xs file:font-bold file:text-[#0757E8] dark:file:text-[#12CFF3] file:cursor-pointer transition-colors hover:file:opacity-80"
+                className="block w-full text-xs text-[#062B5C] dark:text-slate-200 file:mr-3 file:rounded-full file:border-0 file:bg-[#F0F4F8] dark:file:bg-slate-800 file:px-4 file:py-2 file:text-xs file:font-bold file:text-[#0757E8] dark:file:text-[#12CFF3] file:cursor-pointer transition-colors hover:file:opacity-80"
                 type="file"
-                accept="audio/wav,audio/flac,audio/ogg,audio/webm,.wav,.flac,.ogg,.webm"
+                accept="audio/wav,audio/flac,audio/ogg,audio/webm,audio/mp4,audio/mpeg,.wav,.flac,.ogg,.webm,.m4a,.mp3"
                 onChange={handleFileUpload}
                 disabled={loading}
               />
               <p className="text-[11px] text-[#64748B] dark:text-slate-400">
-                Supported: WAV, FLAC, OGG, WEBM · Automatically standardized to 16kHz PCM
+                Supported: WAV, FLAC, OGG, WEBM, M4A · Automatically standardized to 16kHz PCM
               </p>
             </div>
+
+            {uploadError && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs">
+                {uploadError}
+              </div>
+            )}
 
             {converting && (
               <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">

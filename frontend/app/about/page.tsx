@@ -1,11 +1,36 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Heart, Server, Code, Mic, Layers, ArrowRight, Video, BookOpen, ShieldCheck, Smartphone } from 'lucide-react';
+import { Heart, Server, Code, Mic, Layers, ArrowRight, Video, BookOpen, ShieldCheck, Smartphone, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
-import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
+import { OFFICIAL_APK_DOWNLOAD_URL, OFFICIAL_APK_SIZE_LABEL, isNativeApk } from '@/lib/platform';
+
+const FAQ_ITEMS = [
+  {
+    q: 'Does SignAction work completely without internet?',
+    a: 'Yes. In the native Android APK, all 347 sign videos, 36 alphabet/digit signs, and the Vosk English speech model are bundled directly inside the package. On Web/PWA, one-click Offline Setup caches the speech model and sign library locally on your device.',
+  },
+  {
+    q: 'How does SignAction translate English into Indian Sign Language (ISL)?',
+    a: 'Rather than literal word-by-word replacement, SignAction applies ISL Subject-Object-Verb (SOV) syntax, strips non-signed English auxiliaries, places interrogatives and negations at the clause end, maps multi-word phrases (such as THANK YOU and GOOD MORNING), and fingerspells unmapped words or numbers.',
+  },
+  {
+    q: 'Are voice recordings uploaded to a cloud server?',
+    a: 'In Offline Mode and inside the Android APK, zero audio leaves your device — Vosk WebAssembly processes 16 kHz mono audio locally in an isolated worker.',
+  },
+  {
+    q: 'What happens if a word is not in the 347-sign video dictionary?',
+    a: 'Offline and inside the Android APK, unknown words and digits automatically fall back to local ISL alphabet and number fingerspelling (A–Z, 0–9) so every sentence remains communicable.',
+  },
+];
 
 export default function AboutPage() {
+  const [isNative, setIsNative] = useState(false);
+
+  useEffect(() => {
+    setIsNative(isNativeApk());
+  }, []);
   return (
     <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-12 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
 
@@ -142,6 +167,38 @@ export default function AboutPage() {
         </div>
       </motion.div>
 
+      {/* Frequently Asked Questions (#faq anchor linked from Footer) */}
+      <motion.section
+        id="faq"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        className="max-w-4xl mx-auto mb-20 scroll-mt-24"
+      >
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] text-[11px] font-semibold uppercase tracking-wider mb-3 border border-blue-200/80 dark:border-blue-900/50">
+            <HelpCircle size={13} />
+            <span>FAQ</span>
+          </div>
+          <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white">
+            Frequently Asked Questions
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {FAQ_ITEMS.map((item) => (
+            <div key={item.q} className="sign-card p-6 space-y-2.5 text-left">
+              <h3 className="font-heading text-base font-bold text-[#062B5C] dark:text-white leading-snug">
+                {item.q}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
+                {item.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+
       {/* Tech Stack */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -159,19 +216,22 @@ export default function AboutPage() {
           Engineered with Next.js 14 App Router, TypeScript, Tailwind CSS, Vosk WebAssembly, and a Python FastAPI backend.
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link href="/translator" className="btn-sign-primary px-7 py-3 text-sm">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          <Link href="/translator" className="btn-sign-primary px-7 py-3 text-sm min-h-[48px] inline-flex items-center gap-2">
             <span>Start Translating</span>
             <ArrowRight size={16} />
           </Link>
-          <a
-            href={OFFICIAL_APK_DOWNLOAD_URL}
-            className="btn-sign-secondary px-7 py-3 text-sm inline-flex items-center gap-2"
-          >
-            <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
-            <span>Download Android APK</span>
-          </a>
-          <Link href="/offline-setup" className="btn-sign-secondary px-7 py-3 text-sm">
+          {!isNative && (
+            <a
+              href={OFFICIAL_APK_DOWNLOAD_URL}
+              download="signaction.apk"
+              className="btn-sign-secondary px-7 py-3 text-sm min-h-[48px] inline-flex items-center gap-2"
+            >
+              <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
+              <span>Download Android APK ({OFFICIAL_APK_SIZE_LABEL})</span>
+            </a>
+          )}
+          <Link href="/offline-setup" className="btn-sign-secondary px-7 py-3 text-sm min-h-[48px] inline-flex items-center">
             <span>Offline Setup</span>
           </Link>
         </div>

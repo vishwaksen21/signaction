@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from signaction.mapping import SignLexicon
@@ -16,6 +16,7 @@ router = APIRouter()
 
 class TranslateTextRequest(BaseModel):
     text: str
+    offline_only: bool = False
 
 
 class TranslateResponse(BaseModel):
@@ -47,9 +48,15 @@ def _fingerspell(token: str, lex: SignLexicon, assets_dir: Path) -> list[tuple[s
 
 @router.post("/translate-text", response_model=TranslateResponse)
 def translate_text(req: TranslateTextRequest) -> TranslateResponse:
+    cleaned_input = req.text.strip()
+    if not cleaned_input:
+        raise HTTPException(status_code=400, detail="Please enter text to translate.")
+    if len(cleaned_input) > 2000:
+        raise HTTPException(status_code=400, detail="Text input exceeds maximum length (2000 characters).")
+
     settings = get_settings()
 
-    gloss = glossify(req.text)
+    gloss = glossify(cleaned_input)
     translation = tokens_to_signs(gloss.tokens, assets_dir=settings.assets_dir, fingerspell_unknown=False)
 
     lex = SignLexicon(assets_dir=settings.assets_dir)
@@ -69,24 +76,26 @@ def translate_text(req: TranslateTextRequest) -> TranslateResponse:
             tokens_out.append(item.token)
             gestures.append(_asset_url_for(resolved.media_path, assets_dir=settings.assets_dir))
         else:
-            clean_token = item.token.lower().strip()
-            clean_token_space = clean_token.replace("_", " ")
-            yt_match = yt_dict.get(clean_token) or yt_dict.get(clean_token_space)
-            if not yt_match:
-                from signaction.nlp import _load_nlp
-                nlp = _load_nlp()
-                doc = nlp(clean_token_space)
-                if len(doc) == 1:
-                    lemma = doc[0].lemma_.lower().strip()
-                    yt_match = yt_dict.get(lemma)
+            yt_match = None
+            if not req.offline_only:
+                clean_token = item.token.lower().strip()
+                clean_token_space = clean_token.replace("_", " ")
+                yt_match = yt_dict.get(clean_token) or yt_dict.get(clean_token_space)
+                if not yt_match:
+                    from signaction.nlp import _load_nlp
+                    nlp = _load_nlp()
+                    doc = nlp(clean_token_space)
+                    if len(doc) == 1:
+                        lemma = doc[0].lemma_.lower().strip()
+                        yt_match = yt_dict.get(lemma)
 
             if yt_match:
                 tokens_out.append(item.token)
                 gestures.append(yt_match["youtubeUrl"])
             else:
-                # Word is not found anywhere. Fingerspell it letter by letter!
+                # Word is not found locally (or offline_only is active). Fingerspell it character by character!
                 for char in item.token.upper():
-                    if "A" <= char <= "Z":
+                    if ("A" <= char <= "Z") or ("0" <= char <= "9"):
                         resolved_char = lex.resolve(char)
                         if resolved_char and resolved_char.media_path.exists():
                             tokens_out.append(char)

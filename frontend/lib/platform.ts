@@ -1,4 +1,5 @@
 export const OFFICIAL_APK_DOWNLOAD_URL = '/signaction.apk';
+export const OFFICIAL_APK_SIZE_LABEL = '91 MB';
 
 export function isNativeApk(): boolean {
   if (typeof window === 'undefined') return false;

@@ -5,25 +5,81 @@
 
 const CACHE_NAME = 'signaction-v5';
 const STATIC_CACHE = 'signaction-static-v5';
+const MEDIA_CACHE = 'signaction-v1';
 
 // Install: skip waiting to activate immediately
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up all old caches immediately
+// Activate: clean up obsolete caches while preserving offline media cache ('signaction-v1')
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== STATIC_CACHE && name !== CACHE_NAME)
+          .filter((name) => name !== STATIC_CACHE && name !== CACHE_NAME && name !== MEDIA_CACHE)
           .map((name) => caches.delete(name))
       );
     })
   );
   self.clients.claim();
 });
+
+/**
+ * Serve cached sign MP4 videos with proper HTTP 206 Partial Content Range support
+ * so Chrome, Safari, and Android WebView <video> elements play seamlessly offline,
+ * while never calling Cache.put() on 206 network responses.
+ */
+async function handleMediaRequest(request, url) {
+  const mediaCache = await caches.open(MEDIA_CACHE);
+  let cachedResponse = await mediaCache.match(url.pathname);
+
+  if (!cachedResponse && url.pathname.startsWith('/assets/alphabet/')) {
+    const fallbackSignPath = url.pathname.replace('/assets/alphabet/', '/assets/signs/');
+    cachedResponse = await mediaCache.match(fallbackSignPath);
+  }
+
+  if (cachedResponse) {
+    const arrayBuffer = await cachedResponse.arrayBuffer();
+    const total = arrayBuffer.byteLength;
+    const contentType =
+      cachedResponse.headers.get('content-type') ||
+      (url.pathname.endsWith('.webm') ? 'video/webm' : 'video/mp4');
+    const rangeHeader = request.headers.get('range');
+
+    if (rangeHeader && total > 0) {
+      const match = /bytes=(\d+)-(\d*)/.exec(rangeHeader);
+      if (match) {
+        const start = Math.min(Number(match[1]), total - 1);
+        const end = match[2] ? Math.min(Number(match[2]), total - 1) : total - 1;
+        const chunk = arrayBuffer.slice(start, end + 1);
+        return new Response(chunk, {
+          status: 206,
+          statusText: 'Partial Content',
+          headers: {
+            'Content-Type': contentType,
+            'Accept-Ranges': 'bytes',
+            'Content-Range': `bytes ${start}-${end}/${total}`,
+            'Content-Length': String(chunk.byteLength),
+          },
+        });
+      }
+    }
+
+    return new Response(arrayBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': String(total),
+      },
+    });
+  }
+
+  // Not yet in offline media cache: stream directly from network without Cache.put on 206
+  return fetch(request);
+}
 
 // Fetch: different strategies for different request types
 self.addEventListener('fetch', (event) => {
@@ -36,12 +92,17 @@ self.addEventListener('fetch', (event) => {
   // Skip non-http
   if (!url.protocol.startsWith('http')) return;
 
-  // Skip Vosk model and large downloads (e.g. APK) — too large for SW cache
-  if (url.pathname === '/api/vosk-model' || url.pathname.startsWith('/download-apk')) return;
+  // Skip Vosk model and large downloads (e.g. APK) — stored in IndexedDB / downloaded directly
+  if (
+    url.pathname === '/api/vosk-model' ||
+    url.pathname.startsWith('/models/') ||
+    url.pathname.startsWith('/download-apk') ||
+    url.pathname.endsWith('.apk')
+  ) {
+    return;
+  }
 
-  // CRITICAL: NEVER intercept Range requests or video/audio streaming with Cache.put
-  // Browsers request videos with 'Range: bytes=0-', which returns 206 Partial Content.
-  // Cache.put() throws a DOMException TypeError on 206 status, breaking video playback in Chrome and Safari.
+  // Serve cached MP4/WebM sign videos offline with Range support, or pass through to network online
   if (
     request.headers.has('range') ||
     request.destination === 'video' ||
@@ -50,12 +111,12 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.webm') ||
     url.pathname.endsWith('.ogg')
   ) {
+    event.respondWith(handleMediaRequest(request, url));
     return;
   }
 
-  // On localhost / development, never cache JS/CSS/webpack chunks to avoid stale hot-reload code
-  const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-  if (isLocalhost && (url.pathname.startsWith('/_next/') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+  // Skip Next.js dev HMR endpoints
+  if (url.pathname.startsWith('/_next/webpack-hmr')) {
     return;
   }
 

@@ -22,10 +22,8 @@ export async function GET(req: Request) {
     });
 
     if (upstream.ok) {
-      return new Response(upstream.body, {
-        status: upstream.status,
-        headers: upstream.headers,
-      });
+      const data = await upstream.json();
+      return Response.json(data, { status: upstream.status });
     }
   } catch {
     // Backend offline / sleeping

@@ -22,6 +22,7 @@ export function GestureSequencePlayer({
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [direction, setDirection] = useState(1);
+  const [sequenceEnded, setSequenceEnded] = useState(false);
 
   const current = useMemo(
     () => gestures[index] ?? null,
@@ -33,12 +34,15 @@ export function GestureSequencePlayer({
     onIndexChange?.(index);
   }, [index, onIndexChange]);
 
+  const gesturesKey = gestures.join('|');
+
   // Reset whenever a completely new gesture sequence arrives
   useEffect(() => {
     setIndex(0);
     setDirection(1);
+    setSequenceEnded(false);
     setPlaying(gestures.length > 0);
-  }, [gestures.join('|')]);
+  }, [gesturesKey, gestures.length]);
 
   /**
    * ONE function controls automatic sequence advancement.
@@ -50,6 +54,7 @@ export function GestureSequencePlayer({
       if (next >= gestures.length) {
         // Sequence finished
         setPlaying(false);
+        setSequenceEnded(true);
         setDirection(1);
         return prev;
       }
@@ -86,6 +91,7 @@ export function GestureSequencePlayer({
 
     setDirection(nextIndex > index ? 1 : -1);
     setIndex(nextIndex);
+    setSequenceEnded(false);
     setPlaying(false);
   };
 
@@ -173,6 +179,7 @@ export function GestureSequencePlayer({
             onClick={() => {
               setDirection(-1);
               setIndex((i) => Math.max(0, i - 1));
+              setSequenceEnded(false);
               setPlaying(false);
             }}
             disabled={!gestures.length || index === 0}
@@ -184,7 +191,16 @@ export function GestureSequencePlayer({
 
           {/* Play / Pause Primary Button - 48x48px touch target */}
           <button
-            onClick={() => setPlaying((p) => !p)}
+            onClick={() => {
+              if (!playing && sequenceEnded) {
+                setSequenceEnded(false);
+                setDirection(1);
+                setIndex(0);
+                setPlaying(true);
+              } else {
+                setPlaying((p) => !p);
+              }
+            }}
             disabled={!gestures.length}
             className="w-12 h-12 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:scale-105 active:scale-95 focus-ring"
             aria-label={playing ? 'Pause playback' : 'Play gestures'}
@@ -202,6 +218,7 @@ export function GestureSequencePlayer({
               if (index >= gestures.length - 1) return;
               setDirection(1);
               setIndex((i) => Math.min(gestures.length - 1, i + 1));
+              setSequenceEnded(false);
               setPlaying(false);
             }}
             disabled={!gestures.length || index >= gestures.length - 1}

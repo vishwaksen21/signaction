@@ -2,25 +2,33 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, CheckCircle, XCircle, Loader2, Server, ArrowLeft } from 'lucide-react';
+import { Activity, CheckCircle, XCircle, Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { apiHealth } from '../../lib/api';
+import { isNativeApk } from '../../lib/platform';
 
 export default function ApiStatusPage() {
-  const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'ok' | 'standalone' | 'error'>('loading');
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+    const native = isNativeApk();
+    setIsNative(native);
     (async () => {
       const t0 = performance.now();
       try {
-        await apiHealth();
+        const res = await apiHealth();
         const t1 = performance.now();
         if (!mounted) return;
         setLatencyMs(Math.round(t1 - t0));
-        setStatus('ok');
+        if (native || res.status === 'offline' || res.mode === 'offline-standalone') {
+          setStatus('standalone');
+        } else {
+          setStatus('ok');
+        }
       } catch (e) {
         if (!mounted) return;
         setStatus('error');
@@ -105,6 +113,47 @@ export default function ApiStatusPage() {
                   </div>
                   <div className="font-heading text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
                     200 OK
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {status === 'standalone' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/50 flex items-center justify-center shrink-0">
+                  <ShieldCheck size={24} className="text-[#0757E8] dark:text-[#12CFF3]" />
+                </div>
+                <div>
+                  <h2 className="font-heading text-xl font-bold text-[#062B5C] dark:text-white">
+                    {isNative ? 'Native Offline Engine Active' : 'Standalone On-Device Mode Active'}
+                  </h2>
+                  <p className="text-xs text-[#64748B] dark:text-slate-400">
+                    {isNative
+                      ? 'Running locally inside the Android APK with bundled ISL lexicon and Vosk speech AI'
+                      : 'FastAPI server is not connected; local ISL translation & Vosk speech AI are handling requests'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-2">
+                    <Activity size={14} className="text-[#0757E8]" />
+                    Local Check Latency
+                  </div>
+                  <div className="font-heading text-3xl font-extrabold text-[#062B5C] dark:text-white">
+                    {latencyMs ?? 0}<span className="text-base font-normal text-[#64748B] ml-1">ms</span>
+                  </div>
+                </div>
+                <div className="p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-2">
+                    <ShieldCheck size={14} className="text-emerald-500" />
+                    Runtime Mode
+                  </div>
+                  <div className="font-heading text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    100% On-Device
                   </div>
                 </div>
               </div>

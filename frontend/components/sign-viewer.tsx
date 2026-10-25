@@ -12,6 +12,7 @@ interface SignViewerProps {
   preload?: 'auto' | 'metadata' | 'none';
   controls?: boolean;
   muted?: boolean;
+  playbackRate?: number;
 }
 
 function extractYoutubeVideoId(url: string): string | null {
@@ -64,8 +65,12 @@ export function SignViewer({
   preload = 'auto',
   controls = false,
   muted = true,
+  playbackRate = 1,
 }: SignViewerProps) {
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState<boolean>(() =>
+    typeof navigator !== 'undefined' ? !navigator.onLine : false
+  );
   const videoRef = useRef<HTMLVideoElement>(null);
   const youtubeContainerRef = useRef<HTMLDivElement>(null);
   const ytPlayerRef = useRef<any>(null);
@@ -80,22 +85,65 @@ export function SignViewer({
   const youtubeVideoId = isYoutube ? extractYoutubeVideoId(url) : null;
 
   useEffect(() => {
+    const syncOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', syncOnlineStatus);
+    window.addEventListener('offline', syncOnlineStatus);
+    return () => {
+      window.removeEventListener('online', syncOnlineStatus);
+      window.removeEventListener('offline', syncOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
 
   useEffect(() => {
     playingRef.current = playing;
+    if (playing) {
+      endedRef.current = false;
+    }
   }, [playing]);
 
   useEffect(() => {
     endedRef.current = false;
   }, [url]);
 
+  useEffect(() => {
+    const el = videoRef.current;
+    if (el && !isYoutube) {
+      try {
+        el.playbackRate = playbackRate;
+      } catch {
+        // ignore unsupported playback rates
+      }
+    }
+  }, [playbackRate, isYoutube, url]);
+
   const handleEndedOnce = useCallback(() => {
     if (endedRef.current) return;
     endedRef.current = true;
     onEndedRef.current?.();
   }, []);
+
+  const handleMetadataOrCanPlay = useCallback(() => {
+    setError(null);
+    const el = videoRef.current;
+    if (!el) return;
+    try {
+      el.playbackRate = playbackRate;
+    } catch {
+      // ignore
+    }
+    // On mobile / Android WebView, cue to 0.001s to force first frame to paint
+    if (!playing && el.currentTime === 0) {
+      try {
+        el.currentTime = 0.001;
+      } catch {
+        // ignore
+      }
+    }
+  }, [playing, playbackRate]);
 
   // Auto-play and restart when URL changes or playing state changes
   useEffect(() => {
@@ -147,9 +195,19 @@ export function SignViewer({
     }
   }, [url, isYoutube, playing]);
 
+  // Auto-advance offline YouTube fallbacks so sequences never freeze offline
+  useEffect(() => {
+    if (!isYoutube || !isOffline || !playing || loop) return;
+    const timer = setTimeout(() => {
+      handleEndedOnce();
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, [isYoutube, isOffline, playing, loop, handleEndedOnce]);
+
   // YouTube player
   useEffect(() => {
-    if (!youtubeVideoId || !youtubeContainerRef.current) {
+    const containerEl = youtubeContainerRef.current;
+    if (!youtubeVideoId || !containerEl || isOffline) {
       return;
     }
 
@@ -188,6 +246,7 @@ export function SignViewer({
           rel: 0,
           playsinline: 1,
           enablejsapi: 1,
+          origin: typeof window !== 'undefined' ? window.location.origin : undefined,
         },
         events: {
           onReady: (event: any) => {
@@ -216,6 +275,13 @@ export function SignViewer({
               'videoId:',
               youtubeVideoId
             );
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+              setIsOffline(true);
+              if (!loop) {
+                setTimeout(() => handleEndedOnce(), 1800);
+              }
+              return;
+            }
             // Fallback to direct iframe embed on error 150/101
             if (youtubeContainerRef.current) {
               youtubeContainerRef.current.innerHTML = `
@@ -292,14 +358,14 @@ export function SignViewer({
         }
       }
 
-      if (youtubeContainerRef.current) {
-        youtubeContainerRef.current.innerHTML = '';
+      if (containerEl) {
+        containerEl.innerHTML = '';
       }
 
       player = null;
       ytPlayerRef.current = null;
     };
-  }, [youtubeVideoId, handleEndedOnce]);
+  }, [youtubeVideoId, handleEndedOnce, isOffline, loop]);
 
   // Play/Pause YouTube video dynamically on playing prop change
   useEffect(() => {
@@ -417,6 +483,24 @@ export function SignViewer({
 
   // For YouTube embeds
   if (isYoutube && youtubeVideoId) {
+    if (isOffline) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-[#F4FAFF]/95 dark:bg-[#03133b]/95 p-6 rounded-[20px]">
+          <div className="text-center space-y-2 max-w-xs">
+            <div className="mx-auto w-10 h-10 rounded-full bg-[#EAF9FF] dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center font-bold text-sm">
+              !
+            </div>
+            <h4 className="text-sm font-bold text-[#062B5C] dark:text-white">
+              Online sign video unavailable offline
+            </h4>
+            <p className="text-xs text-[#60759A] dark:text-slate-400">
+              Connect to the internet for external videos, or re-run translation offline to use bundled ISL fingerspelling.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full h-full relative">
         <div
@@ -426,20 +510,6 @@ export function SignViewer({
       </div>
     );
   }
-
-  const handleMetadataOrCanPlay = useCallback(() => {
-    setError(null);
-    const el = videoRef.current;
-    if (!el) return;
-    // On mobile / Android WebView, cue to 0.001s to force first frame to paint
-    if (!playing && el.currentTime === 0) {
-      try {
-        el.currentTime = 0.001;
-      } catch {
-        // ignore
-      }
-    }
-  }, [playing]);
 
   // For video files, use native playback
   if (lower.endsWith('.mp4')) {

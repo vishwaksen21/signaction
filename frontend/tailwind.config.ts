@@ -3,9 +3,12 @@ import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
   darkMode: ['class'],
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      screens: {
+        xs: '380px',
+      },
       colors: {
         // SignAction Official Brand Palette
         'sign-navy': '#062B87',
@@ -17,6 +20,7 @@ const config: Config = {
         'sign-soft': '#F4FAFF',
         'sign-darktext': '#062B5C',
         'sign-muted': '#60759A',
+        'sign-border': 'rgba(7, 87, 232, 0.14)',
 
         // Legacy compatibility mappings
         'apple-primary': '#0757E8',
@@ -57,12 +61,16 @@ const config: Config = {
         'pill': '9999px',
       },
       boxShadow: {
+        '2xs': '0 1px 2px rgba(7, 87, 232, 0.06)',
         'xs': '0 1px 3px rgba(7, 87, 232, 0.08)',
         'sign-card': '0 10px 40px rgba(7, 87, 232, 0.08)',
         'sign-card-hover': '0 14px 44px rgba(7, 87, 232, 0.15)',
         'sign-glow': '0 0 24px rgba(18, 207, 243, 0.35)',
         'sign-button': '0 6px 20px rgba(7, 87, 232, 0.28)',
         'apple-product': '0 10px 40px rgba(7, 87, 232, 0.08)',
+      },
+      backdropBlur: {
+        'xs': '2px',
       },
 
       backgroundImage: {

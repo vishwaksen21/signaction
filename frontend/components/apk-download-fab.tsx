@@ -8,10 +8,11 @@ import {
   dismissApkPrompt,
   markApkDownloaded,
   OFFICIAL_APK_DOWNLOAD_URL,
+  OFFICIAL_APK_SIZE_LABEL,
 } from '@/lib/platform';
 
 export function ApkDownloadFab() {
-  const [isNative, setIsNative] = useState(false);
+  const [isNative, setIsNative] = useState(true); // default hidden during SSR until client check
   const [minimized, setMinimized] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
@@ -22,6 +23,7 @@ export function ApkDownloadFab() {
       return;
     }
 
+    setIsNative(false);
     if (isApkPromptDismissed()) {
       setMinimized(true);
     }
@@ -49,24 +51,25 @@ export function ApkDownloadFab() {
     return (
       <aside
         aria-label="Download Android App"
-        className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-40"
+        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-3 md:right-6 z-40"
       >
-        <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] shadow-lg rounded-full pl-3 pr-2 py-1.5 transition-all duration-200 hover:scale-105 active:scale-95">
+        <div className="flex items-center gap-1 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] shadow-lg rounded-full pl-3.5 pr-1.5 py-1 transition-all duration-200 hover:scale-105 active:scale-95">
           <a
             href={OFFICIAL_APK_DOWNLOAD_URL}
+            download="signaction.apk"
             onClick={handleDownload}
-            className="flex items-center gap-2 text-xs font-heading font-bold"
-            title="Download SignAction Android APK (145MB)"
+            className="flex items-center gap-2 py-1.5 text-xs font-heading font-bold"
+            title={`Download SignAction Android APK (${OFFICIAL_APK_SIZE_LABEL})`}
           >
             <Smartphone size={15} className="text-[#0757E8] dark:text-[#12CFF3]" />
-            <span>APK (145MB)</span>
+            <span>APK ({OFFICIAL_APK_SIZE_LABEL})</span>
             <Download size={13} />
           </a>
           <button
             type="button"
             onClick={() => setMinimized(false)}
             aria-label="Expand APK prompt"
-            className="w-5 h-5 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white focus-ring"
           >
             <span className="text-[10px] font-bold">▲</span>
           </button>
@@ -78,9 +81,9 @@ export function ApkDownloadFab() {
   return (
     <aside
       aria-label="Android App Download Banner"
-      className="fixed bottom-20 md:bottom-6 left-3 right-3 md:left-auto md:right-6 z-40 transition-all duration-300"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-3 right-3 md:left-auto md:right-6 z-40 transition-all duration-300"
     >
-      <div className="bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-xl border border-blue-200/90 dark:border-blue-800/80 rounded-2xl md:rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-[0_8px_30px_rgba(7,87,232,0.18)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center justify-between gap-3 max-w-md md:max-w-none mx-auto">
+      <div className="bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-xl border border-blue-200/90 dark:border-blue-800/80 rounded-2xl md:rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-[0_8px_30px_rgba(7,87,232,0.18)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center justify-between gap-2.5 max-w-md md:max-w-none mx-auto">
         
         {/* Left: App Icon & Info */}
         <div className="flex items-center gap-2.5 min-w-0">
@@ -98,18 +101,19 @@ export function ApkDownloadFab() {
               </span>
             </div>
             <p className="text-[11px] text-[#64748B] dark:text-slate-400 truncate">
-              347 ISL gestures pre-bundled (145 MB)
+              347 ISL gestures bundled ({OFFICIAL_APK_SIZE_LABEL})
             </p>
           </div>
         </div>
 
         {/* Right: Download Button & Dismiss */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <a
             href={OFFICIAL_APK_DOWNLOAD_URL}
+            download="signaction.apk"
             onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-xs px-3.5 py-2 rounded-xl sm:rounded-full shadow-sm transition-all duration-200 active:scale-95 focus-ring"
-            aria-label="Download SignAction Android APK (145MB)"
+            className="inline-flex items-center gap-1.5 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-xs px-3.5 py-2 min-h-[38px] rounded-xl sm:rounded-full shadow-sm transition-all duration-200 active:scale-95 focus-ring"
+            aria-label={`Download SignAction Android APK (${OFFICIAL_APK_SIZE_LABEL})`}
           >
             {downloaded ? (
               <>
@@ -119,7 +123,7 @@ export function ApkDownloadFab() {
             ) : (
               <>
                 <Download size={14} />
-                <span>Download APK</span>
+                <span>Download</span>
               </>
             )}
           </a>
@@ -128,9 +132,9 @@ export function ApkDownloadFab() {
             type="button"
             onClick={handleDismiss}
             aria-label="Minimize APK prompt"
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring"
           >
-            <X size={14} />
+            <X size={15} />
           </button>
         </div>
 

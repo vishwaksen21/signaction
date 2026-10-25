@@ -36,9 +36,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0066cc',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAF9F6' },
+    { media: '(prefers-color-scheme: dark)', color: '#050B14' },
+  ],
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -48,13 +52,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
+      <body className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] dark:bg-[#050B14] text-[#062B5C] dark:text-slate-100 overflow-x-hidden">
         <Providers>
-          {/* Floating Pill Navbar */}
+          {/* Top Navigation Bar */}
           <Navbar />
 
-          {/* Main content - padding for bottom nav on mobile */}
-          <main className="min-h-screen pb-24 md:pb-0">
+          {/* Main content */}
+          <main className="flex-1 flex flex-col w-full">
             {children}
           </main>
 

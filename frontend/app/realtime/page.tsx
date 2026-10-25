@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { GestureSequencePlayer } from '../../components/gesture-sequence-player';
 import { translateSpeechOnce } from '../../lib/api';
+import { convertToWav16kHz } from '../../lib/audio-wav';
 import {
   isOfflineSTTReady,
   downloadSTTModel,
@@ -30,7 +31,8 @@ type Mode = 'online' | 'offline';
 export default function RealtimePage() {
   const [mode, setMode] = useState<Mode>('online');
   const [running, setRunning] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [committedTranscript, setCommittedTranscript] = useState('');
+  const [partialTranscript, setPartialTranscript] = useState('');
   const [tokens, setTokens] = useState<string[]>([]);
   const [gestures, setGestures] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -41,8 +43,14 @@ export default function RealtimePage() {
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaRecorderRef = useRef<{ stop: () => void } | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const inFlightRef = useRef(false);
+
+  const transcript = [committedTranscript, partialTranscript]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
 
   // Check if offline model is ready on mount, defaulting to offline if native or offline
   useEffect(() => {
@@ -61,6 +69,18 @@ export default function RealtimePage() {
     }).catch(() => {});
   }, []);
 
+  const stop = useCallback(() => {
+    setRunning(false);
+    setPartialTranscript('');
+    inFlightRef.current = false;
+    try {
+      mediaRecorderRef.current?.stop();
+    } catch {
+      // ignore
+    }
+    mediaRecorderRef.current = null;
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -69,10 +89,25 @@ export default function RealtimePage() {
       } catch {
         // ignore
       }
+      mediaRecorderRef.current = null;
     };
   }, []);
 
+  const handleModeChange = useCallback(
+    (nextMode: Mode) => {
+      if (running) {
+        stop();
+      }
+      setError(null);
+      setMode(nextMode);
+    },
+    [running, stop]
+  );
+
   const handleDownloadModel = useCallback(async () => {
+    if (running) {
+      stop();
+    }
     setDownloading(true);
     setDownloadProgress(0);
     setError(null);
@@ -87,67 +122,77 @@ export default function RealtimePage() {
     } finally {
       setDownloading(false);
     }
-  }, []);
+  }, [running, stop]);
 
   async function start() {
     setError(null);
-    setTranscript('');
+    setCommittedTranscript('');
+    setPartialTranscript('');
     setTokens([]);
     setGestures([]);
 
-    const isNative = typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
-    if (mode === 'offline' && !modelReady && !isNative) {
-      setError('Download the offline model first.');
+    const native = isNativeApk();
+    if (mode === 'offline' && !modelReady && !native) {
+      setError('Download the offline speech model first to transcribe on-device.');
+      return;
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setError('Microphone access is not available in this browser or context.');
       return;
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
       if (mode === 'online') {
-        // Online mode: send chunks to server API
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : '';
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const preferredTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+        const mimeType =
+          typeof MediaRecorder !== 'undefined'
+            ? preferredTypes.find((t) => MediaRecorder.isTypeSupported(t)) ?? ''
+            : '';
         const rec = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-        mediaRecorderRef.current = rec;
         chunksRef.current = [];
+        inFlightRef.current = false;
 
         rec.ondataavailable = async (e) => {
-          chunksRef.current.push(e.data);
+          if (e.data && e.data.size > 0) {
+            chunksRef.current.push(e.data);
+          }
 
-          // Create blob from ALL accumulated chunks (WebM needs header at start)
-          const blob = new Blob(chunksRef.current, { type: rec.mimeType });
+          if (inFlightRef.current) return;
 
-          // Only send if blob is large enough to contain header + some audio
-          if (blob.size < 1000) return;
+          const actualMime = rec.mimeType || mimeType || 'audio/webm';
+          const blob = new Blob(chunksRef.current, { type: actualMime });
 
+          // Only send if blob is large enough to contain header + meaningful speech
+          if (blob.size < 1500) return;
+
+          inFlightRef.current = true;
           try {
-            const file = new File(
-              [blob],
-              `chunk.${rec.mimeType.includes('webm') ? 'webm' : 'wav'}`,
-              { type: rec.mimeType }
-            );
-            const res = await translateSpeechOnce(file);
+            const ext = actualMime.includes('mp4')
+              ? 'm4a'
+              : actualMime.includes('ogg')
+                ? 'ogg'
+                : 'webm';
+            const rawFile = new File([blob], `chunk.${ext}`, { type: actualMime });
+            const wavFile = await convertToWav16kHz(rawFile);
+            const res = await translateSpeechOnce(wavFile);
 
-            // The server transcribes the full accumulated audio.
-            // We only want the NEW words since last send, so we compare
-            // the new transcript with the previous one.
-            const newTranscript = res.transcript || '';
-            setTranscript((prev: string): string => {
-              if (!prev) return newTranscript;
-              // If the new transcript starts with the previous one,
-              // only append the new part
-              if (newTranscript.startsWith(prev)) {
-                return newTranscript;
-              }
-              // Otherwise, use the new transcript (may be a restart)
-              return newTranscript;
-            });
-            setTokens(res.tokens);
-            setGestures(res.gestures);
+            const newTranscript = (res.transcript || '').trim();
+            if (newTranscript) {
+              setCommittedTranscript(newTranscript);
+              setTokens(res.tokens);
+              setGestures(res.gestures);
+              setError(null);
+            }
           } catch (err) {
-            setError(err instanceof Error ? err.message : String(err));
+            const msg = err instanceof Error ? err.message : String(err);
+            // Ignore empty silence chunks during live streaming
+            if (!msg.toLowerCase().includes('no speech detected')) {
+              setError(msg);
+            }
+          } finally {
+            inFlightRef.current = false;
           }
         };
 
@@ -155,19 +200,35 @@ export default function RealtimePage() {
           stream.getTracks().forEach((t) => t.stop());
         };
 
-        rec.start(2000);
+        mediaRecorderRef.current = {
+          stop: () => {
+            try {
+              if (rec.state !== 'inactive') {
+                rec.stop();
+              }
+            } catch {
+              // ignore
+            }
+            stream.getTracks().forEach((t) => t.stop());
+          },
+        };
+
+        rec.start(2500);
         setRunning(true);
       } else {
-        // Offline mode: use Vosk WASM in browser
+        // Offline mode: use Vosk WASM in browser (manages its own single mic stream)
         const { createVoskSTT } = await import('../../lib/vosk-stt');
 
         const stt = await createVoskSTT({
           onPartial: (text) => {
-            setTranscript(text);
+            setPartialTranscript(text);
           },
           onResult: (text) => {
-            setTranscript((prev) => (prev ? prev + ' ' : '') + text);
-            const result = translateTextOffline(text);
+            setPartialTranscript('');
+            const clean = text.trim();
+            if (!clean) return;
+            setCommittedTranscript((prev) => (prev ? `${prev} ${clean}` : clean));
+            const result = translateTextOffline(clean, { allowOnlineFallback: false });
             setTokens(result.tokens);
             setGestures(result.gestures);
           },
@@ -180,26 +241,16 @@ export default function RealtimePage() {
           stop: () => {
             stt.stop();
             stt.destroy();
-            stream.getTracks().forEach((t) => t.stop());
           },
-        } as any;
+        };
 
-        stt.start();
+        await stt.start();
         setRunning(true);
       }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to access microphone'
       );
-    }
-  }
-
-  function stop() {
-    setRunning(false);
-    try {
-      mediaRecorderRef.current?.stop();
-    } catch {
-      // ignore
     }
   }
 
@@ -224,9 +275,9 @@ export default function RealtimePage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Offline model status */}
-            {mode === 'offline' && (
+            {mode === 'offline' && (modelReady || isNative) && (
               <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs">
                 <Check size={12} className="stroke-[3]" />
                 <span>Model Ready</span>
@@ -235,26 +286,30 @@ export default function RealtimePage() {
 
             {/* Mode toggle */}
             <div className="flex items-center bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 rounded-full p-1 shadow-2xs">
+              {!isNative && (
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('online')}
+                  className={`flex items-center gap-1.5 min-h-[36px] px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    mode === 'online'
+                      ? 'bg-[#0757E8] text-white shadow-xs'
+                      : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
+                  }`}
+                >
+                  <Wifi size={13} />
+                  Online
+                </button>
+              )}
               <button
-                onClick={() => setMode('online')}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  mode === 'online'
-                    ? 'bg-[#0757E8] text-white shadow-xs'
-                    : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
-                }`}
-              >
-                <Wifi size={13} />
-                Online
-              </button>
-              <button
+                type="button"
                 onClick={() => {
-                  if (!modelReady) {
+                  if (!modelReady && !isNative) {
                     handleDownloadModel();
                   } else {
-                    setMode('offline');
+                    handleModeChange('offline');
                   }
                 }}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 min-h-[36px] px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   mode === 'offline'
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'

@@ -13,14 +13,14 @@ from .types import SignItem
 _SUPPORTED_SUFFIXES = {".gif", ".mp4", ".png", ".jpg", ".jpeg", ".svg"}
 
 
-@lru_cache(maxsize=4)
-def _load_aliases(assets_dir: str) -> dict[str, str]:
+@lru_cache(maxsize=8)
+def _load_aliases(assets_dir: str, mtime_ns: int = 0) -> dict[str, str]:
     """Load word aliases from lexicon.json in the assets directory."""
     lexicon_path = Path(assets_dir) / "lexicon.json"
     if not lexicon_path.exists():
         return {}
     try:
-        with open(lexicon_path) as f:
+        with open(lexicon_path, encoding="utf-8") as f:
             data = json.load(f)
         raw: dict = data.get("aliases", {})
         return {k.upper(): v.upper() for k, v in raw.items()}
@@ -106,7 +106,8 @@ class SignLexicon:
         key = _norm_key(token)
 
         # Apply lexicon aliases (ARE→BE, DOING→DO, etc.)
-        aliases = _load_aliases(str(self.assets_dir))
+        lex_mtime = _dir_mtime_ns(self.assets_dir / "lexicon.json")
+        aliases = _load_aliases(str(self.assets_dir), lex_mtime)
         resolved_key = aliases.get(key, key)
 
         # Try a couple common variants

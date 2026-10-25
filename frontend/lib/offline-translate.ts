@@ -17,8 +17,10 @@ export interface OfflineTranslateResult {
 }
 
 export interface OfflineTranslateOptions {
-  /** Base URL where sign assets are served from (default: '/assets') */
+  /** Base URL where sign assets are served from (default: '/assets/signs') */
   assetsBaseUrl?: string;
+  /** Whether YouTube fallback is allowed when online (default: false for pure offline mode) */
+  allowOnlineFallback?: boolean;
 }
 
 export interface ModelDownloadProgress {
@@ -35,15 +37,19 @@ export function translateTextOffline(
   text: string,
   options: OfflineTranslateOptions = {}
 ): OfflineTranslateResult {
-  const { assetsBaseUrl = '/assets/signs' } = options;
+  const { assetsBaseUrl = '/assets/signs', allowOnlineFallback = false } = options;
 
   const glossResult = glossify(text);
-  const { tokens, gestures } = resolveTokensWithFingerspelling(glossResult.tokens, assetsBaseUrl);
+  const { tokens, gestures } = resolveTokensWithFingerspelling(
+    glossResult.tokens,
+    assetsBaseUrl,
+    { allowOnlineFallback }
+  );
 
   return {
     tokens,
     gestures,
-    gloss: glossResult.gloss,
+    gloss: tokens.join(' ') || glossResult.gloss,
   };
 }
 
@@ -61,13 +67,13 @@ export async function isOfflineSTTReady(): Promise<boolean> {
 
   // Check if local bundled model asset is reachable
   if (typeof window !== 'undefined') {
-    for (const url of ['/models/vosk-model-small-en-us-0.15.tar', '/models/vosk-model-small-en-us-0.15.tar.gz']) {
-      try {
-        const res = await fetch(url, { method: 'HEAD' });
-        if (res.ok) return true;
-      } catch {
-        // ignore
-      }
+    try {
+      const res = await fetch('/models/vosk-model-small-en-us-0.15.tar.gz', { method: 'HEAD' });
+      if (res.ok) return true;
+      const resTar = await fetch('/models/vosk-model-small-en-us-0.15.tar', { method: 'HEAD' });
+      if (resTar.ok) return true;
+    } catch {
+      // ignore
     }
   }
 

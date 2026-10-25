@@ -82,7 +82,7 @@ def glossify(
 
         lower = t.text.lower()
 
-        if drop_fillers and lower in {"um", "uh", "like"}:
+        if drop_fillers and lower in {"um", "uh"}:
             continue
 
         if remove_stopwords and t.is_stop:

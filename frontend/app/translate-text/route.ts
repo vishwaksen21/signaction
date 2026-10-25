@@ -26,10 +26,8 @@ export async function POST(req: Request) {
       });
 
       if (upstream.ok) {
-        return new Response(upstream.body, {
-          status: upstream.status,
-          headers: upstream.headers,
-        });
+        const data = await upstream.json();
+        return Response.json(data, { status: upstream.status });
       }
     } catch {
       // Backend unreachable or timed out, fallback to internal translator
@@ -38,8 +36,9 @@ export async function POST(req: Request) {
 
   try {
     const json = JSON.parse(bodyText);
-    const text = json.text || '';
-    const result = translateTextOffline(text);
+    const text = typeof json.text === 'string' ? json.text : '';
+    const allowOnlineFallback = !json.offline_only;
+    const result = translateTextOffline(text, { allowOnlineFallback });
     return Response.json(result);
   } catch {
     return Response.json({ tokens: [], gestures: [], gloss: '' });

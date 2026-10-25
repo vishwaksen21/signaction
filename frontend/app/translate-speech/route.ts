@@ -32,9 +32,12 @@ export async function POST(req: Request) {
       signal: AbortSignal.timeout(8000),
     });
 
-    return new Response(upstream.body, {
+    const text = await upstream.text();
+    return new Response(text, {
       status: upstream.status,
-      headers: upstream.headers,
+      headers: {
+        'content-type': upstream.headers.get('content-type') || 'application/json',
+      },
     });
   } catch {
     return Response.json(

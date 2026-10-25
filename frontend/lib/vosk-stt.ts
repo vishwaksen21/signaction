@@ -26,14 +26,21 @@ export interface VoskSTTOptions {
 }
 
 export interface VoskSTT {
-  start: () => void;
+  start: (existingStream?: MediaStream) => Promise<void>;
   stop: () => void;
   destroy: () => void;
   isReady: () => boolean;
 }
 
-// The Vosk browser library is loaded dynamically
+const DEFAULT_MODEL_URLS = [
+  '/models/vosk-model-small-en-us-0.15.tar.gz',
+  '/models/vosk-model-small-en-us-0.15.tar',
+];
+
+// The Vosk browser library and default WASM model are cached as singletons
+// so repeated speech recordings do not respawn workers or leak IDBFS storage.
 let voskModule: any = null;
+let sharedModelPromise: Promise<any> | null = null;
 
 async function loadVoskModule() {
   if (voskModule) return voskModule;
@@ -42,8 +49,58 @@ async function loadVoskModule() {
 }
 
 /**
+ * Load (or reuse) the default Vosk WASM model.
+ * Uses the stable `/models/vosk-model-small-en-us-0.15.tar.gz` (or `.tar` in Android APK) URL first so
+ * vosk-browser's Emscripten IDBFS (`/vosk/.../extracted.ok`) persists the
+ * extracted model across sessions without re-extracting 40MB every time.
+ * Falls back to the IndexedDB cached ArrayBuffer Blob if offline before first extraction.
+ */
+export async function getOrLoadDefaultVoskModel(): Promise<any> {
+  if (sharedModelPromise) return sharedModelPromise;
+
+  sharedModelPromise = (async () => {
+    const Vosk = await loadVoskModule();
+
+    let primaryErr: Error | null = null;
+    for (const url of DEFAULT_MODEL_URLS) {
+      try {
+        return await Vosk.createModel(url);
+      } catch (err) {
+        primaryErr = err instanceof Error ? err : new Error(String(err));
+      }
+    }
+
+    let cached = await getCachedModel();
+    if (!cached) {
+      try {
+        const buffer = await downloadModel();
+        await cacheModel(buffer);
+        cached = buffer;
+      } catch {
+        // ignore and rethrow below
+      }
+    }
+    if (cached) {
+      const blob = new Blob([cached], { type: 'application/gzip' });
+      const objectUrl = URL.createObjectURL(blob);
+      try {
+        return await Vosk.createModel(objectUrl);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+    throw primaryErr || new Error('Failed to load Vosk model');
+  })().catch((err) => {
+    sharedModelPromise = null;
+    throw err;
+  });
+
+  return sharedModelPromise;
+}
+
+/**
  * Create a Vosk STT instance.
- * Loads the model from IndexedDB cache, or from the provided source.
+ * Loads the model from the shared persistent instance or from a custom modelSource.
  */
 export async function createVoskSTT(
   options: VoskSTTOptions = {}
@@ -51,6 +108,7 @@ export async function createVoskSTT(
   const { modelSource, onPartial, onResult, onError, onModelLoaded } = options;
 
   let model: any = null;
+  let ownsCustomModel = false;
   let recognizer: any = null;
   let mediaStream: MediaStream | null = null;
   let audioContext: AudioContext | null = null;
@@ -62,43 +120,18 @@ export async function createVoskSTT(
   try {
     const Vosk = await loadVoskModule();
 
-    // Determine model source
-    let modelData: string;
-
     if (modelSource) {
-      // If modelSource is a string URL, use directly
+      ownsCustomModel = true;
       if (typeof modelSource === 'string') {
-        modelData = modelSource;
+        model = await Vosk.createModel(modelSource);
       } else {
-        // If it's a Blob, create an object URL
         createdObjectUrl = URL.createObjectURL(modelSource);
-        modelData = createdObjectUrl;
+        model = await Vosk.createModel(createdObjectUrl);
       }
     } else {
-      // Try IndexedDB cache first
-      let cached = await getCachedModel();
-      if (!cached) {
-        // Auto-seed from locally bundled APK model on first launch
-        try {
-          const buffer = await downloadModel();
-          await cacheModel(buffer);
-          cached = buffer;
-        } catch (e) {
-          console.warn('[Vosk] Auto-seed from bundled model failed, trying direct path:', e);
-        }
-      }
-
-      if (cached) {
-        const blob = new Blob([cached], { type: 'application/octet-stream' });
-        createdObjectUrl = URL.createObjectURL(blob);
-        modelData = createdObjectUrl;
-      } else {
-        // Direct local URL fallback
-        modelData = '/models/vosk-model-small-en-us-0.15.tar';
-      }
+      model = await getOrLoadDefaultVoskModel();
     }
 
-    model = await Vosk.createModel(modelData);
     recognizer = new model.KaldiRecognizer(16000);
 
     recognizer.on('result', (message: any) => {
@@ -121,28 +154,31 @@ export async function createVoskSTT(
     onError?.(err instanceof Error ? err : new Error(String(err)));
   }
 
-  async function start() {
+  async function start(existingStream?: MediaStream) {
     if (!ready || !recognizer) {
       onError?.(new Error('Vosk model not loaded'));
       return;
     }
 
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          channelCount: 1,
-          sampleRate: 16000,
-        },
-      });
+      mediaStream =
+        existingStream ??
+        (await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            channelCount: 1,
+            sampleRate: 16000,
+          },
+        }));
 
-      // Don't specify sampleRate — let browser use its default (usually 44100/48000).
-      // Vosk's WASM build handles resampling internally.
+      // Let browser use its native AudioContext sample rate; Vosk resamples internally.
       audioContext = new AudioContext();
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
       sourceNode = audioContext.createMediaStreamSource(mediaStream);
 
-      // Use ScriptProcessorNode for compatibility (AudioWorklet preferred but more complex)
       recognizerNode = audioContext.createScriptProcessor(4096, 1, 1);
       recognizerNode.onaudioprocess = (event) => {
         if (!ready || !recognizer) return;
@@ -174,12 +210,19 @@ export async function createVoskSTT(
       sourceNode = null;
     }
     if (audioContext) {
-      audioContext.close();
+      audioContext.close().catch(() => {});
       audioContext = null;
     }
     if (mediaStream) {
       mediaStream.getTracks().forEach((t) => t.stop());
       mediaStream = null;
+    }
+    if (recognizer) {
+      try {
+        recognizer.retrieveFinalResult();
+      } catch {
+        // ignore
+      }
     }
   }
 
@@ -197,14 +240,14 @@ export async function createVoskSTT(
       }
       recognizer = null;
     }
-    if (model) {
+    if (ownsCustomModel && model) {
       try {
         model.terminate();
       } catch {
         // ignore
       }
-      model = null;
     }
+    model = null;
     ready = false;
   }
 
@@ -220,64 +263,88 @@ export async function createVoskSTT(
  * Transcribe an audio File or Blob completely client-side using Vosk WASM.
  */
 export async function transcribeAudioFile(file: File | Blob): Promise<string> {
-  const AudioCtx = window.AudioContext;
+  const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
   if (!AudioCtx) throw new Error('AudioContext not available');
   const ctx = new AudioCtx();
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    const Vosk = await loadVoskModule();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+    const model = await getOrLoadDefaultVoskModel();
+    const sampleRate = audioBuffer.sampleRate;
+    const channelData = audioBuffer.getChannelData(0);
+    const recognizer = new model.KaldiRecognizer(sampleRate);
 
-    let cached = await getCachedModel();
-    if (!cached) {
-      try {
-        const buffer = await downloadModel();
-        await cacheModel(buffer);
-        cached = buffer;
-      } catch (e) {
-        console.warn('[Vosk] Auto-seed failed, falling back to direct model path:', e);
-      }
-    }
+    const CHUNK_SIZE = 8192;
+    const totalChunks = Math.max(1, Math.ceil(channelData.length / CHUNK_SIZE));
+    const expectedMessages = totalChunks + 1; // N chunk replies + 1 retrieveFinalResult reply
 
-    let modelData: string;
-    let createdUrl: string | null = null;
-    if (cached) {
-      const blob = new Blob([cached], { type: 'application/octet-stream' });
-      createdUrl = URL.createObjectURL(blob);
-      modelData = createdUrl;
-    } else {
-      modelData = '/models/vosk-model-small-en-us-0.15.tar';
-    }
+    return await new Promise<string>((resolve, reject) => {
+      const segments: string[] = [];
+      let receivedMessages = 0;
+      let settled = false;
 
-    const model = await Vosk.createModel(modelData);
-    const recognizer = new model.KaldiRecognizer(audioBuffer.sampleRate);
+      const finish = (err?: Error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(safetyTimer);
+        try {
+          recognizer.remove();
+        } catch {
+          // ignore
+        }
+        if (err) {
+          reject(err);
+        } else {
+          resolve(segments.join(' ').trim());
+        }
+      };
 
-    return await new Promise<string>((resolve) => {
-      let fullTranscript = '';
-      let timer: any = null;
-
-      const finish = () => {
-        if (timer) clearTimeout(timer);
-        try { recognizer.remove(); } catch {}
-        if (createdUrl) URL.revokeObjectURL(createdUrl);
-        try { model.terminate(); } catch {}
-        resolve(fullTranscript.trim());
+      const checkDone = () => {
+        receivedMessages += 1;
+        if (receivedMessages >= expectedMessages) {
+          finish();
+        }
       };
 
       recognizer.on('result', (msg: any) => {
-        const text = msg.result?.text?.trim();
+        const text = msg?.result?.text?.trim();
         if (text) {
-          fullTranscript = fullTranscript ? `${fullTranscript} ${text}` : text;
+          segments.push(text);
         }
+        checkDone();
       });
 
-      recognizer.acceptWaveform(audioBuffer);
-      recognizer.retrieveFinalResult();
+      recognizer.on('partialresult', () => {
+        checkDone();
+      });
 
-      // Give worker time to process buffer and return final result
-      timer = setTimeout(finish, 800);
+      recognizer.on('error', (msg: any) => {
+        finish(new Error(msg?.error || 'Offline speech recognition error'));
+      });
+
+      // Safety timeout for very slow devices (15s instead of premature 800ms)
+      const safetyTimer = setTimeout(() => {
+        finish();
+      }, 15000);
+
+      if (channelData.length === 0) {
+        recognizer.acceptWaveformFloat(new Float32Array(160), sampleRate);
+      } else {
+        for (let offset = 0; offset < channelData.length; offset += CHUNK_SIZE) {
+          const slice = channelData.subarray(
+            offset,
+            Math.min(offset + CHUNK_SIZE, channelData.length)
+          );
+          recognizer.acceptWaveformFloat(slice, sampleRate);
+        }
+      }
+      recognizer.retrieveFinalResult();
     });
   } finally {
-    try { await ctx.close(); } catch {}
+    try {
+      await ctx.close();
+    } catch {
+      // ignore
+    }
   }
 }

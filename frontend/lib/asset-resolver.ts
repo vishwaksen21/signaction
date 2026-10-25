@@ -4,6 +4,7 @@
  */
 
 import YOUTUBE_DICT from './youtube-dictionary.json';
+import { isNativeApk } from './platform';
 
 const ASSETS_BASE = '/assets/signs';
 
@@ -379,12 +380,15 @@ export const KNOWN_SIGN_TOKENS = new Set([
 ]);
 
 export const COMMON_ALIASES: Record<string, string> = {
-  'AM': 'BE', 'ARE': 'BE', 'WAS': 'BE', 'WERE': 'BE', 'BEEN': 'BE', 'BEING': 'BE',
+  'AM': 'BE', 'IS': 'BE', 'ARE': 'BE', 'WAS': 'BE', 'WERE': 'BE', 'BEEN': 'BE', 'BEING': 'BE',
   'DID': 'DO', 'DOES': 'DO', 'DOING': 'DO', 'DONE': 'DO',
   'HAS': 'HAVE', 'HAD': 'HAVE', 'HAVING': 'HAVE',
   'GOODBYE': 'BYE', 'THANKS': 'THANK_YOU', 'THANKYOU': 'THANK_YOU',
-  'CAN\'T': 'CANNOT', 'CANT': 'CANNOT', 'WON\'T': 'WILL', 'WONT': 'WILL',
+  'CAN\'T': 'CANNOT', 'CANT': 'CANNOT', 'WON\'T': 'DO_NOT', 'WONT': 'DO_NOT',
   'DON\'T': 'DO_NOT', 'DONT': 'DO_NOT', 'DOESN\'T': 'DOES_NOT', 'DOESNT': 'DOES_NOT',
+  'U': 'YOU', 'YA': 'YOU',
+  'ZERO': '0', 'ONE': '1', 'TWO': '2', 'THREE': '3', 'FOUR': '4',
+  'FIVE': '5', 'SIX': '6', 'SEVEN': '7', 'EIGHT': '8', 'NINE': '9',
   'EATING': 'EAT', 'ATE': 'EAT', 'EATEN': 'EAT',
   'DRINKING': 'DRINK', 'DRANK': 'DRINK',
   'SPEAKING': 'SPEAK', 'SPOKE': 'SPEAK', 'SPOKEN': 'SPEAK',
@@ -447,37 +451,96 @@ export function getYoutubeVideoUrl(token: string): string | null {
   return `https://www.youtube.com/watch?v=${videoIdOrUrl}`;
 }
 
+const PHRASE_MAPPINGS: Array<{ parts: string[]; target: string }> = [
+  { parts: ['MY', 'NAME', 'IS'], target: 'MY_NAME_IS' },
+  { parts: ['MY', 'NAME', 'BE'], target: 'MY_NAME_IS' },
+  { parts: ['THANK', 'YOU'], target: 'THANK_YOU' },
+  { parts: ['GOOD', 'MORNING'], target: 'GOOD_MORNING' },
+  { parts: ['GOOD', 'AFTERNOON'], target: 'GOOD_AFTERNOON' },
+  { parts: ['GOOD', 'NIGHT'], target: 'GOOD_NIGHT' },
+  { parts: ['EXCUSE', 'ME'], target: 'EXCUSE_ME' },
+  { parts: ['I', 'UNDERSTAND'], target: 'I_UNDERSTAND' },
+  { parts: ['ME', 'UNDERSTAND'], target: 'I_UNDERSTAND' },
+  { parts: ['DO', 'NOT'], target: 'DO_NOT' },
+  { parts: ['DOES', 'NOT'], target: 'DOES_NOT' },
+  { parts: ['CAN', 'NOT'], target: 'CANNOT' },
+];
+
+function applyPhraseMapping(tokens: string[]): string[] {
+  if (!tokens.length) return [];
+  const out: string[] = [];
+  let i = 0;
+  while (i < tokens.length) {
+    let matched = false;
+    for (const { parts, target } of PHRASE_MAPPINGS) {
+      if (i + parts.length <= tokens.length) {
+        let ok = true;
+        for (let j = 0; j < parts.length; j++) {
+          if (tokens[i + j] !== parts[j]) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) {
+          out.push(target);
+          i += parts.length;
+          matched = true;
+          break;
+        }
+      }
+    }
+    if (!matched) {
+      out.push(tokens[i]!);
+      i += 1;
+    }
+  }
+  return out;
+}
+
 /**
  * Resolve tokens to gesture video URLs.
- * 1. Checks local sign dataset first.
- * 2. Falls back to YouTube sign video if not in local dataset.
- * 3. Falls back to character-by-character fingerspelling if not in YouTube either.
+ * 1. Collapses multi-word ISL phrases (e.g. THANK YOU -> THANK_YOU, MY NAME IS -> MY_NAME_IS).
+ * 2. Checks local sign dataset first.
+ * 3. Falls back to YouTube sign video ONLY when online and allowed.
+ * 4. Falls back to local character-by-character fingerspelling (A-Z, 0-9) for offline/unknown words.
  */
 export function resolveTokensWithFingerspelling(
   tokens: string[],
-  assetsBaseUrl: string = ASSETS_BASE
+  assetsBaseUrl: string = ASSETS_BASE,
+  options: { allowOnlineFallback?: boolean } = {}
 ): { tokens: string[]; gestures: string[] } {
+  const canUseOnlineFallback =
+    options.allowOnlineFallback ??
+    (typeof navigator !== 'undefined' ? navigator.onLine && !isNativeApk() : false);
+
+  const normalized = tokens
+    .map((raw) => raw.toUpperCase().trim().replace(/[^A-Z0-9_']/g, ''))
+    .filter(Boolean);
+
+  const preCollapsed = applyPhraseMapping(normalized);
+  const aliasedList = preCollapsed.map((tok) => {
+    const clean = tok.replace(/'/g, '');
+    return COMMON_ALIASES[tok] || COMMON_ALIASES[clean] || clean;
+  });
+  const collapsed = applyPhraseMapping(aliasedList);
+
   const tokensOut: string[] = [];
   const gesturesOut: string[] = [];
 
-  for (const raw of tokens) {
-    const norm = raw.toUpperCase().trim().replace(/[^A-Z0-9_]/g, '');
-    if (!norm) continue;
-
-    const aliased = COMMON_ALIASES[norm] || norm;
+  for (const aliased of collapsed) {
+    if (!aliased) continue;
 
     if (KNOWN_SIGN_TOKENS.has(aliased)) {
       tokensOut.push(aliased);
       gesturesOut.push(`${assetsBaseUrl}/${aliased}.mp4`);
     } else {
-      // 1st Fallback: check YouTube dictionary for words not in the local dataset
-      const ytUrl = getYoutubeVideoUrl(aliased) || getYoutubeVideoUrl(norm);
+      const ytUrl = canUseOnlineFallback ? getYoutubeVideoUrl(aliased) : null;
       if (ytUrl) {
         tokensOut.push(aliased);
         gesturesOut.push(ytUrl);
       } else {
-        // 2nd Fallback: Fingerspell unknown token letter by letter (A-Z, 0-9)
-        for (const char of norm) {
+        // Offline / unknown word fallback: fingerspell character by character using bundled local MP4s
+        for (const char of aliased) {
           if (KNOWN_SIGN_TOKENS.has(char)) {
             tokensOut.push(char);
             gesturesOut.push(`${assetsBaseUrl}/${char}.mp4`);

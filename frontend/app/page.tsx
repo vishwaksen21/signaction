@@ -1,29 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   Play,
   Pause,
-  RotateCcw,
-  Sparkles,
   Volume2,
   CheckCircle2,
   Mic,
-  Camera,
   BookOpen,
   Eye,
   Layers,
   ShieldCheck,
-  Zap,
-  Globe2,
   Smartphone,
   Download,
 } from 'lucide-react';
-import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
+import {
+  OFFICIAL_APK_DOWNLOAD_URL,
+  OFFICIAL_APK_SIZE_LABEL,
+  isNativeApk,
+} from '@/lib/platform';
 
 interface InteractiveGesture {
   token: string;
@@ -37,43 +36,59 @@ const SAMPLE_GESTURES: InteractiveGesture[] = [
   {
     token: 'HELLO',
     english: 'Hello, how can I help you?',
-    gloss: 'HELLO I HELP YOU HOW',
+    gloss: 'HELLO ME YOU HELP HOW',
     category: 'Greeting',
     videoUrl: '/assets/signs/HELLO.mp4',
   },
   {
     token: 'THANK YOU',
     english: 'Thank you very much.',
-    gloss: 'THANK YOU MUCH',
+    gloss: 'THANK_YOU MUCH',
     category: 'Courtesy',
     videoUrl: '/assets/signs/THANK_YOU.mp4',
   },
   {
     token: 'WELCOME',
     english: 'You are welcome here.',
-    gloss: 'WELCOME HERE YOU',
+    gloss: 'YOU HERE WELCOME',
     category: 'Hospitality',
     videoUrl: '/assets/signs/WELCOME.mp4',
   },
   {
     token: 'HELP',
     english: 'Do you need help?',
-    gloss: 'YOU HELP NEED QUESTION',
+    gloss: 'YOU HELP NEED',
     category: 'Assistance',
     videoUrl: '/assets/signs/HELP.mp4',
   },
   {
-    token: 'GOOD',
+    token: 'GOOD MORNING',
     english: 'Good morning, nice to meet you.',
-    gloss: 'GOOD MORNING MEET NICE',
+    gloss: 'GOOD_MORNING NICE YOU MEET',
     category: 'Greeting',
-    videoUrl: '/assets/signs/GOOD.mp4',
+    videoUrl: '/assets/signs/GOOD_MORNING.mp4',
   },
 ];
 
 export default function LandingPage() {
   const [activeGesture, setActiveGesture] = useState<InteractiveGesture>(SAMPLE_GESTURES[0]);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isNative, setIsNative] = useState(false);
+  const explorerVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setIsNative(isNativeApk());
+  }, []);
+
+  useEffect(() => {
+    const el = explorerVideoRef.current;
+    if (!el) return;
+    if (isPlaying) {
+      el.play().catch(() => {});
+    } else {
+      el.pause();
+    }
+  }, [isPlaying, activeGesture.videoUrl]);
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 selection:bg-[#12CFF3]/30 selection:text-[#062B5C] transition-colors duration-300">
@@ -120,23 +135,26 @@ export default function LandingPage() {
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
                 <Link
                   href="/translator"
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-3.5 shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 sm:px-7 py-3.5 min-h-[48px] shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                 >
                   <span>Start Translating</span>
                   <ArrowRight size={17} />
                 </Link>
 
-                <a
-                  href={OFFICIAL_APK_DOWNLOAD_URL}
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-6 py-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-                >
-                  <Smartphone size={17} className="text-[#0757E8] dark:text-[#12CFF3]" />
-                  <span>Download APK</span>
-                </a>
+                {!isNative && (
+                  <a
+                    href={OFFICIAL_APK_DOWNLOAD_URL}
+                    download="signaction.apk"
+                    className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-6 py-3.5 min-h-[48px] shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                  >
+                    <Smartphone size={17} className="text-[#0757E8] dark:text-[#12CFF3]" />
+                    <span>Download APK</span>
+                  </a>
+                )}
 
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white px-4 py-3.5 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white px-4 py-3.5 min-h-[48px] transition-colors"
                 >
                   <Play size={14} className="fill-current text-[#0757E8] dark:text-[#12CFF3]" />
                   <span>How it works</span>
@@ -144,30 +162,30 @@ export default function LandingPage() {
               </div>
 
               {/* 3 Core Value Props with Hairline Dividers */}
-              <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 grid grid-cols-3 gap-4 sm:gap-6">
-                <div className="space-y-1">
-                  <div className="font-heading font-bold text-base sm:text-lg text-[#062B5C] dark:text-white">
+              <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 grid grid-cols-3 gap-2.5 sm:gap-6">
+                <div className="space-y-1 min-w-0">
+                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
                     100% Offline
                   </div>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400">
+                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
                     No internet required
                   </p>
                 </div>
 
-                <div className="space-y-1 border-l border-slate-200/80 dark:border-slate-800/80 pl-4 sm:pl-6">
-                  <div className="font-heading font-bold text-base sm:text-lg text-[#062B5C] dark:text-white">
+                <div className="space-y-1 min-w-0 border-l border-slate-200/80 dark:border-slate-800/80 pl-2.5 sm:pl-6">
+                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
                     Real-Time
                   </div>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400">
-                    Text, voice & camera
+                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
+                    Text &amp; voice signs
                   </p>
                 </div>
 
-                <div className="space-y-1 border-l border-slate-200/80 dark:border-slate-800/80 pl-4 sm:pl-6">
-                  <div className="font-heading font-bold text-base sm:text-lg text-[#062B5C] dark:text-white">
+                <div className="space-y-1 min-w-0 border-l border-slate-200/80 dark:border-slate-800/80 pl-2.5 sm:pl-6">
+                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
                     Accessible
                   </div>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400">
+                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
                     Built for everyone
                   </p>
                 </div>
@@ -221,10 +239,10 @@ export default function LandingPage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="absolute top-4 sm:top-8 left-2 sm:-left-6 lg:-left-10 max-w-[210px] sm:max-w-[260px] bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-blue-900/50 shadow-[0_10px_30px_rgba(10,25,47,0.08)] flex items-center gap-2.5 sm:gap-3 z-20"
+                  className="absolute top-3 sm:top-8 left-2 sm:-left-6 lg:-left-10 max-w-[185px] xs:max-w-[215px] sm:max-w-[260px] bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-blue-900/50 shadow-[0_10px_30px_rgba(10,25,47,0.08)] flex items-center gap-2 sm:gap-3 z-20"
                 >
-                  <div className="flex-1">
-                    <p className="text-xs sm:text-sm font-semibold text-[#062B5C] dark:text-white leading-snug">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] xs:text-xs sm:text-sm font-semibold text-[#062B5C] dark:text-white leading-snug">
                       Hello, how can I help you today?
                     </p>
                   </div>
@@ -251,7 +269,7 @@ export default function LandingPage() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  className="absolute bottom-4 sm:bottom-8 right-2 sm:-right-6 lg:-right-8 w-[210px] sm:w-[280px] rounded-2xl bg-white/95 dark:bg-[#061229]/95 backdrop-blur-md border border-slate-200/90 dark:border-blue-900/60 p-2 sm:p-2.5 shadow-[0_16px_40px_rgba(10,25,47,0.12)] z-20"
+                  className="absolute bottom-3 sm:bottom-8 right-2 sm:-right-6 lg:-right-8 w-[185px] xs:w-[215px] sm:w-[280px] rounded-2xl bg-white/95 dark:bg-[#061229]/95 backdrop-blur-md border border-slate-200/90 dark:border-blue-900/60 p-2 sm:p-2.5 shadow-[0_16px_40px_rgba(10,25,47,0.12)] z-20"
                 >
                   <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-900 mb-2">
                     <Image
@@ -830,9 +848,10 @@ export default function LandingPage() {
               <div className="md:col-span-7">
                 <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-slate-200/80 dark:border-slate-800 shadow-md">
                   <video
+                    ref={explorerVideoRef}
                     key={activeGesture.videoUrl}
                     src={activeGesture.videoUrl}
-                    autoPlay
+                    autoPlay={isPlaying}
                     loop
                     muted
                     playsInline
@@ -841,6 +860,14 @@ export default function LandingPage() {
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-[11px] font-heading font-extrabold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
                     {activeGesture.category}
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying((p) => !p)}
+                    aria-label={isPlaying ? 'Pause gesture preview' : 'Play gesture preview'}
+                    className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95"
+                  >
+                    {isPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
+                  </button>
                 </div>
               </div>
 
@@ -886,7 +913,7 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-[#F0F7FF] dark:from-[#050B14] dark:to-[#07132B] border-y border-slate-200/80 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-[#07132C] rounded-[36px] p-8 sm:p-12 lg:p-16 border border-blue-200/80 dark:border-blue-900/60 shadow-[0_12px_40px_rgba(7,87,232,0.12)]">
+          <div className="bg-white dark:bg-[#07132C] rounded-[28px] sm:rounded-[36px] p-5 sm:p-10 lg:p-16 border border-blue-200/80 dark:border-blue-900/60 shadow-[0_12px_40px_rgba(7,87,232,0.12)] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               
               <div className="lg:col-span-7 space-y-6 text-left">
@@ -920,22 +947,33 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <a
-                    href={OFFICIAL_APK_DOWNLOAD_URL}
-                    className="inline-flex items-center gap-2.5 text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-8 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
-                  >
-                    <Download size={18} />
-                    <span>Download Android APK (145 MB)</span>
-                  </a>
+                  {isNative ? (
+                    <Link
+                      href="/translator"
+                      className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] transition-all duration-200 active:scale-[0.98]"
+                    >
+                      <CheckCircle2 size={18} />
+                      <span>Installed Offline • Open Translator</span>
+                    </Link>
+                  ) : (
+                    <a
+                      href={OFFICIAL_APK_DOWNLOAD_URL}
+                      download="signaction.apk"
+                      className="inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 sm:px-8 py-4 w-full sm:w-auto shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                    >
+                      <Download size={18} />
+                      <span>Download Android APK ({OFFICIAL_APK_SIZE_LABEL})</span>
+                    </a>
+                  )}
                   <span className="text-xs font-medium text-[#64748B] dark:text-slate-400">
                     Supports Android 8.0+ • Free & Ad-free
                   </span>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 flex justify-center">
-                {/* Authentic iPhone 16 / 15 Pro Chassis */}
-                <div className="relative w-[280px] sm:w-[310px] aspect-[9/19.2] bg-gradient-to-b from-[#383A40] via-[#1D1E22] to-[#2E2F35] rounded-[52px] p-[10px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.12)_inset,0_0_35px_rgba(7,87,232,0.18)] ring-1 ring-slate-800">
+              <div className="lg:col-span-5 flex justify-center px-2">
+                {/* Authentic Phone Chassis — fluid max-w so 360px screens never overflow */}
+                <div className="relative w-full max-w-[260px] sm:max-w-[300px] aspect-[9/19.2] bg-gradient-to-b from-[#383A40] via-[#1D1E22] to-[#2E2F35] rounded-[46px] sm:rounded-[52px] p-[9px] sm:p-[10px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.12)_inset,0_0_35px_rgba(7,87,232,0.18)] ring-1 ring-slate-800">
                   {/* Physical Hardware Buttons */}
                   {/* Left: Action Button */}
                   <div className="absolute -left-[3.5px] top-[88px] w-[3.5px] h-[24px] bg-[#42444A] rounded-l-sm border-r border-[#1B1B1E] shadow-sm" />
@@ -1043,13 +1081,24 @@ export default function LandingPage() {
 
                     {/* Bottom CTA & iOS Home Indicator */}
                     <div className="w-full space-y-2 pt-2">
-                      <a
-                        href={OFFICIAL_APK_DOWNLOAD_URL}
-                        className="w-full py-3.5 rounded-full bg-[#0757E8] hover:bg-[#064BD1] text-white text-xs font-bold shadow-[0_4px_16px_rgba(7,87,232,0.35)] transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                      >
-                        <Download size={15} />
-                        <span>Install on Phone</span>
-                      </a>
+                      {isNative ? (
+                        <Link
+                          href="/translator"
+                          className="w-full py-3.5 rounded-full bg-[#0757E8] hover:bg-[#064BD1] text-white text-xs font-bold shadow-[0_4px_16px_rgba(7,87,232,0.35)] transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                        >
+                          <ArrowRight size={15} />
+                          <span>Launch Translator</span>
+                        </Link>
+                      ) : (
+                        <a
+                          href={OFFICIAL_APK_DOWNLOAD_URL}
+                          download="signaction.apk"
+                          className="w-full py-3.5 rounded-full bg-[#0757E8] hover:bg-[#064BD1] text-white text-xs font-bold shadow-[0_4px_16px_rgba(7,87,232,0.35)] transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                        >
+                          <Download size={15} />
+                          <span>Install on Phone</span>
+                        </a>
+                      )}
 
                       {/* iOS Bottom Home Bar */}
                       <div className="w-32 h-1 bg-slate-900/40 dark:bg-white/40 rounded-full mx-auto mt-2 mb-0.5 shrink-0" />
@@ -1067,9 +1116,9 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       {/* 8. REFINED FINAL CALL TO ACTION                                           */}
       {/* ========================================================================= */}
-      <section className="py-20 sm:py-28 relative">
+      <section className="py-16 sm:py-28 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-[36px] bg-gradient-to-b from-[#062B5C] to-[#0A192F] text-white p-10 sm:p-16 text-center space-y-7 shadow-[0_20px_60px_rgba(6,43,92,0.18)] relative overflow-hidden">
+          <div className="rounded-[28px] sm:rounded-[36px] bg-gradient-to-b from-[#062B5C] to-[#0A192F] text-white p-6 sm:p-14 lg:p-16 text-center space-y-7 shadow-[0_20px_60px_rgba(6,43,92,0.18)] relative overflow-hidden">
             
             {/* Subtle light ambient glow */}
             <div className="absolute top-0 right-1/4 w-[350px] h-[350px] bg-[#12CFF3]/15 rounded-full blur-3xl pointer-events-none" />
@@ -1086,26 +1135,29 @@ export default function LandingPage() {
               Start translating text and voice into Indian Sign Language today. Free, private, and always available offline on your device.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2">
               <Link
                 href="/translator"
-                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] bg-white hover:bg-slate-100 rounded-full px-8 py-3.5 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] bg-white hover:bg-slate-100 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Start Translating Now</span>
                 <ArrowRight size={17} />
               </Link>
 
-              <a
-                href={OFFICIAL_APK_DOWNLOAD_URL}
-                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-8 py-3.5 transition-all"
-              >
-                <Smartphone size={16} className="text-[#12CFF3]" />
-                <span>Download Android APK</span>
-              </a>
+              {!isNative && (
+                <a
+                  href={OFFICIAL_APK_DOWNLOAD_URL}
+                  download="signaction.apk"
+                  className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto transition-all"
+                >
+                  <Smartphone size={16} className="text-[#12CFF3]" />
+                  <span>Download Android APK</span>
+                </a>
+              )}
 
               <Link
                 href="/dictionary"
-                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-slate-300 hover:text-white px-6 py-3.5 transition-colors"
+                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-slate-300 hover:text-white px-6 py-3.5 min-h-[48px] transition-colors"
               >
                 <span>Explore Dictionary</span>
               </Link>

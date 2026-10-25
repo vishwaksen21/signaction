@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
-"""Patch Capacitor Android WebViewLocalServer.java for robust HTML5 video Range requests."""
+"""Patch Capacitor Android WebViewLocalServer.java for HTML5 video Range requests and Next.js static route resolution."""
 
-import os
 from pathlib import Path
 
-TARGET = Path(__file__).resolve().parents[1] / "frontend" / "node_modules" / "@capacitor" / "android" / "capacitor" / "src" / "main" / "java" / "com" / "getcapacitor" / "WebViewLocalServer.java"
+TARGET = (
+    Path(__file__).resolve().parents[1]
+    / "frontend"
+    / "node_modules"
+    / "@capacitor"
+    / "android"
+    / "capacitor"
+    / "src"
+    / "main"
+    / "java"
+    / "com"
+    / "getcapacitor"
+    / "WebViewLocalServer.java"
+)
 
 if not TARGET.exists():
     print(f"File not found: {TARGET}")
-    exit(0)
+    raise SystemExit(0)
 
 content = TARGET.read_text(encoding="utf-8")
-
-if "class BoundedInputStream" in content and "toSkip" in content:
-    print("WebViewLocalServer.java is already patched with BoundedInputStream.")
-    exit(0)
 
 # Replace the broken Range handling block
 ORIGINAL_RANGE_BLOCK = """        if (rangeString != null) {
@@ -149,6 +157,27 @@ ORIGINAL_GET_BLOCK = """            String mimeType = getMimeType(path, response
 FIXED_GET_BLOCK = """            String mimeType = getMimeType(path, responseStream);
             int statusCode = getStatusCode(responseStream, handler.getStatusCode());
             Map<String, String> defaultHeaders = handler.buildDefaultResponseHeaders();
+            if (statusCode == 200 && (ext.equals(".mp4") || ext.equals(".webm") || ext.equals(".gz") || ext.equals(".tar"))) {
+                defaultHeaders.put("Accept-Ranges", "bytes");
+                try {
+                    int avail = responseStream.available();
+                    if (avail > 0) {
+                        defaultHeaders.put("Content-Length", String.valueOf(avail));
+                    }
+                } catch (Exception ignored) {}
+            }
+            return new WebResourceResponse(
+                mimeType,
+                handler.getEncoding(),
+                statusCode,
+                handler.getReasonPhrase(),
+                defaultHeaders,
+                responseStream
+            );"""
+
+PREV_FIXED_GET_BLOCK = """            String mimeType = getMimeType(path, responseStream);
+            int statusCode = getStatusCode(responseStream, handler.getStatusCode());
+            Map<String, String> defaultHeaders = handler.buildDefaultResponseHeaders();
             if (statusCode == 200 && (ext.equals(".mp4") || ext.equals(".webm"))) {
                 defaultHeaders.put("Accept-Ranges", "bytes");
                 try {
@@ -166,6 +195,67 @@ FIXED_GET_BLOCK = """            String mimeType = getMimeType(path, responseStr
                 defaultHeaders,
                 responseStream
             );"""
+
+ORIGINAL_HTML_ROUTE_BLOCK = """        if (path.equals("/") || (!request.getUrl().getLastPathSegment().contains(".") && html5mode)) {
+            InputStream responseStream;
+            try {
+                String startPath = this.basePath + "/index.html";
+                if (bridge.getRouteProcessor() != null) {
+                    ProcessedRoute processedRoute = bridge.getRouteProcessor().process(this.basePath, "/index.html");
+                    startPath = processedRoute.getPath();
+                    isAsset = processedRoute.isAsset();
+                }
+
+                if (isAsset) {
+                    responseStream = protocolHandler.openAsset(startPath);
+                } else {
+                    responseStream = protocolHandler.openFile(startPath);
+                }
+            } catch (IOException e) {
+                Logger.error("Unable to open index.html", e);
+                return null;
+            }"""
+
+FIXED_HTML_ROUTE_BLOCK = """        if (path.equals("/") || (!request.getUrl().getLastPathSegment().contains(".") && html5mode)) {
+            InputStream responseStream = null;
+            if (!path.equals("/")) {
+                String cleanRoute = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+                String[] candidates = new String[] {
+                    this.basePath + cleanRoute + ".html",
+                    this.basePath + cleanRoute + "/index.html"
+                };
+                for (String candidate : candidates) {
+                    try {
+                        responseStream = isAsset
+                            ? protocolHandler.openAsset(candidate)
+                            : protocolHandler.openFile(candidate);
+                        if (responseStream != null) {
+                            break;
+                        }
+                    } catch (IOException ignored) {
+                        responseStream = null;
+                    }
+                }
+            }
+            if (responseStream == null) {
+                try {
+                    String startPath = this.basePath + "/index.html";
+                    if (bridge.getRouteProcessor() != null) {
+                        ProcessedRoute processedRoute = bridge.getRouteProcessor().process(this.basePath, "/index.html");
+                        startPath = processedRoute.getPath();
+                        isAsset = processedRoute.isAsset();
+                    }
+
+                    if (isAsset) {
+                        responseStream = protocolHandler.openAsset(startPath);
+                    } else {
+                        responseStream = protocolHandler.openFile(startPath);
+                    }
+                } catch (IOException e) {
+                    Logger.error("Unable to open index.html", e);
+                    return null;
+                }
+            }"""
 
 BOUNDED_STREAM_CLASS = """    private static class BoundedInputStream extends InputStream {
         private final InputStream in;
@@ -222,6 +312,13 @@ if ORIGINAL_RANGE_BLOCK in content:
 if ORIGINAL_GET_BLOCK in content:
     content = content.replace(ORIGINAL_GET_BLOCK, FIXED_GET_BLOCK)
     modified = True
+elif PREV_FIXED_GET_BLOCK in content:
+    content = content.replace(PREV_FIXED_GET_BLOCK, FIXED_GET_BLOCK)
+    modified = True
+
+if "cleanRoute + \".html\"" not in content and ORIGINAL_HTML_ROUTE_BLOCK in content:
+    content = content.replace(ORIGINAL_HTML_ROUTE_BLOCK, FIXED_HTML_ROUTE_BLOCK)
+    modified = True
 
 if "class BoundedInputStream" not in content and "    public String getBasePath() {" in content:
     content = content.replace("    public String getBasePath() {", BOUNDED_STREAM_CLASS)
@@ -231,4 +328,4 @@ if modified:
     TARGET.write_text(content, encoding="utf-8")
     print("Successfully patched WebViewLocalServer.java")
 else:
-    print("No changes needed or blocks not matched.")
+    print("WebViewLocalServer.java already fully patched.")

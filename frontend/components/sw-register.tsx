@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { isNativeApk } from '../lib/platform';
 
 /**
  * Registers the service worker for PWA offline support.
@@ -12,27 +13,34 @@ export function ServiceWorkerRegister() {
       return;
     }
 
+    // Native Capacitor APK serves bundled assets directly from WebViewLocalServer (https://localhost).
+    // Never unregister or purge caches inside the native APK.
+    if (isNativeApk()) {
+      return;
+    }
+
     let intervalId: ReturnType<typeof setInterval> | undefined;
     let cleanupFn: (() => void) | undefined;
 
-    const isLocalhost =
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1';
+    const isDevLocalhost =
+      process.env.NODE_ENV === 'development' &&
+      (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1');
 
-    if (isLocalhost) {
-      // In local development, unregister any active service workers and clear caches
-      // to ensure the latest compiled JS/CSS bundles always execute directly.
+    if (isDevLocalhost) {
+      // In Next.js dev mode, unregister active SWs to avoid HMR chunk staleness,
+      // while preserving user-downloaded offline sign media ('signaction-v1').
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const reg of registrations) {
           reg.unregister();
-          console.log('[PWA] Unregistered service worker for localhost');
         }
       });
       if ('caches' in window) {
         caches.keys().then((names) => {
           for (const name of names) {
-            caches.delete(name);
-            console.log('[PWA] Purged cache:', name);
+            if (name !== 'signaction-v1') {
+              caches.delete(name);
+            }
           }
         });
       }

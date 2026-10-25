@@ -10,17 +10,20 @@ import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate'
 
 export default function YoutubeTranslatorPage() {
   const [text, setText] = useState('');
+  const [activeTokenIndex, setActiveTokenIndex] = useState(0);
 
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
 
   const handleTranslateText = () => {
     translateSpeech.reset();
+    setActiveTokenIndex(0);
     translateText.mutate({ text });
   };
 
   const handleTranslateSpeech = (file: File) => {
     translateText.reset();
+    setActiveTokenIndex(0);
     translateSpeech.mutate({ file });
   };
 
@@ -124,7 +127,7 @@ export default function YoutubeTranslatorPage() {
       </section>
 
       {/* Main Workspace */}
-      <div id="play" className="flex-1 max-w-7xl w-full mx-auto py-12 px-4 md:px-8">
+      <div id="play" className="flex-1 max-w-7xl w-full mx-auto py-12 px-4 md:px-8 scroll-mt-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Input Box */}
@@ -169,13 +172,18 @@ export default function YoutubeTranslatorPage() {
                   <span className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider block">
                     Gloss Tokens
                   </span>
-                  <TokenChips tokens={active.tokens} />
+                  <TokenChips tokens={active.tokens} activeIndex={activeTokenIndex} />
                 </div>
               )}
 
               {/* Video Slideshow Player */}
               <div className="flex-1 flex flex-col justify-center">
-                <GestureSequencePlayer gestures={active?.gestures ?? []} loading={isLoading} />
+                <GestureSequencePlayer
+                  gestures={active?.gestures ?? []}
+                  tokens={active?.tokens}
+                  onIndexChange={setActiveTokenIndex}
+                  loading={isLoading}
+                />
               </div>
             </div>
           </section>

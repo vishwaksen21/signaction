@@ -1,47 +1,86 @@
 'use client';
 
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Hand,
-  Sparkles,
   Zap,
   WifiOff,
-  Shield,
   Layers,
-  ArrowDown,
-  CheckCircle2,
 } from 'lucide-react';
 import { TranslatorInput } from '../../components/translator-input';
 import { GestureSequencePlayer } from '../../components/gesture-sequence-player';
 import { TokenChips } from '../../components/token-chips';
 import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate';
-import { translateTextOffline } from '../../lib/offline-translate';
-import { OfflineBadge } from '../../components/model-download';
+import { translateTextOffline, isOfflineSTTReady } from '../../lib/offline-translate';
+import { isNativeApk } from '../../lib/platform';
 
 export default function TranslatorPage() {
   const [text, setText] = useState('');
   const [offlineResult, setOfflineResult] = useState<any>(null);
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
+  const [isOfflineNetwork, setIsOfflineNetwork] = useState(false);
+  const [speechReadyOffline, setSpeechReadyOffline] = useState(false);
+  const initialQueryHandledRef = useRef(false);
 
   const translateText = useTranslateText();
   const translateSpeech = useTranslateSpeech();
 
-  const handleTranslateText = () => {
-    translateSpeech.reset();
-    setOfflineResult(null);
-    setActiveTokenIndex(0);
-    translateText.mutate(
-      { text },
-      {
-        onError: () => {
-          // Automatic offline fallback
-          const result = translateTextOffline(text);
-          setOfflineResult(result);
-        },
+  const runTextTranslation = useCallback(
+    (inputText: string) => {
+      const trimmed = inputText.trim();
+      if (!trimmed) return;
+      translateSpeech.reset();
+      setOfflineResult(null);
+      setActiveTokenIndex(0);
+      translateText.mutate(
+        { text: trimmed },
+        {
+          onError: () => {
+            // Automatic offline fallback
+            const result = translateTextOffline(trimmed);
+            setOfflineResult(result);
+          },
+        }
+      );
+    },
+    [translateSpeech, translateText]
+  );
+
+  useEffect(() => {
+    const native = isNativeApk();
+    const syncNetwork = () => setIsOfflineNetwork(!navigator.onLine);
+    syncNetwork();
+    window.addEventListener('online', syncNetwork);
+    window.addEventListener('offline', syncNetwork);
+
+    if (native) {
+      setSpeechReadyOffline(true);
+    } else {
+      isOfflineSTTReady()
+        .then((ready) => setSpeechReadyOffline(ready))
+        .catch(() => {});
+    }
+
+    // Handle ?text=... deep link (e.g. from Dictionary "Use in Translator")
+    if (!initialQueryHandledRef.current && typeof window !== 'undefined') {
+      initialQueryHandledRef.current = true;
+      const params = new URLSearchParams(window.location.search);
+      const qText = params.get('text')?.trim();
+      if (qText) {
+        setText(qText);
+        runTextTranslation(qText);
       }
-    );
+    }
+
+    return () => {
+      window.removeEventListener('online', syncNetwork);
+      window.removeEventListener('offline', syncNetwork);
+    };
+  }, [runTextTranslation]);
+
+  const handleTranslateText = () => {
+    runTextTranslation(text);
   };
 
   const handleTranslateSpeech = (file: File) => {
@@ -54,14 +93,6 @@ export default function TranslatorPage() {
   const active = translateSpeech.data ?? translateText.data;
   const isLoading = translateText.isPending || translateSpeech.isPending;
   const error = offlineResult ? null : ((translateText.error ?? translateSpeech.error) as Error | null);
-
-
-  const handleTranslateOffline = useCallback(() => {
-    if (!text.trim()) return;
-    setActiveTokenIndex(0);
-    const result = translateTextOffline(text);
-    setOfflineResult(result);
-  }, [text]);
 
   // Clear offline result when text changes
   const handleTextChange = useCallback((val: string) => {
@@ -96,23 +127,40 @@ export default function TranslatorPage() {
 
           {/* Offline Status Badge */}
           <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>100% Offline Ready</span>
-            </div>
+            {isOfflineNetwork ? (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-xs font-semibold shadow-2xs self-start sm:self-end">
+                <WifiOff size={13} />
+                <span>Offline Mode Active</span>
+              </div>
+            ) : speechReadyOffline ? (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-2xs self-start sm:self-end">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>100% Offline Ready</span>
+              </div>
+            ) : (
+              <Link
+                href="/offline-setup"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/50 text-[#0757E8] dark:text-[#12CFF3] text-xs font-semibold shadow-2xs hover:bg-blue-100/70 transition-colors self-start sm:self-end"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
+                <span>Offline Text Ready • Cache Voice AI →</span>
+              </Link>
+            )}
             <p className="text-[11px] text-[#64748B] dark:text-slate-400">
-              On-device speech AI & local video assets
+              {speechReadyOffline
+                ? 'On-device speech AI & local video assets'
+                : 'Bundled ISL lexicon active; cache voice AI for offline mic'}
             </p>
           </div>
         </div>
 
         {/* Global Error Banner */}
         {error && (
-          <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-sm flex items-center justify-between gap-3">
             <span>{error.message}</span>
             <button
               onClick={() => { translateText.reset(); translateSpeech.reset(); }}
-              className="text-xs font-bold underline hover:no-underline"
+              className="text-xs font-bold underline hover:no-underline shrink-0"
             >
               Dismiss
             </button>
@@ -133,7 +181,7 @@ export default function TranslatorPage() {
             onTranslateText={handleTranslateText}
             onTranslateSpeech={handleTranslateSpeech}
             loading={isLoading}
-            error={error?.message ?? null}
+            error={null}
           />
         </motion.div>
 
@@ -142,7 +190,7 @@ export default function TranslatorPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 py-1"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 py-1"
           >
             <span className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">English Text</span>
             <span className="text-[#0757E8]">→</span>

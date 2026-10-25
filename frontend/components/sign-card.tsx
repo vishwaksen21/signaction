@@ -101,14 +101,14 @@ export function SignCard({
         )}
 
         {/* Play/Pause Overlay Controls */}
-        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 z-10">
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2 z-10">
           <button
             type="button"
             onClick={togglePlay}
             aria-label={isPlaying ? `Pause ${token} gesture` : `Play ${token} gesture`}
-            className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center transition-transform hover:scale-110 active:scale-95 focus-ring"
+            className="w-10 h-10 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 focus-ring"
           >
-            {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+            {isPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
           </button>
           {onClick && (
             <button
@@ -118,9 +118,9 @@ export function SignCard({
                 onClick();
               }}
               aria-label={`Expand ${token} gesture`}
-              className="w-8 h-8 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#0757E8] flex items-center justify-center transition-transform hover:scale-110 active:scale-95 focus-ring"
+              className="w-10 h-10 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#0757E8] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 focus-ring"
             >
-              <Maximize2 size={13} />
+              <Maximize2 size={14} />
             </button>
           )}
         </div>

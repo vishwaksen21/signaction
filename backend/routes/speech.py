@@ -190,9 +190,9 @@ async def translate_speech(file: UploadFile = File(...)) -> TranslateSpeechRespo
                 tokens_out.append(item.token)
                 gestures.append(yt_match["youtubeUrl"])
             else:
-                # Word is not found anywhere. Fingerspell it letter by letter!
+                # Word is not found anywhere. Fingerspell it character by character!
                 for char in item.token.upper():
-                    if "A" <= char <= "Z":
+                    if ("A" <= char <= "Z") or ("0" <= char <= "9"):
                         resolved_char = lex.resolve(char)
                         if resolved_char and resolved_char.media_path.exists():
                             tokens_out.append(char)

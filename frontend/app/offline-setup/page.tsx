@@ -16,14 +16,17 @@ import {
   Smartphone,
 } from 'lucide-react';
 import Link from 'next/link';
-import { OFFICIAL_APK_DOWNLOAD_URL } from '@/lib/platform';
+import {
+  OFFICIAL_APK_DOWNLOAD_URL,
+  OFFICIAL_APK_SIZE_LABEL,
+  isNativeApk,
+} from '@/lib/platform';
 import {
   setupOffline,
   isFullyOfflineReady,
   type OfflineSetupProgress,
   type DownloadPhase,
 } from '../../lib/offline-setup';
-import { isNativeApk } from '../../lib/platform';
 
 type SetupState = 'idle' | 'downloading' | 'complete' | 'error';
 
@@ -141,10 +144,10 @@ export default function OfflineSetupPage() {
               {
                 icon: <Hand size={22} />,
                 title: 'Sign Assets',
-                size: isNative ? 'Bundled' : '~18MB',
+                size: isNative ? 'Bundled' : '~28MB',
                 desc: isNative
-                  ? '182 sign videos & 36 alphabet signs'
-                  : '100+ gesture videos, ISL alphabet, and fallbacks',
+                  ? '347 sign videos & 36 alphabet/digit signs'
+                  : 'Essential ISL gesture videos, A–Z & 0–9 fingerspelling',
               },
               {
                 icon: <RefreshCw size={22} />,
@@ -199,7 +202,7 @@ export default function OfflineSetupPage() {
                 </div>
                 <p className="text-sm text-[#64748B] dark:text-slate-400">
                   {isNative
-                    ? 'All speech models, vocabulary, and 182 gesture videos are bundled directly inside this Android app. No downloads required.'
+                    ? 'All speech models, vocabulary, and 347 gesture videos are bundled directly inside this Android app. No downloads required.'
                     : 'All models and gesture clips are cached locally. You can use SignAction without Wi-Fi or mobile data.'}
                 </p>
                 <div>
@@ -247,10 +250,11 @@ export default function OfflineSetupPage() {
                 <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
                     href={OFFICIAL_APK_DOWNLOAD_URL}
-                    className="btn-sign-secondary inline-flex items-center justify-center gap-2 text-sm px-6 py-3 w-full sm:w-auto"
+                    download="signaction.apk"
+                    className="btn-sign-secondary inline-flex items-center justify-center gap-2 text-sm px-6 py-3 min-h-[48px] w-full sm:w-auto"
                   >
                     <Smartphone size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
-                    <span>Download Native Android APK (145 MB)</span>
+                    <span>Download Native Android APK ({OFFICIAL_APK_SIZE_LABEL})</span>
                   </a>
                 </div>
                 {error && (
