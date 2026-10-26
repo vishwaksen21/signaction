@@ -54,13 +54,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] dark:bg-[#050B14] text-[#062B5C] dark:text-slate-100 overflow-x-hidden">
+      <body className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] dark:bg-[#050B14] text-[#062B5C] dark:text-slate-100">
         <Providers>
           {/* Top Navigation Bar */}
           <Navbar />
 
           {/* Main content */}
-          <main className="flex-1 flex flex-col w-full">
+          <main className="flex-1 flex flex-col w-full overflow-x-clip">
             {children}
           </main>
 

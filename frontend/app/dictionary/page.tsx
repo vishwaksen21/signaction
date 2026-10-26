@@ -19,6 +19,12 @@ import { SignCard } from '../../components/sign-card';
 import { SignViewer } from '../../components/sign-viewer';
 import { Skeleton } from '../../components/ui/skeleton';
 import type { DictionaryItem } from '../../lib/api';
+import {
+  WORST_CASE_ITEMS,
+  SINGLE_ITEM,
+  EMPTY_ITEMS,
+  HUGE_ITEMS,
+} from '../../lib/worst-case-dictionary';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -42,6 +48,9 @@ export default function DictionaryPage() {
   const [category, setCategory] = useState<string>('all');
   const [visibleCount, setVisibleCount] = useState<number>(36);
 
+  // Dev-only Break-UI toggle: Demo / Worst Case / 1 Item / Empty / 1,284 Rows
+  const [dataMode, setDataMode] = useState<'demo' | 'worst' | 'one' | 'empty' | 'huge'>('demo');
+
   // Selected sign for HD Detail Modal
   const [selectedSignIndex, setSelectedSignIndex] = useState<number | null>(null);
   const [modalSpeed, setModalSpeed] = useState<number>(1.0);
@@ -52,12 +61,21 @@ export default function DictionaryPage() {
   // Reset pagination when filter or search changes
   useEffect(() => {
     setVisibleCount(36);
-  }, [query, letter, category]);
+  }, [query, letter, category, dataMode]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toUpperCase();
     const normalizedQ = q.replace(/\s+/g, '_');
-    const items: DictionaryItem[] = data?.items ?? [];
+    const items: DictionaryItem[] =
+      dataMode === 'worst'
+        ? WORST_CASE_ITEMS
+        : dataMode === 'one'
+        ? SINGLE_ITEM
+        : dataMode === 'empty'
+        ? EMPTY_ITEMS
+        : dataMode === 'huge'
+        ? HUGE_ITEMS
+        : data?.items ?? [];
 
     return items.filter((i) => {
       const tok = i.token.toUpperCase();
@@ -82,7 +100,7 @@ export default function DictionaryPage() {
       if (!q) return true;
       return tok.includes(q) || tok.includes(normalizedQ) || readableTok.includes(q);
     });
-  }, [data, query, letter, category]);
+  }, [data, query, letter, category, dataMode]);
 
   const visibleItems = useMemo(() => {
     return filtered.slice(0, visibleCount);
@@ -144,14 +162,14 @@ export default function DictionaryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:text-[#12CFF3]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] backdrop-blur-md border border-black/5 dark:border-white/10 text-xs font-mono font-bold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3] mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3] animate-pulse" />
               <span>Offline Gesture Library • 347 ISL Signs</span>
             </div>
-            <h1 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#062B5C] dark:text-white mb-4">
-              Sign Gesture <span className="text-[#0757E8] dark:text-[#12CFF3]">Dictionary</span>
+            <h1 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] text-[#1d1d1f] dark:text-white mb-4 leading-tight">
+              Sign Gesture <span className="bg-gradient-to-r from-[#0757E8] to-[#12CFF3] bg-clip-text text-transparent">Dictionary</span>
             </h1>
-            <p className="text-base sm:text-lg text-[#64748B] dark:text-slate-400">
+            <p className="text-base sm:text-lg text-[#60759A] dark:text-slate-300 font-normal">
               Browse and play verified Indian Sign Language gestures, alphabet fingerspellings, and common expressions offline.
             </p>
           </motion.div>
@@ -168,7 +186,7 @@ export default function DictionaryPage() {
           <div className="relative">
             <Search
               size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748B]"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#60759A]"
             />
             <input
               type="search"
@@ -179,7 +197,7 @@ export default function DictionaryPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search gestures by name (e.g. HELLO, THANK YOU, HELP, FOOD)..."
-              className="w-full pl-12 pr-10 py-3.5 bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#0757E8]/20 focus:border-[#0757E8] transition-all text-[#062B5C] dark:text-white placeholder:text-slate-400 text-base font-medium"
+              className="w-full pl-12 pr-10 py-3.5 bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#0757E8]/20 focus:border-[#0757E8] transition-all text-[#1d1d1f] dark:text-white placeholder:text-slate-400 text-base font-medium"
             />
             {query && (
               <button
@@ -208,7 +226,7 @@ export default function DictionaryPage() {
                     setCategory(c.id);
                     if (c.id !== 'all') setLetter('');
                   }}
-                  className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all duration-200 active:scale-95 ${
+                  className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-[transform,background-color,color] duration-160 ease-apple active:scale-[0.96] ${
                     isActive
                       ? 'bg-[#0757E8] text-white shadow-xs'
                       : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -241,7 +259,7 @@ export default function DictionaryPage() {
               <button
                 type="button"
                 onClick={() => setLetter('')}
-                className={`min-h-[40px] px-3.5 shrink-0 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                className={`min-h-[40px] px-3.5 shrink-0 rounded-xl text-xs font-semibold transition-[transform,background-color,color] duration-160 ease-apple active:scale-[0.96] ${
                   letter === ''
                     ? 'bg-[#0757E8] text-white shadow-xs'
                     : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
@@ -255,7 +273,7 @@ export default function DictionaryPage() {
                   key={l}
                   type="button"
                   onClick={() => setLetter(letter === l ? '' : l)}
-                  className={`min-w-[40px] min-h-[40px] px-2 shrink-0 flex items-center justify-center rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                  className={`min-w-[40px] min-h-[40px] px-2 shrink-0 flex items-center justify-center rounded-xl text-xs font-semibold transition-[transform,background-color,color] duration-160 ease-apple active:scale-[0.96] ${
                     letter === l
                       ? 'bg-[#0757E8] text-white shadow-xs'
                       : 'bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700'
@@ -274,9 +292,9 @@ export default function DictionaryPage() {
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#64748B] dark:text-slate-400 mb-8">
             <span>Showing</span>
             <span className="font-extrabold text-[#062B5C] dark:text-white bg-blue-50 dark:bg-blue-950/50 px-2.5 py-0.5 rounded-full border border-blue-200/80">
-              {Math.min(visibleCount, filtered.length)} of {filtered.length}
+              {new Intl.NumberFormat().format(Math.min(visibleCount, filtered.length))} of {new Intl.NumberFormat().format(filtered.length)}
             </span>
-            <span>gestures</span>
+            <span>{filtered.length === 1 ? 'gesture' : 'gestures'}</span>
             {query && <span>matching &ldquo;{query}&rdquo;</span>}
             {letter && <span>starting with &ldquo;{letter}&rdquo;</span>}
             <span className="text-slate-300 dark:text-slate-700">•</span>
@@ -330,14 +348,14 @@ export default function DictionaryPage() {
                   onClick={() => setVisibleCount((prev) => prev + 36)}
                   className="btn-sign-primary px-8 py-3.5 text-sm font-bold shadow-md hover:shadow-lg transition-all"
                 >
-                  Load 36 More Gestures ({filtered.length - visibleCount} remaining)
+                  Load 36 More Gestures ({new Intl.NumberFormat().format(filtered.length - visibleCount)} remaining)
                 </button>
                 <button
                   type="button"
                   onClick={() => setVisibleCount(filtered.length)}
                   className="btn-sign-secondary px-6 py-3.5 text-sm font-semibold transition-all"
                 >
-                  Show All {filtered.length} Gestures
+                  Show All {new Intl.NumberFormat().format(filtered.length)} Gestures
                 </button>
               </div>
             )}
@@ -374,26 +392,29 @@ export default function DictionaryPage() {
       <AnimatePresence>
         {selectedSign && (
           <div
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm"
             onClick={() => setSelectedSignIndex(null)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 15 }}
+              initial={{ opacity: 0, scale: 0.97, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 15 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, scale: 0.97, y: 8 }}
+              transition={{ ease: [0.23, 1, 0.32, 1], duration: 0.24 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90dvh]"
+              className="bg-white dark:bg-[#07132C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[88dvh] sm:max-h-[90dvh]"
             >
               {/* Modal Top Header */}
               <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white font-bold shrink-0">
-                    {selectedSign.token.slice(0, 1)}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0757E8] to-[#12CFF3] flex items-center justify-center text-white font-bold shrink-0 text-sm">
+                    {Array.from(selectedSign.token?.trim() || '?')[0]}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#062B5C] dark:text-white tracking-tight truncate">
-                      {selectedSign.token}
+                  <div className="min-w-0 flex-1">
+                    <h3
+                      className="font-heading font-extrabold text-lg sm:text-xl text-[#062B5C] dark:text-white tracking-tight truncate"
+                      title={selectedSign.token || 'Untitled gesture'}
+                    >
+                      {selectedSign.token?.trim() || 'UNTITLED_GESTURE'}
                     </h3>
                     <p className="text-xs text-[#64748B] dark:text-slate-400">
                       Indian Sign Language (ISL) Gesture
@@ -402,7 +423,10 @@ export default function DictionaryPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/80 dark:border-blue-900/60">
+                  <span
+                    className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/80 dark:border-blue-900/60 max-w-[120px] truncate shrink-0"
+                    title={selectedSign.media_type}
+                  >
                     {selectedSign.media_type}
                   </span>
                   <button
@@ -432,7 +456,7 @@ export default function DictionaryPage() {
                   type="button"
                   onClick={handlePrevSign}
                   aria-label="Previous sign"
-                  className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
+                  className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-[transform,background-color] duration-140 ease-apple active:scale-[0.92] z-20"
                 >
                   <ChevronLeft size={20} />
                 </button>
@@ -441,7 +465,7 @@ export default function DictionaryPage() {
                   type="button"
                   onClick={handleNextSign}
                   aria-label="Next sign"
-                  className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all z-20"
+                  className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-[transform,background-color] duration-140 ease-apple active:scale-[0.92] z-20"
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -460,7 +484,7 @@ export default function DictionaryPage() {
                       key={spd}
                       type="button"
                       onClick={() => setModalSpeed(spd)}
-                      className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-bold transition-[transform,background-color,border-color] duration-120 ease-apple active:scale-[0.96] ${
                         modalSpeed === spd
                           ? 'bg-[#0757E8] text-white shadow-xs'
                           : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-300'
@@ -476,7 +500,7 @@ export default function DictionaryPage() {
                   <button
                     type="button"
                     onClick={handleCopyToken}
-                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-semibold px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-[background-color,border-color] duration-140 ease-apple active:scale-[0.97]"
                   >
                     {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                     <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -485,7 +509,7 @@ export default function DictionaryPage() {
                   <Link
                     href={`/translator?text=${encodeURIComponent(selectedSign.token.replace(/_/g, ' '))}`}
                     onClick={() => setSelectedSignIndex(null)}
-                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-bold px-4 py-2 rounded-xl bg-[#0757E8] hover:bg-[#064BD1] text-white shadow-sm transition-all active:scale-95"
+                    className="inline-flex items-center gap-1.5 min-h-[40px] text-xs font-bold px-4 py-2 rounded-xl bg-[#0757E8] hover:bg-[#064BD1] text-white shadow-sm transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.97]"
                   >
                     <span>Use in Translator</span>
                     <ExternalLink size={13} />
@@ -498,6 +522,43 @@ export default function DictionaryPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Dev-only Break-UI Segmented Control (Hard Rule 4: dev toggle) */}
+      <aside
+        aria-label="Break-UI dataset switcher"
+        className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 left-1/2 -translate-x-1/2 z-[40] bg-slate-900/95 dark:bg-black/95 text-white backdrop-blur-md px-2 py-1.5 rounded-full shadow-2xl border border-slate-700/80 flex items-center gap-1 font-sans text-xs select-none max-w-[95vw] overflow-x-auto no-scrollbar"
+      >
+        <span className="text-[10px] uppercase font-bold text-slate-400 px-2 tracking-wider shrink-0">
+          Break-UI:
+        </span>
+        {(['demo', 'worst', 'one', 'empty', 'huge'] as const).map((m) => {
+          const labels: Record<string, string> = {
+            demo: 'Demo',
+            worst: 'Worst Case',
+            one: '1 Item',
+            empty: 'Empty',
+            huge: '1,284 Rows',
+          };
+          const isActive = dataMode === m;
+          return (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                setDataMode(m);
+                setSelectedSignIndex(null);
+              }}
+              className={`px-3 py-1 rounded-full text-xs transition-none shrink-0 ${
+                isActive
+                  ? 'bg-white text-slate-900 font-bold shadow-sm'
+                  : 'text-slate-300 hover:text-white font-medium'
+              }`}
+            >
+              {labels[m]}
+            </button>
+          );
+        })}
+      </aside>
     </div>
   );
 }

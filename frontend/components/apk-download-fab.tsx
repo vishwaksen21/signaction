@@ -53,7 +53,7 @@ export function ApkDownloadFab() {
         aria-label="Download Android App"
         className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-3 md:right-6 z-40"
       >
-        <div className="flex items-center gap-1 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] shadow-lg rounded-full pl-3.5 pr-1.5 py-1 transition-all duration-200 hover:scale-105 active:scale-95">
+        <div className="flex items-center gap-1 bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md border border-blue-200 dark:border-blue-900/60 text-[#0757E8] dark:text-[#12CFF3] shadow-lg rounded-full pl-3.5 pr-1.5 py-1 transition-[transform,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.96]">
           <a
             href={OFFICIAL_APK_DOWNLOAD_URL}
             download="signaction.apk"
@@ -81,7 +81,7 @@ export function ApkDownloadFab() {
   return (
     <aside
       aria-label="Android App Download Banner"
-      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-3 right-3 md:left-auto md:right-6 z-40 transition-all duration-300"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-3 right-3 md:left-auto md:right-6 z-40 transition-[opacity,transform] duration-200 ease-apple"
     >
       <div className="bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-xl border border-blue-200/90 dark:border-blue-800/80 rounded-2xl md:rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-[0_8px_30px_rgba(7,87,232,0.18)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center justify-between gap-2.5 max-w-md md:max-w-none mx-auto">
         
@@ -112,7 +112,7 @@ export function ApkDownloadFab() {
             href={OFFICIAL_APK_DOWNLOAD_URL}
             download="signaction.apk"
             onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-xs px-3.5 py-2 min-h-[38px] rounded-xl sm:rounded-full shadow-sm transition-all duration-200 active:scale-95 focus-ring"
+            className="inline-flex items-center gap-1.5 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-xs px-3.5 py-2 min-h-[38px] rounded-xl sm:rounded-full shadow-sm transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.96] focus-ring"
             aria-label={`Download SignAction Android APK (${OFFICIAL_APK_SIZE_LABEL})`}
           >
             {downloaded ? (

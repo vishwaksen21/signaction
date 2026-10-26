@@ -165,7 +165,7 @@ export function GestureSequencePlayer({
               className="h-full rounded-full bg-[#0757E8]"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             />
           </div>
         </button>
@@ -183,7 +183,7 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index === 0}
-            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-95"
+            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,background-color,border-color] duration-160 ease-apple text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-[0.95]"
             aria-label="Previous gesture"
           >
             <SkipBack size={17} />
@@ -202,7 +202,7 @@ export function GestureSequencePlayer({
               }
             }}
             disabled={!gestures.length}
-            className="w-12 h-12 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:scale-105 active:scale-95 focus-ring"
+            className="w-12 h-12 rounded-full bg-[#0757E8] hover:bg-[#064BD1] disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,background-color,box-shadow] duration-160 ease-apple text-white flex items-center justify-center shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_18px_rgba(7,87,232,0.35)] active:scale-[0.95] focus-ring"
             aria-label={playing ? 'Pause playback' : 'Play gestures'}
           >
             {playing ? (
@@ -222,7 +222,7 @@ export function GestureSequencePlayer({
               setPlaying(false);
             }}
             disabled={!gestures.length || index >= gestures.length - 1}
-            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-95"
+            className="w-11 h-11 rounded-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,background-color,border-color] duration-160 ease-apple text-[#062B5C] dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 flex items-center justify-center focus-ring shadow-xs active:scale-[0.95]"
             aria-label="Next gesture"
           >
             <SkipForward size={17} />

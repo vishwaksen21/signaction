@@ -31,10 +31,10 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full pt-[env(safe-area-inset-top,0px)] transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full pt-[env(safe-area-inset-top,0px)] transition-[background-color,border-color,box-shadow] duration-200 ease-apple ${
         scrolled
-          ? 'bg-white/95 dark:bg-[#050B14]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)]'
-          : 'bg-white/85 dark:bg-[#050B14]/85 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-800/60'
+          ? 'bg-white/80 dark:bg-[#050B14]/80 backdrop-blur-xl backdrop-saturate-150 border-b border-slate-200/80 dark:border-white/10 shadow-[0_4px_24px_rgba(10,25,47,0.04)]'
+          : 'bg-white/60 dark:bg-[#050B14]/60 backdrop-blur-lg backdrop-saturate-150 border-b border-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
@@ -56,8 +56,8 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Center: Clean Editorial Nav Links (Desktop) */}
-        <nav className="hidden md:flex items-center gap-7 lg:gap-10" aria-label="Main Navigation">
+        {/* Center: Clean Editorial Nav Links (Tablet & Desktop) */}
+        <nav className="hidden md:flex items-center gap-5 lg:gap-9" aria-label="Main Navigation">
           {links.map((link) => {
             const isActive =
               link.href === '/'
@@ -79,7 +79,7 @@ export function Navbar() {
                   <motion.span
                     layoutId="navbar-active-line"
                     className="absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-[#0757E8] dark:bg-[#12CFF3]"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    transition={{ type: 'spring', duration: 0.32, bounce: 0 }}
                   />
                 )}
               </Link>
