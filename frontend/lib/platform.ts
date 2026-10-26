@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 
 export const OFFICIAL_APK_DOWNLOAD_URL = '/signaction.apk';
@@ -99,20 +101,22 @@ export function isStandalonePwa(): boolean {
 
 /**
  * Determine whether the current view should render the dedicated native mobile app interface.
- * Returns true inside Capacitor Android APK, when ?mode=mobile / ?app=true is passed,
- * or when viewed on mobile screens (width <= 768px).
+ * Returns true inside Capacitor Android APK, or when ?mode=mobile / ?app=true is passed.
+ * The responsive website is preserved for web visitors across desktop, iPad, and mobile browsers.
  */
 export function isMobileAppEnvironment(): boolean {
   if (typeof window === 'undefined') return false;
+  // 1. Native Android APK always runs the dedicated native mobile app UI
   if (isNativeApk()) return true;
+
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('mode') === 'mobile' || params.get('app') === 'true') return true;
-    if (params.get('mode') === 'desktop') return false;
+    if (params.get('mode') === 'desktop' || params.get('mode') === 'web') return false;
     const stored = sessionStorage.getItem('signaction_display_mode');
     if (stored === 'mobile') return true;
-    if (stored === 'desktop') return false;
-    return window.innerWidth <= 768;
+    if (stored === 'desktop' || stored === 'web') return false;
+    return false;
   } catch {
     return false;
   }

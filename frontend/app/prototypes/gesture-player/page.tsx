@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -429,8 +429,7 @@ export default function PrototypeHarnessPage() {
   const pickerRef = useRef<HTMLElement>(null);
   const highlightRef = useRef<HTMLSpanElement>(null);
 
-  // Position highlight smoothly per PICKER.md
-  const updateHighlight = (index: number) => {
+  const updateHighlight = useCallback((index: number) => {
     if (!pickerRef.current || !highlightRef.current) return;
     const buttons = pickerRef.current.querySelectorAll<HTMLButtonElement>(
       '.proto-picker-item:not(.proto-picker-replay)'
@@ -440,9 +439,9 @@ export default function PrototypeHarnessPage() {
       highlightRef.current.style.width = `${target.offsetWidth}px`;
       highlightRef.current.style.transform = `translateX(${target.offsetLeft}px)`;
     }
-  };
+  }, []);
 
-  const setVariant = (index: number) => {
+  const setVariant = useCallback((index: number) => {
     if (index < 0 || index >= VARIANTS.length) return;
     setCurrent(index);
     setMountKey((prev) => prev + 1);
@@ -452,11 +451,11 @@ export default function PrototypeHarnessPage() {
     window.history.replaceState(null, '', url.toString());
 
     updateHighlight(index);
-  };
+  }, [updateHighlight]);
 
-  const handleReplay = () => {
+  const handleReplay = useCallback(() => {
     setMountKey((prev) => prev + 1);
-  };
+  }, []);
 
   useEffect(() => {
     // Read initial ?v= param
@@ -499,7 +498,7 @@ export default function PrototypeHarnessPage() {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [current]);
+  }, [current, handleReplay, setVariant, updateHighlight]);
 
   const CurrentVariant = VARIANTS[current].component;
 

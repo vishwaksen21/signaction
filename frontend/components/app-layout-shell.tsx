@@ -22,16 +22,7 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
     setMounted(true);
   }, []);
 
-  // Before mounting on client, render the base layout without layout shift
-  if (!mounted) {
-    return (
-      <>
-        <main className="flex-1 flex flex-col w-full overflow-x-clip">
-          {children}
-        </main>
-      </>
-    );
-  }
+
 
   // 1. Mobile Android Application Shell
   if (isMobileApp) {

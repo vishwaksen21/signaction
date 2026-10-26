@@ -13,9 +13,11 @@ export function MobileTopBar() {
   const router = useRouter();
   const { toggleTheme } = useTheme();
   const [isOnline, setIsOnline] = useState(true);
+  const [isNative, setIsNative] = useState(true);
   const isSubPage = pathname !== '/';
 
   useEffect(() => {
+    setIsNative(isNativeApk());
     const handleNetwork = () => setIsOnline(navigator.onLine);
     handleNetwork();
     window.addEventListener('online', handleNetwork);
@@ -77,6 +79,17 @@ export function MobileTopBar() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
             <span>Offline Ready</span>
           </Link>
+
+          {!isNative && (
+            <Link
+              href="/?mode=desktop"
+              aria-label="Switch to Website view"
+              className="px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-600 hover:text-[#062B5C] dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 active:scale-95 transition-transform"
+              title="Return to full website view"
+            >
+              Web
+            </Link>
+          )}
 
           <button
             type="button"

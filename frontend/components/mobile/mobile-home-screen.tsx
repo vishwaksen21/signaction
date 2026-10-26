@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -17,7 +17,14 @@ import {
   CheckCircle2,
   Search,
   Volume2,
+  Smartphone,
+  Download,
 } from 'lucide-react';
+import {
+  isNativeApk,
+  OFFICIAL_APK_DOWNLOAD_URL,
+  OFFICIAL_APK_SIZE_LABEL,
+} from '@/lib/platform';
 import { GesturePlayerSheet, type GestureSheetData } from './gesture-player-sheet';
 
 const FEATURED_SIGNS: Array<{
@@ -97,6 +104,11 @@ export function MobileHomeScreen() {
   const router = useRouter();
   const [quickInput, setQuickInput] = useState('');
   const [selectedGesture, setSelectedGesture] = useState<GestureSheetData | null>(null);
+  const [isNative, setIsNative] = useState(true);
+
+  useEffect(() => {
+    setIsNative(isNativeApk());
+  }, []);
 
   const handleStartTranslate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +135,36 @@ export function MobileHomeScreen() {
           Instant offline text and voice translation to Indian Sign Language gestures.
         </p>
       </div>
+
+      {/* Non-native Web Preview: Direct APK Download Banner */}
+      {!isNative && (
+        <aside
+          aria-label="Download SignAction APK"
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10 border border-blue-500/20 flex items-center justify-between gap-3 shadow-xs"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#0757E8] text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Smartphone size={16} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-[#062B5C] dark:text-white truncate">
+                SignAction Android APK
+              </div>
+              <div className="text-[10px] text-[#60759A] dark:text-slate-400 truncate">
+                {OFFICIAL_APK_SIZE_LABEL} • 100% Offline with 349 Gestures
+              </div>
+            </div>
+          </div>
+          <a
+            href={OFFICIAL_APK_DOWNLOAD_URL}
+            download="signaction.apk"
+            className="px-3 py-1.5 rounded-xl bg-[#0757E8] hover:bg-[#064BD1] text-white text-[11px] font-bold active:scale-95 transition-transform flex items-center gap-1.5 shrink-0 shadow-xs"
+          >
+            <Download size={13} />
+            <span>Install</span>
+          </a>
+        </aside>
+      )}
 
       {/* 2. Primary Quick Translation Launcher */}
       <div className="bg-gradient-to-br from-[#062B87] via-[#0757E8] to-[#087FF5] text-white rounded-3xl p-4 sm:p-5 shadow-sign-card space-y-3.5">

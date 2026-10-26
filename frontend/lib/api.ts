@@ -7,10 +7,12 @@ export type TranslateResponse = {
   transcript?: string;
 };
 
+import { isNativeApk } from './platform';
+
 const ENV_API_BASE = process.env.NEXT_PUBLIC_API_URL?.trim() || '';
 
 function isNativeApp(): boolean {
-  return typeof window !== 'undefined' && ((window as any).Capacitor?.isNativePlatform?.() || false);
+  return isNativeApk();
 }
 
 function getApiBase(): string {
