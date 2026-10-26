@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
+
 export const OFFICIAL_APK_DOWNLOAD_URL = '/signaction.apk';
-export const OFFICIAL_APK_SIZE_LABEL = '91 MB';
+export const OFFICIAL_APK_SIZE_LABEL = '92 MB';
 
 export function isNativeApk(): boolean {
   if (typeof window === 'undefined') return false;
@@ -94,3 +96,42 @@ export function isStandalonePwa(): boolean {
     return false;
   }
 }
+
+/**
+ * Determine whether the current view should render the dedicated native mobile app interface.
+ * Returns true inside Capacitor Android APK, when ?mode=mobile / ?app=true is passed,
+ * or when viewed on mobile screens (width <= 768px).
+ */
+export function isMobileAppEnvironment(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (isNativeApk()) return true;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'mobile' || params.get('app') === 'true') return true;
+    if (params.get('mode') === 'desktop') return false;
+    const stored = sessionStorage.getItem('signaction_display_mode');
+    if (stored === 'mobile') return true;
+    if (stored === 'desktop') return false;
+    return window.innerWidth <= 768;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * React hook to reactively track whether the mobile app experience should be rendered.
+ */
+export function useIsMobileApp(): boolean {
+  // Default to false during SSR, hydrate client-side
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const update = () => setIsMobile(isMobileAppEnvironment());
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  return isMobile;
+}
+

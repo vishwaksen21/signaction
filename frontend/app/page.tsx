@@ -24,7 +24,9 @@ import {
   OFFICIAL_APK_DOWNLOAD_URL,
   OFFICIAL_APK_SIZE_LABEL,
   isNativeApk,
+  useIsMobileApp,
 } from '@/lib/platform';
+import { MobileHomeScreen } from '@/components/mobile/mobile-home-screen';
 
 interface InteractiveGesture {
   token: string;
@@ -156,6 +158,7 @@ const SYNTAX_CASES: SyntaxCase[] = [
 ];
 
 export default function LandingPage() {
+  const isMobileApp = useIsMobileApp();
   const [activeGesture, setActiveGesture] = useState<InteractiveGesture>(SAMPLE_GESTURES[0]);
   const [activeSyntaxCase, setActiveSyntaxCase] = useState<SyntaxCase>(SYNTAX_CASES[0]);
   const [syntaxMode, setSyntaxMode] = useState<'english' | 'isl'>('isl');
@@ -176,6 +179,10 @@ export default function LandingPage() {
       el.pause();
     }
   }, [isPlaying, activeGesture.videoUrl]);
+
+  if (isMobileApp) {
+    return <MobileHomeScreen />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 selection:bg-[#12CFF3]/30 selection:text-[#062B5C] transition-colors duration-300">

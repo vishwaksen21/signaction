@@ -24,11 +24,13 @@ import {
   translateTextOffline,
 } from '../../lib/offline-translate';
 import type { ModelDownloadProgress } from '../../lib/offline-translate';
-import { isNativeApk } from '../../lib/platform';
+import { isNativeApk, useIsMobileApp } from '../../lib/platform';
+import { MobileRealtimeScreen } from '../../components/mobile/mobile-realtime-screen';
 
 type Mode = 'online' | 'offline';
 
 export default function RealtimePage() {
+  const isMobileApp = useIsMobileApp();
   const [mode, setMode] = useState<Mode>('online');
   const [running, setRunning] = useState(false);
   const [committedTranscript, setCommittedTranscript] = useState('');
@@ -252,6 +254,10 @@ export default function RealtimePage() {
         err instanceof Error ? err.message : 'Failed to access microphone'
       );
     }
+  }
+
+  if (isMobileApp) {
+    return <MobileRealtimeScreen />;
   }
 
   return (

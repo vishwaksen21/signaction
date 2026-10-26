@@ -19,6 +19,8 @@ import { SignCard } from '../../components/sign-card';
 import { SignViewer } from '../../components/sign-viewer';
 import { Skeleton } from '../../components/ui/skeleton';
 import type { DictionaryItem } from '../../lib/api';
+import { useIsMobileApp } from '../../lib/platform';
+import { MobileDictionaryScreen } from '../../components/mobile/mobile-dictionary-screen';
 import {
   WORST_CASE_ITEMS,
   SINGLE_ITEM,
@@ -43,6 +45,7 @@ const GREETINGS_KEYWORDS = [
 ];
 
 export default function DictionaryPage() {
+  const isMobileApp = useIsMobileApp();
   const [query, setQuery] = useState('');
   const [letter, setLetter] = useState<string>('');
   const [category, setCategory] = useState<string>('all');
@@ -150,6 +153,10 @@ export default function DictionaryPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (isMobileApp) {
+    return <MobileDictionaryScreen />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300 pb-16">

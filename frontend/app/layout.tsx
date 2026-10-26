@@ -1,11 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '../components/providers';
-import { Navbar } from '../components/navbar';
-import { Footer } from '../components/footer';
-import { BottomNav } from '../components/bottom-nav';
-import { ApkDownloadFab } from '../components/apk-download-fab';
-import { ServiceWorkerRegister } from '../components/sw-register';
+import { AppLayoutShell } from '../components/app-layout-shell';
 
 export const metadata: Metadata = {
   title: 'SignAction - Sign Language Translator',
@@ -56,25 +52,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] dark:bg-[#050B14] text-[#062B5C] dark:text-slate-100">
         <Providers>
-          {/* Top Navigation Bar */}
-          <Navbar />
-
-          {/* Main content */}
-          <main className="flex-1 flex flex-col w-full overflow-x-clip">
+          <AppLayoutShell>
             {children}
-          </main>
-
-          {/* Modern Footer */}
-          <Footer />
-
-          {/* Bottom navigation - mobile only */}
-          <BottomNav />
-
-          {/* APK download FAB */}
-          <ApkDownloadFab />
-
-          {/* Register service worker for offline PWA */}
-          <ServiceWorkerRegister />
+          </AppLayoutShell>
         </Providers>
       </body>
     </html>

@@ -20,7 +20,9 @@ import {
   OFFICIAL_APK_DOWNLOAD_URL,
   OFFICIAL_APK_SIZE_LABEL,
   isNativeApk,
+  useIsMobileApp,
 } from '@/lib/platform';
+import { MobileSettingsScreen } from '../../components/mobile/mobile-settings-screen';
 import {
   setupOffline,
   isFullyOfflineReady,
@@ -38,6 +40,7 @@ const PHASE_LABELS: Record<DownloadPhase, string> = {
 };
 
 export default function OfflineSetupPage() {
+  const isMobileApp = useIsMobileApp();
   const [state, setState] = useState<SetupState>('idle');
   const [progress, setProgress] = useState<OfflineSetupProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +102,10 @@ export default function OfflineSetupPage() {
       }
     }
   }, []);
+
+  if (isMobileApp) {
+    return <MobileSettingsScreen />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">

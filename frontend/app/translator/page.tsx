@@ -13,9 +13,11 @@ import { GestureSequencePlayer } from '../../components/gesture-sequence-player'
 import { TokenChips } from '../../components/token-chips';
 import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate';
 import { translateTextOffline, isOfflineSTTReady } from '../../lib/offline-translate';
-import { isNativeApk } from '../../lib/platform';
+import { isNativeApk, useIsMobileApp } from '../../lib/platform';
+import { MobileTranslatorScreen } from '../../components/mobile/mobile-translator-screen';
 
 export default function TranslatorPage() {
+  const isMobileApp = useIsMobileApp();
   const [text, setText] = useState('');
   const [offlineResult, setOfflineResult] = useState<any>(null);
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
@@ -105,6 +107,10 @@ export default function TranslatorPage() {
   const displayTokens = active?.tokens ?? offlineResult?.tokens ?? [];
   const displayGestures = active?.gestures ?? offlineResult?.gestures ?? [];
   const displayInputText = active?.transcript || text;
+
+  if (isMobileApp) {
+    return <MobileTranslatorScreen />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-8 sm:py-14 transition-colors duration-300">
