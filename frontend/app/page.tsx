@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   Smartphone,
   Download,
+  ArrowLeftRight,
+  Sparkles,
 } from 'lucide-react';
 import {
   OFFICIAL_APK_DOWNLOAD_URL,
@@ -70,8 +72,93 @@ const SAMPLE_GESTURES: InteractiveGesture[] = [
   },
 ];
 
+interface SyntaxToken {
+  id: string;
+  text: string;
+  role: string;
+  isDropped?: boolean;
+}
+
+interface SyntaxCase {
+  id: string;
+  label: string;
+  englishPhrase: string;
+  svoOrder: string;
+  sovOrder: string;
+  englishTokens: SyntaxToken[];
+  islTokens: SyntaxToken[];
+  ruleExplanation: string;
+  linguisticTag: string;
+}
+
+const SYNTAX_CASES: SyntaxCase[] = [
+  {
+    id: 'name',
+    label: 'Greeting & Identity',
+    englishPhrase: 'What is your name?',
+    svoOrder: 'Question + Copula + Possessive + Noun',
+    sovOrder: 'Possessive + Noun + Clause-Final Question',
+    englishTokens: [
+      { id: 'tok-what', text: 'What', role: 'Interrogative' },
+      { id: 'tok-is', text: 'is', role: 'Copula (Omitted)', isDropped: true },
+      { id: 'tok-your', text: 'your', role: 'Possessive' },
+      { id: 'tok-name', text: 'name', role: 'Subject Noun' },
+    ],
+    islTokens: [
+      { id: 'tok-your', text: 'YOUR', role: 'Possessive' },
+      { id: 'tok-name', text: 'NAME', role: 'Subject Noun' },
+      { id: 'tok-what', text: 'WHAT', role: 'Question (Final)' },
+    ],
+    ruleExplanation: "In Indian Sign Language, questions are marked clause-finally with a head tilt and brow furrow. The auxiliary copula 'is' has no visual sign equivalent and is omitted.",
+    linguisticTag: 'Clause-Final Interrogative',
+  },
+  {
+    id: 'hospital',
+    label: 'Navigation & Space',
+    englishPhrase: 'Where is the hospital?',
+    svoOrder: 'Question + Copula + Article + Noun',
+    sovOrder: 'Spatial Topic + Clause-Final Question',
+    englishTokens: [
+      { id: 'tok-where', text: 'Where', role: 'Location' },
+      { id: 'tok-is', text: 'is', role: 'Copula (Omitted)', isDropped: true },
+      { id: 'tok-the', text: 'the', role: 'Article (Omitted)', isDropped: true },
+      { id: 'tok-hospital', text: 'hospital', role: 'Topic Noun' },
+    ],
+    islTokens: [
+      { id: 'tok-hospital', text: 'HOSPITAL', role: 'Spatial Topic' },
+      { id: 'tok-where', text: 'WHERE', role: 'Question (Final)' },
+    ],
+    ruleExplanation: "Articles ('the') and linking verbs ('is') are non-signing English artifacts. ISL establishes the spatial topic ('HOSPITAL') before anchoring the question ('WHERE').",
+    linguisticTag: 'Topic-Comment Structure',
+  },
+  {
+    id: 'tomorrow',
+    label: 'Time & Action',
+    englishPhrase: 'I will help you tomorrow.',
+    svoOrder: 'Subject + Modal + Verb + Object + Time',
+    sovOrder: 'Time Anchor + Subject + Object + Action',
+    englishTokens: [
+      { id: 'tok-i', text: 'I', role: 'Subject' },
+      { id: 'tok-will', text: 'will', role: 'Modal (Omitted)', isDropped: true },
+      { id: 'tok-help', text: 'help', role: 'Action Verb' },
+      { id: 'tok-you', text: 'you', role: 'Object' },
+      { id: 'tok-tomorrow', text: 'tomorrow', role: 'Temporal Anchor' },
+    ],
+    islTokens: [
+      { id: 'tok-tomorrow', text: 'TOMORROW', role: 'Timeline Anchor' },
+      { id: 'tok-i', text: 'I', role: 'Subject' },
+      { id: 'tok-you', text: 'YOU', role: 'Object' },
+      { id: 'tok-help', text: 'HELP', role: 'Terminal Action' },
+    ],
+    ruleExplanation: "Sign languages establish the temporal frame ('TOMORROW') at the very beginning of the sentence to set the tense line, followed strictly by Subject-Object-Verb.",
+    linguisticTag: 'Temporal Framing & SOV Order',
+  },
+];
+
 export default function LandingPage() {
   const [activeGesture, setActiveGesture] = useState<InteractiveGesture>(SAMPLE_GESTURES[0]);
+  const [activeSyntaxCase, setActiveSyntaxCase] = useState<SyntaxCase>(SYNTAX_CASES[0]);
+  const [syntaxMode, setSyntaxMode] = useState<'english' | 'isl'>('isl');
   const [isPlaying, setIsPlaying] = useState(true);
   const [isNative, setIsNative] = useState(false);
   const explorerVideoRef = useRef<HTMLVideoElement>(null);
@@ -114,199 +201,178 @@ export default function LandingPage() {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-6 space-y-7 text-left"
             >
-              {/* Eyebrow badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.04)] text-xs font-semibold tracking-wider uppercase text-[#0757E8] dark:text-[#12CFF3]">
-                <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3]" />
-                <span>A More Connected Way to Communicate</span>
+              {/* Apple Eyebrow Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] backdrop-blur-xl border border-black/5 dark:border-white/10 text-xs font-semibold tracking-wide text-[#0757E8] dark:text-[#12CFF3]">
+                <span className="w-2 h-2 rounded-full bg-[#0757E8] dark:bg-[#12CFF3] animate-pulse" />
+                <span className="font-mono text-[11px] uppercase tracking-wider">Neural ISL Synthesis Engine</span>
               </div>
 
-              {/* Expressive Editorial Headline */}
+              {/* Apple Display Headline */}
               <div className="space-y-4">
-                <h1 className="font-heading font-extrabold text-4xl sm:text-5xl lg:text-[56px] tracking-[-0.03em] text-[#062B5C] dark:text-white leading-[1.12]">
-                  Language is more <br className="hidden sm:inline" />
-                  than <span className="text-[#0757E8] dark:text-[#12CFF3]">words.</span>
+                <h1 className="font-heading font-black text-3xl xs:text-4xl sm:text-5xl lg:text-[64px] tracking-[-0.035em] text-[#1d1d1f] dark:text-white leading-[1.08] sm:leading-[1.06]">
+                  Sign language. <br />
+                  <span className="bg-gradient-to-r from-[#0757E8] via-[#087FF5] to-[#12CFF3] bg-clip-text text-transparent">
+                    In real time.
+                  </span>
                 </h1>
-                <p className="text-lg sm:text-xl text-[#4A5568] dark:text-slate-300 leading-relaxed font-normal max-w-xl">
-                  Turn spoken and written English into Indian Sign Language, making communication more accessible, naturally and privately.
+                <p className="text-base sm:text-lg text-[#60759A] dark:text-slate-300 leading-relaxed font-normal max-w-xl">
+                  Turn spoken and written English into natural Indian Sign Language gestures. Powered by 100% on-device neural models and fluid spring kinematics. Completely private. Zero cloud latency.
                 </p>
               </div>
 
-              {/* Refined CTA Buttons */}
+              {/* Apple Action Pills */}
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
                 <Link
                   href="/translator"
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 sm:px-7 py-3.5 min-h-[48px] shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-3.5 min-h-[48px] shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-[transform,background-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]"
                 >
                   <span>Start Translating</span>
                   <ArrowRight size={17} />
+                </Link>
+
+                <Link
+                  href="/dictionary"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 backdrop-blur-xl border border-black/5 dark:border-white/15 rounded-full px-6 py-3.5 min-h-[48px] shadow-sm transition-[transform,background-color,border-color] duration-160 ease-apple hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]"
+                >
+                  <BookOpen size={16} className="text-[#0757E8] dark:text-[#12CFF3]" />
+                  <span>Browse 347 Signs</span>
                 </Link>
 
                 {!isNative && (
                   <a
                     href={OFFICIAL_APK_DOWNLOAD_URL}
                     download="signaction.apk"
-                    className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-full px-6 py-3.5 min-h-[48px] shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white px-3 py-3.5 transition-colors"
                   >
-                    <Smartphone size={17} className="text-[#0757E8] dark:text-[#12CFF3]" />
-                    <span>Download APK</span>
+                    <Smartphone size={15} />
+                    <span>Android APK</span>
                   </a>
                 )}
-
-                <a
-                  href="#how-it-works"
-                  className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white px-4 py-3.5 min-h-[48px] transition-colors"
-                >
-                  <Play size={14} className="fill-current text-[#0757E8] dark:text-[#12CFF3]" />
-                  <span>How it works</span>
-                </a>
               </div>
 
-              {/* 3 Core Value Props with Hairline Dividers */}
+              {/* Apple Hardware Spec Ribbon */}
               <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 grid grid-cols-3 gap-2.5 sm:gap-6">
                 <div className="space-y-1 min-w-0">
-                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
-                    100% Offline
+                  <div className="font-heading font-bold text-sm sm:text-base text-[#1d1d1f] dark:text-white">
+                    100% On-Device
                   </div>
-                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
-                    No internet required
+                  <p className="text-[11px] sm:text-xs text-[#64748B] dark:text-slate-400 leading-snug">
+                    Zero cloud audio sent
                   </p>
                 </div>
 
                 <div className="space-y-1 min-w-0 border-l border-slate-200/80 dark:border-slate-800/80 pl-2.5 sm:pl-6">
-                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
-                    Real-Time
+                  <div className="font-heading font-bold text-sm sm:text-base text-[#1d1d1f] dark:text-white">
+                    60 FPS Motion
                   </div>
-                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
-                    Text &amp; voice signs
+                  <p className="text-[11px] sm:text-xs text-[#64748B] dark:text-slate-400 leading-snug">
+                    Fluid spring kinematics
                   </p>
                 </div>
 
                 <div className="space-y-1 min-w-0 border-l border-slate-200/80 dark:border-slate-800/80 pl-2.5 sm:pl-6">
-                  <div className="font-heading font-bold text-sm sm:text-lg text-[#062B5C] dark:text-white">
-                    Accessible
+                  <div className="font-heading font-bold text-sm sm:text-base text-[#1d1d1f] dark:text-white">
+                    Zero Latency
                   </div>
-                  <p className="text-[11px] sm:text-sm text-[#64748B] dark:text-slate-400 leading-snug">
-                    Built for everyone
+                  <p className="text-[11px] sm:text-xs text-[#64748B] dark:text-slate-400 leading-snug">
+                    Instant offline fallback
                   </p>
                 </div>
               </div>
 
             </motion.div>
 
-            {/* Right Column: Authentic Visual Storytelling Composition */}
+            {/* Right Column: Apple Cupertino Interactive Live Gesture Stage */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
               className="lg:col-span-6 relative flex justify-center lg:justify-end"
             >
               <div className="relative w-full max-w-[540px]">
                 
-                {/* Main Hero Photographic Composition */}
-                <div className="relative rounded-[32px] overflow-hidden bg-gradient-to-b from-[#EAF9FF] to-[#FAF9F6] dark:from-[#081530] dark:to-[#030914] border border-slate-200/80 dark:border-blue-900/40 shadow-[0_20px_60px_rgba(10,25,47,0.08)]">
+                {/* Cupertino Glass Deck Container */}
+                <div className="relative rounded-[32px] sm:rounded-[36px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/5 dark:border-white/10 p-5 sm:p-6 shadow-[0_24px_70px_rgba(0,0,0,0.12)] space-y-4">
                   
-                  {/* Subtle soft backdrop curve */}
-                  <div className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-40">
-                    <svg viewBox="0 0 400 400" fill="none" className="w-full h-full">
-                      <path
-                        d="M100 0 C250 80, 380 200, 400 400 L400 0 Z"
-                        fill="url(#ambient-curve)"
-                      />
-                      <defs>
-                        <linearGradient id="ambient-curve" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#12CFF3" stopOpacity="0.3" />
-                          <stop offset="100%" stopColor="#0757E8" stopOpacity="0.05" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                  {/* Top: Cupertino Segmented Control */}
+                  <div className="flex items-center p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-full backdrop-blur-md overflow-x-auto no-scrollbar">
+                    {SAMPLE_GESTURES.map((g) => {
+                      const isCurrent = activeGesture.token === g.token;
+                      return (
+                        <button
+                          key={g.token}
+                          type="button"
+                          onClick={() => setActiveGesture(g)}
+                          className={`relative px-3.5 py-1.5 text-xs font-semibold rounded-full transition-colors shrink-0 ${
+                            isCurrent
+                              ? 'text-[#062B5C] dark:text-white font-bold'
+                              : 'text-slate-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          {isCurrent && (
+                            <motion.div
+                              layoutId="apple-hero-active-pill"
+                              className="absolute inset-0 rounded-full bg-white dark:bg-slate-800 shadow-sm"
+                              transition={{ type: 'spring', duration: 0.32, bounce: 0 }}
+                            />
+                          )}
+                          <span className="relative z-10">{g.token.replace(/_/g, ' ')}</span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Main Portrait of Indian Signer */}
-                  <div className="relative aspect-[4/3.8] w-full">
-                    <Image
-                      src="/hero-signer.jpg"
-                      alt="Indian woman communicating with an open palm sign language gesture"
-                      fill
-                      priority
-                      className="object-cover object-top select-none"
-                      sizes="(max-width: 768px) 100vw, 540px"
-                    />
-                  </div>
-                </div>
-
-                {/* Floating Speech Prompt Card with Sound Wave */}
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="absolute top-3 sm:top-8 left-2 sm:-left-6 lg:-left-10 max-w-[185px] xs:max-w-[215px] sm:max-w-[260px] bg-white/95 dark:bg-[#07132C]/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-3.5 border border-slate-200/90 dark:border-blue-900/50 shadow-[0_10px_30px_rgba(10,25,47,0.08)] flex items-center gap-2 sm:gap-3 z-20"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] xs:text-xs sm:text-sm font-semibold text-[#062B5C] dark:text-white leading-snug">
-                      Hello, how can I help you today?
-                    </p>
-                  </div>
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0757E8] dark:text-[#12CFF3] shrink-0">
-                    <Volume2 size={15} />
-                  </div>
-                </motion.div>
-
-                {/* Subtle curved dotted indicator line pointing towards hand */}
-                <div className="absolute top-20 sm:top-24 left-10 sm:left-14 pointer-events-none hidden sm:block z-10 opacity-60">
-                  <svg width="70" height="60" viewBox="0 0 70 60" fill="none">
-                    <path
-                      d="M10 5 C35 15, 55 35, 65 55"
-                      stroke="#0757E8"
-                      strokeWidth="2"
-                      strokeDasharray="4 4"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-
-                {/* Inset Video Player Preview (PiP) */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="absolute bottom-3 sm:bottom-8 right-2 sm:-right-6 lg:-right-8 w-[185px] xs:w-[215px] sm:w-[280px] rounded-2xl bg-white/95 dark:bg-[#061229]/95 backdrop-blur-md border border-slate-200/90 dark:border-blue-900/60 p-2 sm:p-2.5 shadow-[0_16px_40px_rgba(10,25,47,0.12)] z-20"
-                >
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-900 mb-2">
-                    <Image
-                      src="/pip-video-preview.jpg"
-                      alt="SignAction gesture video player playback"
-                      fill
-                      className="object-cover"
-                      sizes="280px"
+                  {/* Center: Live Gesture Display Stage */}
+                  <div className="relative aspect-[16/10] w-full rounded-2xl bg-black overflow-hidden flex items-center justify-center border border-black/10 dark:border-white/10 shadow-inner group">
+                    <video
+                      ref={explorerVideoRef}
+                      key={activeGesture.videoUrl}
+                      src={activeGesture.videoUrl}
+                      autoPlay={isPlaying}
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-contain select-none"
                     />
 
-                    {/* HELLO Badge Tag */}
-                    <div className="absolute top-2 right-2 px-2.5 py-0.5 rounded-md bg-white/95 text-[#0757E8] font-heading font-extrabold text-[10px] tracking-wider uppercase shadow-xs">
-                      HELLO
+                    {/* Live overlay badges */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-white border border-white/10">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>60 FPS • RAW ISL</span>
                     </div>
 
-                    {/* Center subtle play icon */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-xs text-white flex items-center justify-center">
-                        <Play size={14} className="fill-white ml-0.5" />
+                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-cyan-300 border border-white/10 font-bold uppercase">
+                      {activeGesture.category}
+                    </div>
+
+                    {/* Bottom floating playback & gloss card */}
+                    <div className="absolute bottom-3 left-3 right-3 bg-black/75 backdrop-blur-md px-4 py-2.5 rounded-xl text-white flex items-center justify-between border border-white/10">
+                      <div className="min-w-0 pr-2">
+                        <div className="text-xs font-bold font-heading truncate">{activeGesture.token}</div>
+                        <div className="text-[11px] text-slate-300 italic truncate">&ldquo;{activeGesture.english}&rdquo;</div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-transform active:scale-90 shrink-0"
+                        aria-label={isPlaying ? 'Pause gesture' : 'Play gesture'}
+                      >
+                        {isPlaying ? <Pause size={13} /> : <Play size={13} className="ml-0.5" />}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Scrubber timeline and mini controls */}
-                  <div className="px-1 space-y-1.5">
-                    {/* Scrub bar */}
-                    <div className="relative h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#0757E8] w-[45%] rounded-full" />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] text-[#64748B] dark:text-slate-400 font-medium pt-0.5">
-                      <span className="font-mono">0:02 / 0:05</span>
-                      <span className="text-[#0757E8] dark:text-[#12CFF3] font-semibold">Indian Sign Language</span>
-                    </div>
+                  {/* Bottom: Voice-to-Sign Audio wave readout */}
+                  <div className="flex items-center justify-between pt-1 text-xs text-slate-500 dark:text-slate-400 font-medium px-1">
+                    <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                      <Volume2 size={13} className="text-[#0757E8]" /> Natural Voice Input
+                    </span>
+                    <span className="text-[#0757E8] dark:text-[#12CFF3] font-semibold text-[11px]">
+                      GLOSS: {activeGesture.gloss}
+                    </span>
                   </div>
-                </motion.div>
 
+                </div>
 
               </div>
             </motion.div>
@@ -318,16 +384,16 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       {/* 2. COMMUNITY & ECOSYSTEM STRIP                                            */}
       {/* ========================================================================= */}
-      <section className="relative border-y border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-[#061122]/70 backdrop-blur-sm py-10 sm:py-12">
+      <section className="relative border-y border-black/5 dark:border-white/10 bg-white/60 dark:bg-[#050B14]/60 backdrop-blur-xl py-10 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
             
             {/* Mission Statement */}
             <div className="max-w-md shrink-0 space-y-1.5 text-left">
-              <div className="text-[11px] font-heading font-extrabold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
                 Community-Led Accessibility
               </div>
-              <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-[#062B5C] dark:text-white tracking-tight leading-snug">
+              <h3 className="font-heading font-bold text-xl sm:text-2xl text-[#1d1d1f] dark:text-white tracking-[-0.025em] leading-snug">
                 Designed alongside Deaf educators, community advocates, and students across India.
               </h3>
             </div>
@@ -336,8 +402,8 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full flex-1">
               
               {/* Students */}
-              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.03)] hover:border-blue-300 dark:hover:border-blue-900 transition-colors">
-                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-sm transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5">
+                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10">
                   <Image
                     src="/avatar-student.jpg"
                     alt="Students using SignAction"
@@ -347,18 +413,18 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="min-w-0 text-left">
-                  <div className="font-heading font-bold text-sm text-[#062B5C] dark:text-white truncate">
+                  <div className="font-heading font-bold text-sm text-[#1d1d1f] dark:text-white truncate">
                     Students & Youth
                   </div>
-                  <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
+                  <p className="text-xs text-[#60759A] dark:text-slate-400 truncate">
                     Confidence in classrooms
                   </p>
                 </div>
               </div>
 
               {/* Educators */}
-              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.03)] hover:border-blue-300 dark:hover:border-blue-900 transition-colors">
-                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-sm transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5">
+                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10">
                   <Image
                     src="/avatar-educator.jpg"
                     alt="Educators using SignAction"
@@ -368,18 +434,18 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="min-w-0 text-left">
-                  <div className="font-heading font-bold text-sm text-[#062B5C] dark:text-white truncate">
+                  <div className="font-heading font-bold text-sm text-[#1d1d1f] dark:text-white truncate">
                     Special Educators
                   </div>
-                  <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
+                  <p className="text-xs text-[#60759A] dark:text-slate-400 truncate">
                     Inclusive curriculum aids
                   </p>
                 </div>
               </div>
 
               {/* Families */}
-              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.03)] hover:border-blue-300 dark:hover:border-blue-900 transition-colors">
-                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-sm transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5">
+                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10">
                   <Image
                     src="/avatar-families.jpg"
                     alt="Families using SignAction"
@@ -389,18 +455,18 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="min-w-0 text-left">
-                  <div className="font-heading font-bold text-sm text-[#062B5C] dark:text-white truncate">
+                  <div className="font-heading font-bold text-sm text-[#1d1d1f] dark:text-white truncate">
                     Hearing Families
                   </div>
-                  <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
+                  <p className="text-xs text-[#60759A] dark:text-slate-400 truncate">
                     Parent-child daily bonds
                   </p>
                 </div>
               </div>
 
               {/* Communities */}
-              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_8px_rgba(10,25,47,0.03)] hover:border-blue-300 dark:hover:border-blue-900 transition-colors">
-                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-sm transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5">
+                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10">
                   <Image
                     src="/avatar-communities.jpg"
                     alt="Communities using SignAction"
@@ -410,10 +476,10 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="min-w-0 text-left">
-                  <div className="font-heading font-bold text-sm text-[#062B5C] dark:text-white truncate">
+                  <div className="font-heading font-bold text-sm text-[#1d1d1f] dark:text-white truncate">
                     Public Spaces
                   </div>
-                  <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
+                  <p className="text-xs text-[#60759A] dark:text-slate-400 truncate">
                     Clinics, transit & desks
                   </p>
                 </div>
@@ -426,178 +492,182 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. HOW IT WORKS: Architectural 4-Stage Pipeline                          */}
+      {/* 3. APPLE BENTO GRID: System Architecture                                 */}
       {/* ========================================================================= */}
       <section id="how-it-works" className="py-20 sm:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Section Header */}
+          {/* Apple Section Header */}
           <div className="text-left max-w-3xl mb-14 sm:mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 border border-blue-200/70 dark:border-blue-900/60 text-[11px] font-heading font-extrabold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
-              System Architecture
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.08] backdrop-blur-md border border-black/5 dark:border-white/10 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
+              Neural Pipeline Architecture
             </div>
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-[#062B5C] dark:text-white leading-[1.14]">
-              From spoken phonemes to verified gestures.
+            <h2 className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl tracking-[-0.035em] text-[#1d1d1f] dark:text-white leading-[1.1]">
+              Engineered from the silicon up.
             </h2>
-            <p className="text-base sm:text-lg text-[#4A5568] dark:text-slate-300 leading-relaxed font-normal">
-              SignAction operates a 4-stage edge translation engine that transforms speech or text into authentic Indian Sign Language sequences with zero cloud dependencies.
+            <p className="text-base sm:text-lg text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+              Four edge pipelines working in synchronized harmony. Natural speech in, verified continuous Indian Sign Language out.
             </p>
           </div>
 
-          {/* 4-Stage Connected Architecture Pipeline */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
             
-            {/* Stage 01: Capture */}
-            <div className="bg-white dark:bg-[#07132B] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)] flex flex-col justify-between text-left group hover:border-[#0757E8]/40 transition-all duration-300">
+            {/* Bento Card 1: Speech Ingestion (Span 6) */}
+            <div className="lg:col-span-6 rounded-[28px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.04)] flex flex-col justify-between text-left group hover:border-[#0757E8]/30 transition-all duration-300">
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                   <span className="font-mono text-xs font-bold text-[#0757E8] dark:text-[#12CFF3] tracking-wider uppercase">
                     Stage 01
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <Mic size={17} />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-heading font-extrabold text-lg text-[#062B5C] dark:text-white">
-                    Speech & Text Capture
+                <div className="space-y-2">
+                  <h3 className="font-heading font-bold text-xl text-[#1d1d1f] dark:text-white tracking-tight">
+                    On-Device Speech Ingestion
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                    Voice audio is ingested at 16 kHz Mono and transcribed locally using Web Speech and Vosk WebAssembly models.
+                  <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                    Voice audio is captured at 16 kHz Mono and transcribed locally via Vosk WebAssembly and browser Web Speech APIs. No cloud audio packets are ever transmitted.
                   </p>
                 </div>
 
                 {/* Technical Micro-Artifact */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/70 dark:border-slate-800 text-[11px] font-mono space-y-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>AUDIO IN</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">● LIVE 16kHz</span>
+                <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs font-mono space-y-1.5">
+                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                    <span>AUDIO INGESTION</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">● 16 kHz PCM</span>
                   </div>
-                  <div className="text-slate-800 dark:text-slate-200 font-sans font-medium truncate">
-                    &ldquo;What is your name?&rdquo;
+                  <div className="text-[#1d1d1f] dark:text-slate-200 font-sans font-medium truncate">
+                    &ldquo;Namaste, how are you?&rdquo;
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center gap-1.5">
-                <span>0 KB Cloud Audio</span>
+              <div className="pt-4 mt-4 border-t border-black/5 dark:border-white/10 text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-between">
+                <span>0 KB Sent to Cloud</span>
+                <span className="text-slate-400 font-normal">WebAssembly Edge STT</span>
               </div>
             </div>
 
-            {/* Stage 02: SOV Linguistic Reordering */}
-            <div className="bg-white dark:bg-[#07132B] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)] flex flex-col justify-between text-left group hover:border-[#0757E8]/40 transition-all duration-300">
+            {/* Bento Card 2: Grammar Parsing (Span 6) */}
+            <div className="lg:col-span-6 rounded-[28px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.04)] flex flex-col justify-between text-left group hover:border-[#0757E8]/30 transition-all duration-300">
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                   <span className="font-mono text-xs font-bold text-[#0757E8] dark:text-[#12CFF3] tracking-wider uppercase">
                     Stage 02
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <Layers size={17} />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-heading font-extrabold text-lg text-[#062B5C] dark:text-white">
-                    ISL Grammar Parsing
+                <div className="space-y-2">
+                  <h3 className="font-heading font-bold text-xl text-[#1d1d1f] dark:text-white tracking-tight">
+                    ISL Syntactic Parser
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                    Applies Subject-Object-Verb syntax rules, strips non-signing auxiliary words, and reorders interrogatives to the sentence end.
+                  <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                    Transforms standard English Subject-Verb-Object into authentic Indian Sign Language Subject-Object-Verb grammar, pruning non-signing copula verbs.
                   </p>
                 </div>
 
                 {/* Technical Micro-Artifact */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/70 dark:border-slate-800 text-[11px] font-mono space-y-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>SOV GLOSS</span>
-                    <span className="text-[#0757E8] dark:text-[#12CFF3] font-bold">REORDERED</span>
+                <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs font-mono space-y-1.5">
+                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                    <span>SOV SYNTAX REORDER</span>
+                    <span className="text-[#0757E8] dark:text-[#12CFF3] font-bold">PARSED</span>
                   </div>
-                  <div className="text-[#0757E8] dark:text-[#12CFF3] font-bold flex flex-wrap gap-1">
-                    <span className="px-1.5 py-0.5 rounded bg-blue-100/70 dark:bg-blue-950/80 text-[10px]">[YOUR]</span>
-                    <span className="px-1.5 py-0.5 rounded bg-blue-100/70 dark:bg-blue-950/80 text-[10px]">[NAME]</span>
-                    <span className="px-1.5 py-0.5 rounded bg-blue-100/70 dark:bg-blue-950/80 text-[10px]">[WHAT]</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2 py-0.5 rounded-full bg-[#0757E8]/10 text-[#0757E8] dark:text-[#12CFF3] font-bold text-[11px]">[YOU]</span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#0757E8]/10 text-[#0757E8] dark:text-[#12CFF3] font-bold text-[11px]">[NAME]</span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#0757E8]/10 text-[#0757E8] dark:text-[#12CFF3] font-bold text-[11px]">[WHAT]</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center gap-1.5">
-                <span>Rule-Based NLP Engine</span>
+              <div className="pt-4 mt-4 border-t border-black/5 dark:border-white/10 text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-between">
+                <span>Deterministic Grammar Rules</span>
+                <span className="text-slate-400 font-normal">&lt; 3ms Latency</span>
               </div>
             </div>
 
-            {/* Stage 03: Lexicon Resolution */}
-            <div className="bg-white dark:bg-[#07132B] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)] flex flex-col justify-between text-left group hover:border-[#0757E8]/40 transition-all duration-300">
+            {/* Bento Card 3: Lexicon Resolution (Span 6) */}
+            <div className="lg:col-span-6 rounded-[28px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.04)] flex flex-col justify-between text-left group hover:border-[#0757E8]/30 transition-all duration-300">
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                   <span className="font-mono text-xs font-bold text-[#0757E8] dark:text-[#12CFF3] tracking-wider uppercase">
                     Stage 03
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <BookOpen size={17} />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-heading font-extrabold text-lg text-[#062B5C] dark:text-white">
-                    Gesture Matching
+                <div className="space-y-2">
+                  <h3 className="font-heading font-bold text-xl text-[#1d1d1f] dark:text-white tracking-tight">
+                    347-Token Native Lexicon
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                    Maps each gloss token to 347 verified native video gestures, falling back smoothly to A–Z manual fingerspelling.
+                  <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                    Direct mapping into verified Indian Sign Language video gestures. Any unmapped vocabulary seamlessly falls back to smooth A–Z manual fingerspelling.
                   </p>
                 </div>
 
                 {/* Technical Micro-Artifact */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/70 dark:border-slate-800 text-[11px] font-mono space-y-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>ASSET POOL</span>
-                    <span className="text-slate-600 dark:text-slate-300">347 TOKENS</span>
+                <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs font-mono space-y-1.5">
+                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                    <span>GESTURE COVERAGE</span>
+                    <span className="text-slate-700 dark:text-slate-300 font-bold">347 VERIFIED SIGNS</span>
                   </div>
-                  <div className="text-slate-800 dark:text-slate-200 font-sans font-medium truncate">
-                    98.4% Direct Match + Letter Speller
+                  <div className="text-slate-600 dark:text-slate-300 font-sans truncate">
+                    High-Definition Native Video Assets + Complete A–Z Speller
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center gap-1.5">
-                <span>Verified ISL Corpus</span>
+              <div className="pt-4 mt-4 border-t border-black/5 dark:border-white/10 text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-between">
+                <span>NAD Standard Vocabulary</span>
+                <span className="text-slate-400 font-normal">Offline Cached</span>
               </div>
             </div>
 
-            {/* Stage 04: Visual Synthesis */}
-            <div className="bg-white dark:bg-[#07132B] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(10,25,47,0.03)] flex flex-col justify-between text-left group hover:border-[#0757E8]/40 transition-all duration-300">
+            {/* Bento Card 4: Hardware Playback (Span 6) */}
+            <div className="lg:col-span-6 rounded-[28px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-7 sm:p-9 shadow-[0_12px_40px_rgba(0,0,0,0.04)] flex flex-col justify-between text-left group hover:border-[#0757E8]/30 transition-all duration-300">
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                   <span className="font-mono text-xs font-bold text-[#0757E8] dark:text-[#12CFF3] tracking-wider uppercase">
                     Stage 04
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center">
                     <Eye size={17} />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-heading font-extrabold text-lg text-[#062B5C] dark:text-white">
-                    Synchronized Stream
+                <div className="space-y-2">
+                  <h3 className="font-heading font-bold text-xl text-[#1d1d1f] dark:text-white tracking-tight">
+                    60 FPS Kinematic Synthesis
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                    Chains MP4 video clips into a continuous sign playback flow with adjustable speeds, loop controls, and token timeline scrubbers.
+                  <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                    Chains continuous MP4 gesture streams with hardware acceleration. Includes interactive scrubbers, variable speed controls (0.5x–1.25x), and zero dropped frames.
                   </p>
                 </div>
 
                 {/* Technical Micro-Artifact */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/70 dark:border-slate-800 text-[11px] font-mono space-y-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>PLAYER ENGINE</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">60 FPS</span>
+                <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-xs font-mono space-y-1.5">
+                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                    <span>FRAME PIPELINE</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">60 FPS SYNCHRONIZED</span>
                   </div>
-                  <div className="text-slate-800 dark:text-slate-200 font-sans font-medium truncate">
-                    0.5x • 0.75x • 1.0x Continuous
+                  <div className="text-slate-600 dark:text-slate-300 font-sans truncate">
+                    Composite-Only Hardware Acceleration · Sub-120ms Latency
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center gap-1.5">
-                <span>Sub-120ms Latency</span>
+              <div className="pt-4 mt-4 border-t border-black/5 dark:border-white/10 text-xs font-semibold text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-between">
+                <span>GPU Layer Accelerated</span>
+                <span className="text-slate-400 font-normal">Zero Jitter</span>
               </div>
             </div>
 
@@ -607,177 +677,278 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. EDITORIAL STORY: Bridging the Divide with Human Dignity                */}
+      {/* 4. EDITORIAL STORY: Linguistic Craft & Human Dignity                       */}
       {/* ========================================================================= */}
-      <section className="py-20 sm:py-28 bg-[#FAF9F6] dark:bg-[#040A15] border-y border-slate-200/80 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <section className="py-20 sm:py-28 border-y border-black/5 dark:border-white/10 bg-black/[0.015] dark:bg-white/[0.02]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
+          
+          {/* Section Header */}
+          <div className="text-left max-w-3xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.08] backdrop-blur-md border border-black/5 dark:border-white/10 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
+              Linguistic Craft
+            </div>
+            <h2 className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl tracking-[-0.035em] text-[#1d1d1f] dark:text-white leading-[1.08]">
+              Not literal word-swaps. <br />
+              <span className="bg-gradient-to-r from-[#0757E8] to-[#12CFF3] bg-clip-text text-transparent">
+                Real grammar.
+              </span>
+            </h2>
+            <p className="text-base sm:text-lg text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+              Indian Sign Language is not English on hands. It has its own spatial syntax, facial morphology, and Subject-Object-Verb order. SignAction reconstructs sentence semantics so gestures feel native, not robotic.
+            </p>
+          </div>
+
+          {/* Interactive Linguistic Syntax Playground */}
+          <div className="rounded-[32px] sm:rounded-[36px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-6 sm:p-9 shadow-[0_20px_60px_rgba(0,0,0,0.06)] space-y-6">
             
-            {/* Left Column: Authentic Photography Documentary Showcase */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-[0_16px_45px_rgba(10,25,47,0.06)] bg-white dark:bg-slate-900 p-2.5">
-                <div className="relative aspect-[4/4.8] w-full rounded-2xl overflow-hidden">
+            {/* Top Bar: Sentence Switcher Tabs & Mode Switcher */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
+              
+              {/* Sample Sentences Pills */}
+              <div className="flex items-center gap-1.5 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full overflow-x-auto no-scrollbar">
+                {SYNTAX_CASES.map((sc) => {
+                  const isActive = activeSyntaxCase.id === sc.id;
+                  return (
+                    <button
+                      key={sc.id}
+                      type="button"
+                      onClick={() => setActiveSyntaxCase(sc)}
+                      className={`relative px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-colors duration-160 active:scale-[0.97] ${
+                        isActive
+                          ? 'text-[#062B5C] dark:text-white font-bold'
+                          : 'text-slate-500 hover:text-black dark:hover:text-white'
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="syntax-active-pill"
+                          className="absolute inset-0 rounded-full bg-white dark:bg-slate-800 shadow-sm"
+                          transition={{ type: 'spring', duration: 0.32, bounce: 0 }}
+                        />
+                      )}
+                      <span className="relative z-10">{sc.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Mode Toggle Pill */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono hidden sm:inline">
+                  {syntaxMode === 'english' ? 'English SVO Order' : 'ISL SOV Natural Order'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSyntaxMode(m => m === 'english' ? 'isl' : 'english')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-[#0757E8]/10 hover:bg-[#0757E8]/15 dark:bg-[#12CFF3]/10 dark:hover:bg-[#12CFF3]/15 text-[#0757E8] dark:text-[#12CFF3] border border-[#0757E8]/20 transition-[transform,background-color] duration-160 ease-apple active:scale-[0.97]"
+                >
+                  <ArrowLeftRight size={13} />
+                  <span>{syntaxMode === 'english' ? 'Reorder into ISL Grammar' : 'Show English Word Order'}</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Source Phrase Banner */}
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-mono px-1">
+              <span className="text-sm font-heading font-bold text-[#1d1d1f] dark:text-white">
+                Input: &ldquo;{activeSyntaxCase.englishPhrase}&rdquo;
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] font-semibold text-[11px]">
+                {activeSyntaxCase.linguisticTag}
+              </span>
+            </div>
+
+            {/* Kinetic Token Stage */}
+            <div className="p-4 sm:p-6 md:p-8 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 min-h-[140px] flex items-center justify-center">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 w-full">
+                {syntaxMode === 'english' ? (
+                  activeSyntaxCase.englishTokens.map((token, i) => (
+                    <motion.div
+                      key={token.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                      className={`relative flex flex-col items-center justify-center px-3.5 xs:px-4 sm:px-5 py-2 xs:py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border transition-all ${
+                        token.isDropped
+                          ? 'border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300'
+                          : 'border-black/10 dark:border-white/15 bg-white dark:bg-slate-900 shadow-sm text-[#1d1d1f] dark:text-white'
+                      }`}
+                    >
+                      <span className="font-heading font-bold text-sm xs:text-base sm:text-lg">
+                        {token.text}
+                      </span>
+                      <span className="text-[9px] xs:text-[10px] font-mono text-slate-400 pt-0.5 uppercase tracking-wider">
+                        {token.role}
+                      </span>
+                      <span className="absolute -top-2 -right-1 text-[9px] font-mono font-bold px-1.5 py-0.2 bg-black/[0.06] dark:bg-white/10 rounded-full text-slate-500">
+                        #{i + 1}
+                      </span>
+                    </motion.div>
+                  ))
+                ) : (
+                  activeSyntaxCase.islTokens.map((token, i) => (
+                    <motion.div
+                      key={token.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                      className="relative flex flex-col items-center justify-center px-3.5 xs:px-5 sm:px-6 py-2.5 xs:py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-white to-[#F4FAFF] dark:from-slate-800 dark:to-slate-900 border border-[#0757E8]/30 dark:border-[#12CFF3]/30 shadow-md text-[#0757E8] dark:text-[#12CFF3]"
+                    >
+                      <span className="font-mono font-black text-sm xs:text-base sm:text-xl tracking-wider">
+                        [{token.text}]
+                      </span>
+                      <span className="text-[9px] xs:text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-0.5 uppercase tracking-wider">
+                        {token.role}
+                      </span>
+                      <span className="absolute -top-2.5 -right-1.5 text-[9px] font-mono font-bold px-2 py-0.5 bg-[#0757E8] text-white rounded-full shadow-xs">
+                        ISL #{i + 1}
+                      </span>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Insight Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 text-xs text-[#60759A] dark:text-slate-300">
+              <div className="flex items-start gap-2 max-w-2xl">
+                <Sparkles size={15} className="text-[#0757E8] dark:text-[#12CFF3] shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <span className="font-bold text-[#1d1d1f] dark:text-white">Grammar Rule: </span>
+                  {activeSyntaxCase.ruleExplanation}
+                </p>
+              </div>
+
+              <Link
+                href="/translator"
+                className="inline-flex items-center gap-1.5 font-semibold text-[#0757E8] dark:text-[#12CFF3] hover:underline shrink-0"
+              >
+                <span>Try custom sentence in Translator</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+          </div>
+
+          {/* Documentary Field Study & Authentic Pillars (No Cliché 01/02/03 Number Boxes) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-4">
+            
+            {/* Left: Authentic Documentary Photo Plate */}
+            <div className="lg:col-span-5">
+              <div className="space-y-3">
+                <div className="relative aspect-[4/3.2] w-full rounded-[24px] overflow-hidden border border-black/5 dark:border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
                   <Image
                     src="/avatar-communities.jpg"
-                    alt="Deaf and hearing individuals communicating in an inclusive community setting"
+                    alt="Community consultation with Deaf signers and educators in Bengaluru"
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 480px"
                   />
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/20 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
-                    Field Study • Community Workshop
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
+                    Field Study • Bengaluru
                   </div>
                 </div>
-
-                <div className="p-4 pt-3.5 text-left space-y-1">
-                  <p className="font-heading font-semibold text-sm text-[#062B5C] dark:text-white leading-snug">
-                    &ldquo;Accessibility is not a feature or an add-on. It is the foundation of human agency and dignity.&rdquo;
-                  </p>
-                  <p className="text-[11px] font-medium text-[#64748B] dark:text-slate-400">
-                    SignAction Community Initiative • Bengaluru, India
-                  </p>
-                </div>
+                <p className="text-xs text-[#60759A] dark:text-slate-400 italic text-left">
+                  Field documentation at the Deaf Community Center, Bengaluru. SignAction gestures are verified directly with native signers and bilingual educators.
+                </p>
               </div>
             </div>
 
-            {/* Right Column: Thoughtful Architectural Principles */}
-            <div className="lg:col-span-7 space-y-8 text-left">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 border border-blue-200/70 dark:border-blue-900/60 text-[11px] font-heading font-extrabold uppercase tracking-widest text-[#0757E8] dark:text-[#12CFF3]">
-                  Our Purpose
-                </div>
-
-                <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-[44px] tracking-tight text-[#062B5C] dark:text-white leading-[1.14]">
-                  Bridging the communication divide with cultural nuance.
-                </h2>
-
-                <p className="text-base sm:text-lg text-[#4A5568] dark:text-slate-300 leading-relaxed font-normal">
-                  For over 63 million Deaf and Hard-of-Hearing individuals across India, daily communication often relies on improvised gestures or unavailable interpreters. SignAction was built to bridge this divide by translating spoken voice and text into natural, grammatically sound Indian Sign Language.
+            {/* Right: Three Substantive Human Commitments */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              
+              <div className="space-y-1.5">
+                <h3 className="font-heading font-bold text-lg text-[#1d1d1f] dark:text-white">
+                  Linguistic Sovereignty
+                </h3>
+                <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                  Indian Sign Language is an independent language with unique spatial markers and morphology. We adhere to standards recognized by the National Association of the Deaf (NAD) rather than forcing English grammar onto visual signs.
                 </p>
               </div>
 
-              {/* 3 Architectural Principles (No Checkmarks) */}
-              <div className="space-y-4 pt-1">
-                
-                {/* Principle 01 */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-4">
-                  <div className="font-mono text-sm font-extrabold text-[#0757E8] dark:text-[#12CFF3] shrink-0 pt-0.5">
-                    01
-                  </div>
-                  <div className="space-y-0.5">
-                    <h3 className="font-heading font-bold text-base text-[#062B5C] dark:text-white">
-                      Subject-Object-Verb (SOV) Linguistic Syntax
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400 leading-relaxed">
-                      Indian Sign Language uses SOV sentence structure. SignAction reconstructs sentence semantics instead of performing literal, word-by-word English replacement.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Principle 02 */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-4">
-                  <div className="font-mono text-sm font-extrabold text-[#0757E8] dark:text-[#12CFF3] shrink-0 pt-0.5">
-                    02
-                  </div>
-                  <div className="space-y-0.5">
-                    <h3 className="font-heading font-bold text-base text-[#062B5C] dark:text-white">
-                      Curated Indian Sign Language Corpus
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400 leading-relaxed">
-                      Every sign in our 347-token library is mapped to standard gestures recognized by the National Association of the Deaf (NAD) and regional Indian institutions.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Principle 03 */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-4">
-                  <div className="font-mono text-sm font-extrabold text-[#0757E8] dark:text-[#12CFF3] shrink-0 pt-0.5">
-                    03
-                  </div>
-                  <div className="space-y-0.5">
-                    <h3 className="font-heading font-bold text-base text-[#062B5C] dark:text-white">
-                      Zero-Cost Universal Accessibility
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#64748B] dark:text-slate-400 leading-relaxed">
-                      Zero subscriptions, zero paywalls, zero telemetry. Built for immediate offline utility in classrooms, emergency healthcare, and family dinner tables.
-                    </p>
-                  </div>
-                </div>
-
+              <div className="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/10">
+                <h3 className="font-heading font-bold text-lg text-[#1d1d1f] dark:text-white">
+                  Continuous Manual Fingerspelling
+                </h3>
+                <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                  No vocabulary gaps. For rare proper nouns, specialized medical terms, or personal names without a direct sign token, SignAction smoothly transitions into 60 FPS letter-by-letter fingerspelling.
+                </p>
               </div>
 
-              <div className="pt-2">
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-2 text-sm font-heading font-bold text-[#0757E8] dark:text-[#12CFF3] hover:underline"
-                >
-                  <span>Explore the ISL grammar and translation engine</span>
-                  <ArrowRight size={15} />
-                </Link>
+              <div className="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/10">
+                <h3 className="font-heading font-bold text-lg text-[#1d1d1f] dark:text-white">
+                  100% Free, Private, and Universal
+                </h3>
+                <p className="text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                  Communication is a fundamental right. No paywalls, no monthly subscription tiers, and no cloud surveillance. The entire 347-sign library and offline speech engine run locally on your hardware.
+                </p>
               </div>
 
             </div>
 
           </div>
+
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. PRIVACY & EDGE INDEPENDENCE: 100% Offline by Design                   */}
+      {/* 5. PRIVACY: On-Device Privacy by Design                                   */}
       {/* ========================================================================= */}
       <section className="py-20 sm:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Header */}
           <div className="text-center max-w-2xl mx-auto mb-16 sm:mb-20 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 text-xs font-heading font-bold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.08] backdrop-blur-md border border-black/5 dark:border-white/10 text-xs font-mono font-bold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
               <ShieldCheck size={14} />
               <span>On-Device Privacy</span>
             </div>
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-[42px] tracking-tight text-[#062B5C] dark:text-white">
-              Speech and gestures that <br className="hidden sm:inline" />
-              never leave your device.
+            <h2 className="font-heading font-black text-3xl sm:text-4xl lg:text-[46px] tracking-[-0.035em] text-[#1d1d1f] dark:text-white leading-[1.1]">
+              Privacy. At the very core.
             </h2>
-            <p className="text-base sm:text-lg text-[#4A5568] dark:text-slate-300 leading-relaxed font-normal">
-              True accessibility requires trust. We engineered SignAction to operate 100% on your device, ensuring total conversational privacy.
+            <p className="text-base sm:text-lg text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+              True accessibility requires trust. SignAction was built so that speech, transcriptions, and gestures never leave your device.
             </p>
           </div>
 
-          {/* 3 Metric Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* 3 Cupertino Metric Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             
-            <div className="bg-white dark:bg-[#07132B] rounded-[28px] p-8 sm:p-10 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_24px_rgba(10,25,47,0.03)] text-left space-y-3">
-              <div className="font-heading font-extrabold text-4xl sm:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-tight">
+            <div className="rounded-[24px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-6 sm:p-8 md:p-6 lg:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.04)] text-left space-y-3">
+              <div className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-[-0.03em]">
                 0 KB
               </div>
-              <h3 className="font-heading font-bold text-lg text-[#062B5C] dark:text-white">
+              <h3 className="font-heading font-bold text-base sm:text-lg text-[#1d1d1f] dark:text-white">
                 Cloud Audio Uploads
               </h3>
-              <p className="text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                Voice audio is processed locally via Vosk WebAssembly. Zero recordings or transcriptions ever leave your computer or phone.
+              <p className="text-xs sm:text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                Voice audio is processed locally via Vosk WebAssembly. Zero audio recordings or transcriptions ever leave your computer or phone.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-[#07132B] rounded-[28px] p-8 sm:p-10 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_24px_rgba(10,25,47,0.03)] text-left space-y-3">
-              <div className="font-heading font-extrabold text-4xl sm:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-tight">
+            <div className="rounded-[24px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-6 sm:p-8 md:p-6 lg:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.04)] text-left space-y-3">
+              <div className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-[-0.03em]">
                 &lt; 120ms
               </div>
-              <h3 className="font-heading font-bold text-lg text-[#062B5C] dark:text-white">
+              <h3 className="font-heading font-bold text-base sm:text-lg text-[#1d1d1f] dark:text-white">
                 Immediate Response
               </h3>
-              <p className="text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-                By running parsing and tokenization on edge hardware, visual signs are rendered in real time without network round trips.
+              <p className="text-xs sm:text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
+                By executing syntax parsing and token resolution locally on edge hardware, visual signs render smoothly without network delays.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-[#07132B] rounded-[28px] p-8 sm:p-10 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_24px_rgba(10,25,47,0.03)] text-left space-y-3">
-              <div className="font-heading font-extrabold text-4xl sm:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-tight">
+            <div className="rounded-[24px] sm:rounded-[32px] bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 p-6 sm:p-8 md:p-6 lg:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.04)] text-left space-y-3">
+              <div className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-[#0757E8] dark:text-[#12CFF3] tracking-[-0.03em]">
                 100%
               </div>
-              <h3 className="font-heading font-bold text-lg text-[#062B5C] dark:text-white">
+              <h3 className="font-heading font-bold text-base sm:text-lg text-[#1d1d1f] dark:text-white">
                 Offline Autonomy
               </h3>
-              <p className="text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#60759A] dark:text-slate-300 leading-relaxed font-normal">
                 Turn on Airplane mode. Speech recognition and sign playback continue to operate smoothly without mobile data or Wi-Fi.
               </p>
             </div>
@@ -788,121 +959,11 @@ export default function LandingPage() {
           <div className="mt-12 text-center">
             <Link
               href="/offline-setup"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0757E8] dark:text-[#12CFF3] bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100/80 dark:hover:bg-blue-900/60 rounded-full px-6 py-3 border border-blue-200/60 dark:border-blue-800/60 transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0757E8] dark:text-[#12CFF3] bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] backdrop-blur-md rounded-full px-6 py-3.5 border border-black/5 dark:border-white/10 transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97]"
             >
               <span>Setup Offline Mode for Web & Mobile</span>
               <ArrowRight size={15} />
             </Link>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 6. INTERACTIVE GESTURE EXPLORER: Try Real Signs in Browser               */}
-      {/* ========================================================================= */}
-      <section className="py-20 sm:py-28 bg-white dark:bg-[#030B18] border-t border-slate-200/80 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 text-xs font-heading font-bold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
-              <Eye size={14} />
-              <span>Interactive Vocabulary</span>
-            </div>
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl tracking-tight text-[#062B5C] dark:text-white">
-              Experience signs in motion.
-            </h2>
-            <p className="text-base sm:text-lg text-[#4A5568] dark:text-slate-300">
-              Select an everyday phrase to see how SignAction maps English into verified visual gestures.
-            </p>
-          </div>
-
-          {/* Gesture Pills Selector */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-12">
-            {SAMPLE_GESTURES.map((gesture) => {
-              const isSelected = activeGesture.token === gesture.token;
-              return (
-                <button
-                  key={gesture.token}
-                  onClick={() => {
-                    setActiveGesture(gesture);
-                    setIsPlaying(true);
-                  }}
-                  className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-heading font-bold transition-all duration-200 ${
-                    isSelected
-                      ? 'bg-[#0757E8] text-white shadow-[0_4px_14px_rgba(7,87,232,0.28)] scale-[1.02]'
-                      : 'bg-slate-100 dark:bg-slate-800 text-[#4A5568] dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {gesture.token}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Interactive Player Showcase Card */}
-          <div className="max-w-4xl mx-auto bg-[#FAF9F6] dark:bg-[#07132B] rounded-[32px] p-6 sm:p-10 border border-slate-200/90 dark:border-slate-800 shadow-[0_10px_35px_rgba(10,25,47,0.06)]">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-              
-              {/* Left Column: Video Player */}
-              <div className="md:col-span-7">
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-slate-200/80 dark:border-slate-800 shadow-md">
-                  <video
-                    ref={explorerVideoRef}
-                    key={activeGesture.videoUrl}
-                    src={activeGesture.videoUrl}
-                    autoPlay={isPlaying}
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-[11px] font-heading font-extrabold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
-                    {activeGesture.category}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPlaying((p) => !p)}
-                    aria-label={isPlaying ? 'Pause gesture preview' : 'Play gesture preview'}
-                    className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 text-[#0757E8] dark:text-[#12CFF3] flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95"
-                  >
-                    {isPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Column: Breakdown */}
-              <div className="md:col-span-5 space-y-5 text-left">
-                <div>
-                  <span className="text-[11px] font-heading font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 block mb-1">
-                    English Meaning
-                  </span>
-                  <div className="font-heading font-extrabold text-xl text-[#062B5C] dark:text-white">
-                    &ldquo;{activeGesture.english}&rdquo;
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[11px] font-heading font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 block mb-1">
-                    ISL Sign Gloss
-                  </span>
-                  <div className="inline-block px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#0757E8] dark:text-[#12CFF3] font-mono text-xs font-bold tracking-wider">
-                    {activeGesture.gloss}
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <Link
-                    href="/translator"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#0757E8] dark:text-[#12CFF3] hover:underline"
-                  >
-                    <span>Translate your own sentence</span>
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </div>
-
-            </div>
           </div>
 
         </div>
@@ -950,7 +1011,7 @@ export default function LandingPage() {
                   {isNative ? (
                     <Link
                       href="/translator"
-                      className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] transition-all duration-200 active:scale-[0.98]"
+                      className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-7 py-4 shadow-[0_6px_22px_rgba(7,87,232,0.32)] transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.97]"
                     >
                       <CheckCircle2 size={18} />
                       <span>Installed Offline • Open Translator</span>
@@ -959,7 +1020,7 @@ export default function LandingPage() {
                     <a
                       href={OFFICIAL_APK_DOWNLOAD_URL}
                       download="signaction.apk"
-                      className="inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 sm:px-8 py-4 w-full sm:w-auto shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                      className="inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 sm:px-8 py-4 w-full sm:w-auto shadow-[0_6px_22px_rgba(7,87,232,0.32)] hover:shadow-[0_8px_26px_rgba(7,87,232,0.42)] transition-[transform,background-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97]"
                     >
                       <Download size={18} />
                       <span>Download Android APK ({OFFICIAL_APK_SIZE_LABEL})</span>
@@ -1138,7 +1199,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2">
               <Link
                 href="/translator"
-                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] bg-white hover:bg-slate-100 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-[#062B5C] bg-white hover:bg-slate-100 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto shadow-md transition-[transform,background-color] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97]"
               >
                 <span>Start Translating Now</span>
                 <ArrowRight size={17} />
@@ -1148,7 +1209,7 @@ export default function LandingPage() {
                 <a
                   href={OFFICIAL_APK_DOWNLOAD_URL}
                   download="signaction.apk"
-                  className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto transition-all"
+                  className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-7 sm:px-8 py-3.5 min-h-[48px] w-full sm:w-auto transition-[transform,background-color,border-color] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97]"
                 >
                   <Smartphone size={16} className="text-[#12CFF3]" />
                   <span>Download Android APK</span>

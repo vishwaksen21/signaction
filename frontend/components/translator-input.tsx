@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { SpeechRecorder } from './speech-recorder';
 import { convertToWav16kHz } from '../lib/audio-wav';
 
@@ -52,39 +53,53 @@ export function TranslatorInput({
     <div className="sign-card flex flex-col justify-between">
       <div className="space-y-6">
         {/* Header matching specification */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
           <div>
-            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#062B5C] dark:text-white tracking-tight">
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#1d1d1f] dark:text-white tracking-tight">
               Translate
             </h2>
-            <p className="text-sm text-[#64748B] dark:text-slate-400 mt-1">
-              Enter text or use your voice to generate sign gestures.
+            <p className="text-sm text-[#60759A] dark:text-slate-400 mt-1 font-normal">
+              Enter text or speak naturally to generate real-time sign gestures.
             </p>
           </div>
 
-          {/* Text / Speech Tabs */}
-          <div className="inline-flex p-1 rounded-full bg-[#F0F4F8] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 self-start sm:self-auto">
+          {/* Apple Cupertino Segmented Control */}
+          <div className="relative inline-flex p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] backdrop-blur-md border border-black/5 dark:border-white/10 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setActiveTab('text')}
-              className={`min-h-[40px] px-5 py-2 rounded-full text-xs font-semibold transition-all ${
+              className={`relative min-h-[38px] px-5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-160 ${
                 activeTab === 'text'
-                  ? 'bg-[#0757E8] text-white shadow-xs'
-                  : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
+                  ? 'text-[#062B5C] dark:text-white font-bold'
+                  : 'text-slate-500 hover:text-black dark:hover:text-white'
               }`}
             >
-              Text Input
+              {activeTab === 'text' && (
+                <motion.div
+                  layoutId="translator-mode-pill"
+                  className="absolute inset-0 rounded-full bg-white dark:bg-slate-800 shadow-sm"
+                  transition={{ type: 'spring', bounce: 0, duration: 0.32 }}
+                />
+              )}
+              <span className="relative z-10">Text Input</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('speech')}
-              className={`min-h-[40px] px-5 py-2 rounded-full text-xs font-semibold transition-all ${
+              className={`relative min-h-[38px] px-5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-160 ${
                 activeTab === 'speech'
-                  ? 'bg-[#0757E8] text-white shadow-xs'
-                  : 'text-[#64748B] dark:text-slate-300 hover:text-[#062B5C] dark:hover:text-white'
+                  ? 'text-[#062B5C] dark:text-white font-bold'
+                  : 'text-slate-500 hover:text-black dark:hover:text-white'
               }`}
             >
-              Voice Speech
+              {activeTab === 'speech' && (
+                <motion.div
+                  layoutId="translator-mode-pill"
+                  className="absolute inset-0 rounded-full bg-white dark:bg-slate-800 shadow-sm"
+                  transition={{ type: 'spring', bounce: 0, duration: 0.32 }}
+                />
+              )}
+              <span className="relative z-10">Voice Speech</span>
             </button>
           </div>
         </div>
@@ -137,7 +152,7 @@ export function TranslatorInput({
                     key={phrase}
                     type="button"
                     onClick={() => onTextChange(phrase)}
-                    className="text-xs px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 hover:bg-[#F0F4F8] dark:hover:bg-slate-700 border border-slate-200/90 dark:border-slate-700 text-[#062B5C] dark:text-slate-200 font-medium transition-colors shadow-2xs min-h-[38px] flex items-center active:scale-95"
+                    className="text-xs px-3.5 py-2 rounded-full bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/5 dark:border-white/10 text-[#1d1d1f] dark:text-slate-200 font-medium transition-[transform,background-color] duration-160 ease-apple min-h-[38px] flex items-center active:scale-[0.97]"
                   >
                     {phrase}
                   </button>
@@ -149,7 +164,7 @@ export function TranslatorInput({
             <button
               onClick={onTranslateText}
               disabled={loading || !text.trim()}
-              className="btn-sign-primary w-full flex items-center justify-center gap-2 mt-4 text-base py-3.5 min-h-[48px]"
+              className="inline-flex items-center justify-center gap-2 w-full mt-4 text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full py-4 min-h-[50px] shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>{loading ? 'Translating…' : 'Translate to Signs'}</span>
               <Send size={16} />
@@ -161,7 +176,7 @@ export function TranslatorInput({
         {activeTab === 'speech' && (
           <div className="space-y-5">
             {/* Microphone Recorder Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF9F6] dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
+            <div className="p-4 sm:p-5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10">
               <SpeechRecorder
                 disabled={loading}
                 onRecorded={(f) => {
@@ -172,12 +187,12 @@ export function TranslatorInput({
             </div>
 
             {/* Audio File Upload Backup */}
-            <div className="space-y-2 p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div className="space-y-2 p-4 sm:p-5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10">
               <label className="block text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
                 Or upload an audio recording
               </label>
               <input
-                className="block w-full text-xs text-[#062B5C] dark:text-slate-200 file:mr-3 file:rounded-full file:border-0 file:bg-[#F0F4F8] dark:file:bg-slate-800 file:px-4 file:py-2 file:text-xs file:font-bold file:text-[#0757E8] dark:file:text-[#12CFF3] file:cursor-pointer transition-colors hover:file:opacity-80"
+                className="block w-full text-xs text-[#1d1d1f] dark:text-slate-200 file:mr-3 file:rounded-full file:border-0 file:bg-black/[0.05] dark:file:bg-white/10 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-[#0757E8] dark:file:text-[#12CFF3] file:cursor-pointer transition-colors hover:file:opacity-80"
                 type="file"
                 accept="audio/wav,audio/flac,audio/ogg,audio/webm,audio/mp4,audio/mpeg,.wav,.flac,.ogg,.webm,.m4a,.mp3"
                 onChange={handleFileUpload}
@@ -211,7 +226,7 @@ export function TranslatorInput({
             <button
               onClick={() => audioFile && onTranslateSpeech(audioFile)}
               disabled={loading || !audioFile || converting}
-              className="btn-sign-primary w-full flex items-center justify-center gap-2 text-base py-3.5"
+              className="inline-flex items-center justify-center gap-2 w-full text-base font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full py-4 min-h-[50px] shadow-[0_4px_16px_rgba(7,87,232,0.28)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.36)] transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>{converting ? 'Converting Audio…' : 'Translate Voice Recording'}</span>
               <Send size={16} />

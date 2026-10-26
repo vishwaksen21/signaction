@@ -17,34 +17,44 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
-  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --ease-apple: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-apple: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 140ms;
+  --duration-ui: 200ms;
 }
 
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
-    overscroll-behavior-y: none;
-    overflow-y: auto;
-    overflow-x: hidden;
     scroll-behavior: smooth;
   }
   html,
   body {
     min-height: 100%;
     font-family: var(--font-sans);
+    overflow-x: clip;
     @apply text-base antialiased text-[#062B5C] dark:text-slate-100 bg-[#FAF9F6] dark:bg-[#050B14] selection:bg-[#12CFF3] selection:text-[#062B87];
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  p {
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+    text-wrap: pretty;
   }
 
   body {
     position: relative;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
-    overflow-x: hidden;
   }
 
   /* Web Interface Guidelines: Touch manipulation & Typography balance */
@@ -59,17 +69,23 @@
     -webkit-touch-callout: none;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    text-wrap: balance;
-  }
-
-  p {
-    text-wrap: pretty;
-  }
-
   /* Prevent iOS Safari auto-zoom on form inputs by ensuring >= 16px font size */
   input, textarea, select {
     font-size: 16px;
+  }
+
+  /* Apple accessibility: Reduced transparency fallback */
+  @media (prefers-reduced-transparency: reduce) {
+    header, nav, aside {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background-color: #FAF9F6 !important;
+    }
+    .dark header, .dark nav, .dark aside {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background-color: #050B14 !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -127,39 +143,39 @@
   /* Buttons */
   .btn-primary,
   .btn-sign-primary {
-    @apply inline-flex items-center justify-center font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 py-3 shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.32)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-ring cursor-pointer;
+    @apply inline-flex items-center justify-center font-semibold text-white bg-[#0757E8] hover:bg-[#064BD1] rounded-full px-6 py-3 shadow-[0_4px_14px_rgba(7,87,232,0.24)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.32)] transition-[transform,background-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] focus-ring cursor-pointer;
   }
 
   .btn-secondary-pill,
   .btn-sign-secondary {
-    @apply inline-flex items-center justify-center font-semibold text-[#062B5C] dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full px-6 py-3 shadow-xs transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-ring cursor-pointer;
+    @apply inline-flex items-center justify-center font-semibold text-[#062B5C] dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full px-6 py-3 shadow-xs transition-[transform,background-color,border-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] focus-ring cursor-pointer;
   }
 
   .btn-dark-utility {
-    @apply inline-flex items-center justify-center bg-[#0A192F] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all hover:bg-[#062B5C] focus-ring;
+    @apply inline-flex items-center justify-center bg-[#0A192F] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-[transform,background-color] duration-160 ease-apple hover:bg-[#062B5C] active:scale-[0.97] focus-ring;
   }
   
   .btn-pearl-capsule {
-    @apply inline-flex items-center justify-center bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 rounded-full px-4 py-2 text-xs font-semibold transition-all focus-ring;
+    @apply inline-flex items-center justify-center bg-[#F0F4F8] dark:bg-slate-800 text-[#062B5C] dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 rounded-full px-4 py-2 text-xs font-semibold transition-[transform,background-color,border-color] duration-160 ease-apple active:scale-[0.97] focus-ring;
   }
 
   .btn-store-hero {
-    @apply inline-flex items-center justify-center bg-[#0757E8] hover:bg-[#064BD1] text-white rounded-full px-8 py-4 font-semibold shadow-[0_4px_16px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.35)] transition-all active:scale-95 focus-ring;
+    @apply inline-flex items-center justify-center bg-[#0757E8] hover:bg-[#064BD1] text-white rounded-full px-8 py-4 font-semibold shadow-[0_4px_16px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_22px_rgba(7,87,232,0.35)] transition-[transform,background-color,box-shadow] duration-160 ease-apple active:scale-[0.97] focus-ring;
   }
 
-  /* Structural Cards */
+  /* Structural Cards — Apple Cupertino Translucent Glass */
   .sign-card,
   .store-utility-card {
-    @apply bg-white dark:bg-[#07132C] text-[#0A192F] dark:text-slate-100 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-[28px] p-5 sm:p-6 md:p-8 shadow-[0_4px_24px_rgba(10,25,47,0.04)] dark:shadow-none transition-all duration-300;
+    @apply bg-white/80 dark:bg-[#07132C]/80 backdrop-blur-2xl text-[#1d1d1f] dark:text-slate-100 border border-black/[0.06] dark:border-white/10 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.4)] transition-[border-color,box-shadow] duration-200 ease-apple;
   }
 
   .sign-card-subtle {
-    @apply bg-[#F0F4F8] dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5;
+    @apply bg-black/[0.02] dark:bg-white/[0.04] backdrop-blur-xl border border-black/[0.05] dark:border-white/[0.08] rounded-2xl p-5 transition-[border-color] duration-200 ease-apple;
   }
 
   /* Token Chips */
   .configurator-chip {
-    @apply inline-flex items-center justify-center bg-white dark:bg-slate-900 text-[#0A192F] dark:text-slate-200 text-sm font-semibold rounded-full px-4 py-2 border border-slate-200/90 dark:border-slate-800 cursor-pointer shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0757E8] focus-ring;
+    @apply inline-flex items-center justify-center bg-white dark:bg-slate-900 text-[#0A192F] dark:text-slate-200 text-sm font-semibold rounded-full px-4 py-2 border border-slate-200/90 dark:border-slate-800 cursor-pointer shadow-xs transition-[transform,background-color,border-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 hover:border-[#0757E8] active:scale-[0.97] focus-ring;
   }
   
   .configurator-chip[aria-selected="true"],
@@ -169,11 +185,11 @@
 
   /* Inputs */
   .sign-textarea {
-    @apply w-full resize-none rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-900 p-5 text-[#0A192F] dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all duration-200 focus:border-[#0757E8] focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-[#0757E8]/10 shadow-xs;
+    @apply w-full resize-none rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-900 p-5 text-[#0A192F] dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-apple focus:border-[#0757E8] focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-[#0757E8]/10 shadow-xs;
   }
 
   .search-input {
-    @apply bg-white dark:bg-slate-900 text-[#0A192F] dark:text-white rounded-full px-5 py-3 h-[48px] border border-slate-200/90 dark:border-slate-800 focus:border-[#0757E8] focus:ring-4 focus:ring-[#0757E8]/10 transition-all outline-none;
+    @apply bg-white dark:bg-slate-900 text-[#0A192F] dark:text-white rounded-full px-5 py-3 h-[48px] border border-slate-200/90 dark:border-slate-800 focus:border-[#0757E8] focus:ring-4 focus:ring-[#0757E8]/10 transition-[border-color,box-shadow] duration-200 ease-apple outline-none;
   }
 
   /* Safe area insets for notches & bottom navigation on mobile */

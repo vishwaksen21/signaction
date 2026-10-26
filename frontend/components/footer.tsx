@@ -55,7 +55,7 @@ export function Footer() {
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <Link
                 href="/translator"
-                className="inline-flex items-center justify-center gap-2 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.35)] transition-all duration-200 active:scale-95 focus-ring"
+                className="inline-flex items-center justify-center gap-2 bg-[#0757E8] hover:bg-[#064BD1] text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-[0_4px_14px_rgba(7,87,232,0.25)] hover:shadow-[0_6px_20px_rgba(7,87,232,0.35)] transition-[transform,background-color,box-shadow] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97] focus-ring"
               >
                 <span>Start Translating</span>
                 <ArrowRight className="w-4 h-4" />
@@ -64,7 +64,7 @@ export function Footer() {
               {isNative ? (
                 <Link
                   href="/dictionary"
-                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95 focus-ring"
+                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-[transform,background-color,border-color] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97] focus-ring"
                 >
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   <span>Browse 347 Offline Signs</span>
@@ -73,7 +73,7 @@ export function Footer() {
                 <a
                   href={OFFICIAL_APK_DOWNLOAD_URL}
                   download="signaction.apk"
-                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 active:scale-95 focus-ring"
+                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700 text-[#062B5C] dark:text-white font-semibold text-sm px-6 py-3 min-h-[44px] rounded-full shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-[transform,background-color,border-color] duration-160 ease-apple hover:-translate-y-0.5 active:scale-[0.97] focus-ring"
                 >
                   <Smartphone className="w-4 h-4 text-[#0757E8] dark:text-[#12CFF3]" />
                   <span>Download Android APK</span>

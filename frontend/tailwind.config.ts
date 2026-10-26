@@ -53,9 +53,9 @@ const config: Config = {
         'brand-turquoise': '#00B4D8',
       },
       fontFamily: {
-        heading: ['"Plus Jakarta Sans"', 'Manrope', 'system-ui', 'sans-serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'Manrope', 'system-ui', 'sans-serif'],
+        heading: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
 
       borderRadius: {
@@ -99,7 +99,16 @@ const config: Config = {
         'apple-fine-print': ['12px', { lineHeight: '1.0', letterSpacing: '-0.12px', fontWeight: '400' }],
         'apple-micro-legal': ['10px', { lineHeight: '1.3', letterSpacing: '-0.08px', fontWeight: '400' }],
         'apple-nav-link': ['12px', { lineHeight: '1.0', letterSpacing: '-0.12px', fontWeight: '400' }],
-      }
+      },
+      transitionTimingFunction: {
+        'apple': 'cubic-bezier(0.23, 1, 0.32, 1)',
+        'apple-in-out': 'cubic-bezier(0.77, 0, 0.175, 1)',
+        'apple-drawer': 'cubic-bezier(0.32, 0.72, 0, 1)',
+      },
+      transitionDuration: {
+        '120': '120ms',
+        '160': '160ms',
+      },
     },
   },
   plugins: [

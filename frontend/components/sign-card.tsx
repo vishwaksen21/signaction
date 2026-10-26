@@ -51,34 +51,49 @@ export function SignCard({
     setIsPlaying((prev) => !prev);
   };
 
+  const displayToken = token?.trim() || 'UNTITLED_GESTURE';
+  const isUntitled = !token?.trim();
+  // Safe Unicode grapheme cluster extraction (avoids broken surrogate pairs on emojis)
+  const initialGraphemes = Array.from(displayToken).slice(0, 2).join('');
+
   return (
     <div
       ref={cardRef}
       onClick={onClick}
       onMouseEnter={() => setIsPlaying(true)}
       onMouseLeave={() => setIsPlaying(false)}
-      className="sign-card p-4 sm:p-5 h-full flex flex-col gap-3 group hover:border-[#0757E8]/50 hover:shadow-lg transition-all duration-200 cursor-pointer select-none relative"
+      className="sign-card p-4 sm:p-5 h-full flex flex-col gap-3 group hover:border-[#0757E8]/50 hover:shadow-lg transition-[transform,border-color,box-shadow] duration-200 ease-apple hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none relative"
     >
       {/* Header info */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-heading font-extrabold text-base sm:text-lg text-[#062B5C] dark:text-white tracking-tight truncate group-hover:text-[#0757E8] dark:group-hover:text-[#12CFF3] transition-colors">
-          {token}
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <span
+          className={`font-heading font-extrabold text-base sm:text-lg tracking-tight truncate group-hover:text-[#0757E8] dark:group-hover:text-[#12CFF3] transition-colors min-w-0 flex-1 min-h-[1.75rem] flex items-center ${
+            isUntitled
+              ? 'italic text-slate-400 dark:text-slate-500 font-normal'
+              : 'text-[#062B5C] dark:text-white'
+          }`}
+          title={token || 'Untitled gesture'}
+        >
+          {displayToken}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
           {isPlaying && (
-            <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-200/80">
+            <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-200/80 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               LIVE
             </span>
           )}
-          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/70 dark:border-blue-900/50">
+          <span
+            className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0757E8] dark:text-[#12CFF3] border border-blue-200/70 dark:border-blue-900/50 max-w-[75px] truncate shrink-0"
+            title={mediaType}
+          >
             {mediaType}
           </span>
         </div>
       </div>
 
       {/* Video Container */}
-      <div className="relative w-full aspect-video md:aspect-square rounded-xl border border-slate-200/80 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-950 overflow-hidden flex items-center justify-center transition-all">
+      <div className="relative w-full aspect-video md:aspect-square rounded-xl border border-slate-200/80 dark:border-slate-800 bg-[#FAF9F6] dark:bg-slate-950 overflow-hidden flex items-center justify-center">
         {isVisible ? (
           <div className="w-full h-full flex items-center justify-center">
             <SignViewer
@@ -91,7 +106,7 @@ export function SignCard({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-slate-900/50 text-slate-400">
             <span className="font-heading font-extrabold text-3xl text-slate-300 dark:text-slate-700">
-              {token.slice(0, 2)}
+              {initialGraphemes}
             </span>
             <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
               <Video size={13} />
