@@ -107,6 +107,10 @@ export function TranslatorInput({
                 onChange={(e) => onTextChange(e.target.value)}
                 placeholder="Type a sentence, phrase, or word to translate into sign gestures…"
                 disabled={loading}
+                enterKeyHint="send"
+                autoCapitalize="sentences"
+                autoCorrect="on"
+                spellCheck={true}
               />
               <div className="flex items-center justify-between mt-2 px-1 text-xs text-[#64748B] dark:text-slate-400">
                 <span>{text.length} characters</span>

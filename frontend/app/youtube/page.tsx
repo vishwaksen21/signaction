@@ -32,7 +32,7 @@ export default function YoutubeTranslatorPage() {
   const error = (translateText.error ?? translateSpeech.error) as Error | null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
+    <div className="flex flex-col min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
       
       {/* Hero Section */}
       <section className="w-full py-12 md:py-16 px-4 md:px-8 border-b border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/40 backdrop-blur-sm">

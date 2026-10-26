@@ -101,7 +101,7 @@ export default function OfflineSetupPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
+    <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 transition-colors duration-300">
       {/* Hero */}
       <section className="relative overflow-hidden py-14 lg:py-20">
         <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">

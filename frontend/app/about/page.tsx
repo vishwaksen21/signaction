@@ -32,7 +32,7 @@ export default function AboutPage() {
     setIsNative(isNativeApk());
   }, []);
   return (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-12 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 py-12 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
 
       {/* Header Section */}
       <div className="max-w-4xl mx-auto text-center mb-16 md:mb-20">

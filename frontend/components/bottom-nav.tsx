@@ -32,7 +32,7 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative flex-1 min-w-0 max-w-[84px] flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-2xl transition-all duration-200 active:scale-95 focus-ring ${
+              className={`relative flex-1 min-w-0 max-w-[84px] flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-2xl transition-all duration-200 active:scale-95 focus-ring select-none touch-manipulation ${
                 isActive
                   ? 'text-[#0757E8] dark:text-[#12CFF3] font-semibold'
                   : 'text-[#64748B] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'

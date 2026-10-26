@@ -91,7 +91,7 @@ export default function LandingPage() {
   }, [isPlaying, activeGesture.videoUrl]);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 selection:bg-[#12CFF3]/30 selection:text-[#062B5C] transition-colors duration-300">
+    <div className="min-h-[100dvh] bg-[#FAF9F6] dark:bg-[#050B14] text-[#0A192F] dark:text-slate-100 selection:bg-[#12CFF3]/30 selection:text-[#062B5C] transition-colors duration-300">
       
       {/* ========================================================================= */}
       {/* 1. HERO SECTION: Human-Centered Asymmetrical Composition                  */}

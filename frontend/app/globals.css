@@ -23,6 +23,9 @@
 
 @layer base {
   html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
@@ -40,12 +43,20 @@
   body {
     position: relative;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
     overflow-x: hidden;
   }
 
   /* Web Interface Guidelines: Touch manipulation & Typography balance */
   button, a, input, select, textarea, [role="button"] {
     touch-action: manipulation;
+  }
+
+  /* Mobile-native: Prevent long-press text selection and callouts on controls, leave body text selectable */
+  button, [role="button"], .tab, .chip, .drag-handle, .btn-primary, .btn-secondary-pill, .configurator-chip {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -178,12 +189,20 @@
     overscroll-behavior: contain;
   }
 
-  /* Horizontal scroll utilities for chip bars */
+  /* Horizontal scroll utilities for chip bars and carousels */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    touch-action: pan-y;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Custom drag surfaces (scrubbers, sliders, custom gestures) */
+  .drag-surface {
+    touch-action: none;
   }
 }

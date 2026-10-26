@@ -157,7 +157,7 @@ export function GestureSequencePlayer({
             const pct = (e.clientX - rect.left) / rect.width;
             seekFromPercent(pct);
           }}
-          className="h-4 w-full py-1 rounded-full cursor-pointer focus-ring flex items-center"
+          className="h-4 w-full py-1 rounded-full cursor-pointer focus-ring flex items-center drag-surface select-none"
           aria-label="Playback timeline"
         >
           <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
