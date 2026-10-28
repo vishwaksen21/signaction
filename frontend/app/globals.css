@@ -13,12 +13,17 @@
   --sign-darktext: #062B5C;
   --sign-muted: #60759A;
   --sign-border: rgba(7, 87, 232, 0.12);
+  --ai-indigo: #4F46E5;
+  --ai-violet: #7C3AED;
+  --ai-cyan: #06B6D4;
+  --ai-emerald: #10B981;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
-  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --ease-apple: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-apple: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -37,11 +42,11 @@
     min-height: 100%;
     font-family: var(--font-sans);
     overflow-x: clip;
-    @apply text-base antialiased text-[#062B5C] dark:text-slate-100 bg-[#FAF9F6] dark:bg-[#050B14] selection:bg-[#12CFF3] selection:text-[#062B87];
+    @apply text-base antialiased text-[#0F172A] dark:text-slate-100 bg-[#F8FAFC] dark:bg-[#090D16] selection:bg-[#06B6D4]/30 selection:text-[#4F46E5];
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     line-height: 1.15;
     text-wrap: balance;
   }

@@ -9,19 +9,19 @@ import {
   Sparkles,
   RotateCcw,
   AlertCircle,
-  Volume2,
-  CheckCircle2,
+  Play,
+  Pause,
+  Repeat,
   ArrowRight,
   Hand,
-  WifiOff,
-  Layers,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { GestureSequencePlayer } from '../gesture-sequence-player';
-import { TokenChips } from '../token-chips';
+import { SignViewer } from '../sign-viewer';
 import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate';
 import { translateTextOffline } from '../../lib/offline-translate';
 import { convertToWav16kHz } from '../../lib/audio-wav';
-import { isNativeApk } from '../../lib/platform';
 
 const SAMPLE_TEXT_CHIPS = [
   'Hello',
@@ -35,8 +35,14 @@ const SAMPLE_TEXT_CHIPS = [
 export function MobileTranslatorScreen() {
   const [mode, setMode] = useState<'text' | 'voice'>('text');
   const [text, setText] = useState('');
-  const [activeTokenIdx, setActiveTokenIdx] = useState(0);
   const [offlineResult, setOfflineResult] = useState<any>(null);
+
+  // Cinema stage playback state
+  const [activeGestureIdx, setActiveGestureIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState<0.5 | 1.0>(1.0);
+  const [isLooping, setIsLooping] = useState(false);
+  const [isGlossOpen, setIsGlossOpen] = useState(true);
 
   // Voice recording states
   const [isRecording, setIsRecording] = useState(false);
@@ -51,6 +57,17 @@ export function MobileTranslatorScreen() {
   const translateTextMutation = useTranslateText();
   const translateSpeechMutation = useTranslateSpeech();
 
+  const activeData = translateSpeechMutation.data ?? translateTextMutation.data ?? offlineResult;
+  const isLoading = translateTextMutation.isPending || translateSpeechMutation.isPending;
+  const isError =
+    !offlineResult &&
+    ((translateTextMutation.error ?? translateSpeechMutation.error) as Error | null);
+
+  const gestures: string[] = activeData?.gestures ?? [];
+  const tokens: string[] = activeData?.tokens ?? [];
+  const gloss: string = activeData?.gloss ?? '';
+  const transcript: string = activeData?.transcript ?? (mode === 'text' ? text : '');
+
   const executeTranslation = useCallback(
     (inputText: string) => {
       const trimmed = inputText.trim();
@@ -58,13 +75,13 @@ export function MobileTranslatorScreen() {
 
       translateSpeechMutation.reset();
       setOfflineResult(null);
-      setActiveTokenIdx(0);
+      setActiveGestureIdx(0);
+      setIsPlaying(true);
 
       translateTextMutation.mutate(
         { text: trimmed },
         {
           onError: () => {
-            // Automatic offline fallback
             const res = translateTextOffline(trimmed);
             setOfflineResult(res);
           },
@@ -91,6 +108,28 @@ export function MobileTranslatorScreen() {
       }
     }
   }, [executeTranslation]);
+
+  // Reset index whenever new gestures arrive
+  const gestureCount = gestures.length;
+  useEffect(() => {
+    setActiveGestureIdx(0);
+    setIsPlaying(gestureCount > 0);
+  }, [gestureCount]);
+
+  // Advance to next video in chain
+  const handleVideoEnded = useCallback(() => {
+    setActiveGestureIdx((prev) => {
+      const next = prev + 1;
+      if (next >= gestures.length) {
+        if (isLooping) {
+          return 0;
+        }
+        setIsPlaying(false);
+        return prev;
+      }
+      return next;
+    });
+  }, [gestures.length, isLooping]);
 
   // Cleanup media recording on unmount
   useEffect(() => {
@@ -163,7 +202,8 @@ export function MobileTranslatorScreen() {
 
           translateTextMutation.reset();
           setOfflineResult(null);
-          setActiveTokenIdx(0);
+          setActiveGestureIdx(0);
+          setIsPlaying(true);
 
           translateSpeechMutation.mutate({ file: wavFile });
         } catch {
@@ -200,28 +240,20 @@ export function MobileTranslatorScreen() {
     }
   };
 
-  const activeData = translateSpeechMutation.data ?? translateTextMutation.data ?? offlineResult;
-  const isLoading = translateTextMutation.isPending || translateSpeechMutation.isPending;
-  const isError =
-    !offlineResult &&
-    ((translateTextMutation.error ?? translateSpeechMutation.error) as Error | null);
-
-  const gestures = activeData?.gestures ?? [];
-  const tokens = activeData?.tokens ?? [];
-  const gloss = activeData?.gloss ?? '';
-  const transcript = activeData?.transcript ?? (mode === 'text' ? text : '');
+  const currentGestureUrl = gestures[activeGestureIdx] ?? null;
+  const currentToken = tokens[activeGestureIdx] ?? (gestures.length > 0 ? `SIGN ${activeGestureIdx + 1}` : '');
 
   return (
-    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8">
-      {/* 1. Mode Switcher Tabs */}
-      <div className="flex items-center p-1 rounded-2xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300/40 dark:border-white/10 select-none">
+    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none">
+      {/* 1. Top Segmented Pill Switcher */}
+      <div className="flex items-center p-1 rounded-2xl bg-slate-200/60 dark:bg-[#111827]/80 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08]">
         <button
           type="button"
           onClick={() => setMode('text')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-[transform,background-color,color] duration-140 active:scale-97 ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.98] ${
             mode === 'text'
-              ? 'bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] shadow-xs'
-              : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
+              ? 'bg-white dark:bg-[#1E293B] text-violet-600 dark:text-cyan-400 shadow-xs'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
           <Languages size={15} />
@@ -231,10 +263,10 @@ export function MobileTranslatorScreen() {
         <button
           type="button"
           onClick={() => setMode('voice')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-[transform,background-color,color] duration-140 active:scale-97 ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.98] ${
             mode === 'voice'
-              ? 'bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] shadow-xs'
-              : 'text-[#60759A] dark:text-slate-400 hover:text-[#062B5C] dark:hover:text-white'
+              ? 'bg-white dark:bg-[#1E293B] text-violet-600 dark:text-cyan-400 shadow-xs'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
           <Mic size={15} />
@@ -242,9 +274,229 @@ export function MobileTranslatorScreen() {
         </button>
       </div>
 
-      {/* 2. Input Box (Text or Voice) */}
+      {/* 2. The ISL Gesture Stage (Centerpiece - Top of viewport, Never Empty) */}
+      <div className="space-y-2">
+        <div className="relative aspect-video w-full rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-950 border border-slate-900/[0.08] dark:border-white/[0.1] shadow-xl overflow-hidden flex flex-col justify-between">
+          {isLoading ? (
+            /* Loading State */
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 bg-slate-950/80 backdrop-blur-sm">
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-60" />
+                <span className="relative inline-flex rounded-full h-10 w-10 bg-gradient-to-tr from-[#4F46E5] to-[#06B6D4] items-center justify-center text-white">
+                  <Sparkles size={20} className="animate-spin" />
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-heading font-bold text-white">
+                  Synthesizing Gesture Sequence...
+                </p>
+                <p className="text-[11px] font-mono text-cyan-300/80 mt-0.5">
+                  Parsing SVO to SOV grammar syntax
+                </p>
+              </div>
+            </div>
+          ) : gestures.length > 0 && currentGestureUrl ? (
+            /* Active Video Playback State */
+            <>
+              <div className="relative w-full h-full flex items-center justify-center">
+                <SignViewer
+                  key={`${currentGestureUrl}-${activeGestureIdx}`}
+                  url={currentGestureUrl}
+                  playing={isPlaying}
+                  onEnded={handleVideoEnded}
+                  playbackRate={playbackSpeed}
+                  loop={isLooping && gestures.length === 1}
+                />
+
+                {/* Gesture Token Badge Watermark */}
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                    {currentToken}
+                  </span>
+                </div>
+
+                {/* Sequence Counter */}
+                <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono font-semibold text-slate-300">
+                  {activeGestureIdx + 1} / {gestures.length}
+                </div>
+
+                {/* Overlaid Play/Pause Button in Center */}
+                {!isPlaying && (
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying(true)}
+                    className="absolute z-20 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-transform"
+                    aria-label="Play video"
+                  >
+                    <Play size={22} className="ml-0.5 fill-current" />
+                  </button>
+                )}
+              </div>
+
+              {/* Bottom Video Controls Overlay */}
+              <div className="absolute bottom-0 inset-x-0 z-20 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-between gap-2">
+                {/* Progress bar */}
+                <div className="absolute top-0 inset-x-0 h-1 bg-white/20">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] transition-all duration-300"
+                    style={{
+                      width: `${((activeGestureIdx + 1) / gestures.length) * 100}%`,
+                    }}
+                  />
+                </div>
+
+                {/* Play/Pause & Replay */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveGestureIdx(0);
+                      setIsPlaying(true);
+                    }}
+                    className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
+                    title="Replay sequence from start"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+
+                {/* Speed & Loop Toggles */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPlaybackSpeed(playbackSpeed === 1.0 ? 0.5 : 1.0)}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors ${
+                      playbackSpeed === 0.5
+                        ? 'bg-violet-500/80 border-violet-400 text-white shadow-xs'
+                        : 'bg-white/15 border-white/20 text-slate-200'
+                    }`}
+                  >
+                    {playbackSpeed === 0.5 ? '0.5x Slow-Mo' : '1.0x'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsLooping(!isLooping)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs border transition-colors ${
+                      isLooping
+                        ? 'bg-cyan-500/80 border-cyan-400 text-white shadow-xs'
+                        : 'bg-white/15 border-white/20 text-slate-200'
+                    }`}
+                    title={isLooping ? 'Loop enabled' : 'Loop disabled'}
+                  >
+                    <Repeat size={13} />
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Idle State: Dedicated Neural Silhouette Stage */
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
+              {/* Neural Hand-Mesh Ambient Graphic */}
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#4F46E5]/20 via-[#7C3AED]/20 to-[#06B6D4]/20 border border-violet-500/30 flex items-center justify-center shadow-[0_0_24px_rgba(124,58,237,0.25)]">
+                <Hand size={32} className="text-cyan-300 animate-pulse" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#06B6D4]" />
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-sm font-heading font-bold text-white">
+                  ISL Gesture Stage
+                </p>
+                <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                  Enter text or speak below to synthesize the Indian Sign Language gesture sequence.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono bg-white/10 backdrop-blur-md text-cyan-300 border border-white/10">
+                <Sparkles size={11} />
+                <span>349 Offline Signs Loaded</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 3. AI Grammar Gloss Visualizer (The "AI Magic" Layer) */}
+      {tokens.length > 0 && (
+        <div className="rounded-2xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setIsGlossOpen(!isGlossOpen)}
+            className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-violet-600 dark:text-cyan-400">
+                SVO → SOV Neural Gloss
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">
+                ({tokens.length} {tokens.length === 1 ? 'gesture' : 'gestures'})
+              </span>
+            </div>
+            {isGlossOpen ? (
+              <ChevronUp size={15} className="text-slate-400" />
+            ) : (
+              <ChevronDown size={15} className="text-slate-400" />
+            )}
+          </button>
+
+          {isGlossOpen && (
+            <div className="px-4 pb-3.5 pt-1 space-y-2 border-t border-slate-100 dark:border-white/[0.04]">
+              {transcript && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                  &ldquo;{transcript}&rdquo;
+                </p>
+              )}
+
+              {/* Clickable Token Chips: Tapping replays that specific sign */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                {tokens.map((tok, idx) => {
+                  const isActive = idx === activeGestureIdx;
+                  return (
+                    <button
+                      key={`${tok}-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        setActiveGestureIdx(idx);
+                        setIsPlaying(true);
+                      }}
+                      className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-all duration-150 active:scale-95 flex items-center gap-1 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-[#1E293B] text-slate-700 dark:text-slate-300 hover:border-violet-500/40 border border-slate-900/[0.04] dark:border-white/[0.06]'
+                      }`}
+                    >
+                      <span>[{tok}]</span>
+                      {idx < tokens.length - 1 && (
+                        <span className="text-slate-400 font-normal ml-0.5">→</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] font-mono text-slate-400">
+                Tap any token chip to jump directly to that sign video.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. Bottom Composer Card (Text or Voice Mode) */}
       {mode === 'text' ? (
-        <div className="bg-white dark:bg-[#07132C] rounded-3xl p-4 border border-slate-200/80 dark:border-white/10 shadow-xs space-y-3">
+        <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-3">
           <div className="relative">
             <textarea
               rows={3}
@@ -253,8 +505,8 @@ export function MobileTranslatorScreen() {
                 setText(e.target.value);
                 setOfflineResult(null);
               }}
-              placeholder="Type English sentence to translate into Indian Sign Language..."
-              className="w-full p-3 pr-8 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-white/10 text-sm text-[#062B5C] dark:text-white placeholder-[#60759A] dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0757E8] resize-none"
+              placeholder="Type English sentence to synthesize into Indian Sign Language..."
+              className="w-full p-3.5 pr-8 rounded-2xl bg-slate-50/80 dark:bg-[#1E293B]/70 border border-slate-900/[0.06] dark:border-white/[0.08] text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none transition-all"
             />
             {text && (
               <button
@@ -263,7 +515,8 @@ export function MobileTranslatorScreen() {
                   setText('');
                   setOfflineResult(null);
                 }}
-                className="absolute right-3 top-3 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-[#60759A] dark:text-slate-300 hover:text-black flex items-center justify-center text-xs"
+                className="absolute right-3 top-3 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-black dark:text-slate-300 dark:hover:text-white flex items-center justify-center text-xs"
+                aria-label="Clear input"
               >
                 ✕
               </button>
@@ -280,7 +533,7 @@ export function MobileTranslatorScreen() {
                   setText(chip);
                   executeTranslation(chip);
                 }}
-                className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-[#60759A] dark:text-slate-300 hover:text-[#0757E8] active:scale-95 transition-transform"
+                className="shrink-0 px-3 py-1 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-cyan-300 active:scale-95 transition-all"
               >
                 {chip}
               </button>
@@ -288,24 +541,25 @@ export function MobileTranslatorScreen() {
           </div>
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[11px] font-mono text-[#60759A] dark:text-slate-400">
-              {text.length} chars
+            <span className="text-[11px] font-mono text-slate-400">
+              {text.length} characters
             </span>
 
             <button
               type="button"
               onClick={() => handleTextSubmit()}
               disabled={isLoading || !text.trim()}
-              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#0757E8] to-[#12CFF3] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs disabled:opacity-50 active:scale-97 transition-transform"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] text-white font-bold text-xs flex items-center gap-2 shadow-[0_4px_16px_rgba(124,58,237,0.35)] disabled:opacity-50 active:scale-[0.98] transition-all duration-150"
             >
               {isLoading ? (
                 <>
                   <span className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  <span>Translating...</span>
+                  <span>Synthesizing...</span>
                 </>
               ) : (
                 <>
-                  <span>Translate to Sign</span>
+                  <Sparkles size={14} />
+                  <span>Synthesize Sign</span>
                   <ArrowRight size={14} />
                 </>
               )}
@@ -313,33 +567,33 @@ export function MobileTranslatorScreen() {
           </div>
         </div>
       ) : (
-        /* Voice Recording Box */
-        <div className="bg-white dark:bg-[#07132C] rounded-3xl p-6 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col items-center justify-center space-y-4 text-center">
+        /* Voice Mode Recording Card */
+        <div className="p-6 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-[#062B5C] dark:text-white">
-              {isRecording ? 'Listening to speech...' : 'Tap to start recording'}
+            <h3 className="text-base font-heading font-bold text-slate-900 dark:text-white">
+              {isRecording ? 'Listening to speech...' : 'Tap to Start Voice Recording'}
             </h3>
-            <p className="text-xs text-[#60759A] dark:text-slate-400 max-w-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">
               {isRecording
-                ? 'Speak clearly near the microphone. Tap stop when finished.'
-                : 'Supports offline Vosk WASM speech recognition.'}
+                ? 'Speak clearly into the microphone. Tap red button when finished.'
+                : '100% on-device Vosk offline speech recognition.'}
             </p>
           </div>
 
-          {/* Big Center Microphone Control with Pulse Ring */}
+          {/* Center Mic Button with Pulsing Ring */}
           <div className="relative flex items-center justify-center my-2">
             {isRecording && (
               <>
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0.8 }}
                   animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 1.6, ease: 'easeOut' }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: 'easeOut' }}
                   className="absolute inset-0 rounded-full bg-red-500 -z-10"
                 />
                 <motion.div
-                  initial={{ scale: 0.9, opacity: 0.6 }}
+                  initial={{ scale: 0.9, opacity: 0.5 }}
                   animate={{ scale: 1.3, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 1.6, delay: 0.4, ease: 'easeOut' }}
+                  transition={{ repeat: Infinity, duration: 1.5, delay: 0.35, ease: 'easeOut' }}
                   className="absolute inset-0 rounded-full bg-red-400 -z-10"
                 />
               </>
@@ -349,16 +603,16 @@ export function MobileTranslatorScreen() {
               type="button"
               onClick={isRecording ? handleStopVoiceRecording : handleStartVoiceRecording}
               disabled={isLoading}
-              className={`w-20 h-20 rounded-full flex flex-col items-center justify-center text-white shadow-xl active:scale-93 transition-all duration-140 ${
+              className={`w-20 h-20 rounded-full flex flex-col items-center justify-center text-white shadow-xl active:scale-95 transition-all duration-150 ${
                 isRecording
                   ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-gradient-to-br from-[#0757E8] to-[#12CFF3] hover:from-[#064BD1] hover:to-[#0EBDE0]'
+                  : 'bg-gradient-to-tr from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]'
               }`}
             >
               {isRecording ? (
-                <Square size={26} className="fill-current" />
+                <Square size={24} className="fill-current" />
               ) : (
-                <Mic size={30} />
+                <Mic size={28} />
               )}
             </button>
           </div>
@@ -369,13 +623,13 @@ export function MobileTranslatorScreen() {
               <span>RECORDING 00:{recordingSeconds < 10 ? `0${recordingSeconds}` : recordingSeconds}</span>
             </div>
           ) : (
-            <span className="text-[11px] font-mono text-[#60759A] dark:text-slate-400">
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
               {isLoading ? 'Processing speech with Vosk...' : '16 kHz Mono Audio'}
             </span>
           )}
 
           {voiceError && (
-            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left">
+            <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left">
               <AlertCircle size={16} className="shrink-0" />
               <span>{voiceError}</span>
             </div>
@@ -383,79 +637,18 @@ export function MobileTranslatorScreen() {
         </div>
       )}
 
-      {/* 3. Translation Output & Gesture Player Stage */}
-      {isLoading ? (
-        <div className="p-6 rounded-3xl bg-white dark:bg-[#07132C] border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col items-center justify-center space-y-3 text-center">
-          <div className="w-8 h-8 rounded-full border-3 border-[#0757E8] border-t-transparent animate-spin" />
-          <span className="text-sm font-bold text-[#062B5C] dark:text-white">
-            Translating into Indian Sign Language...
-          </span>
-          <span className="text-xs text-[#60759A] dark:text-slate-400">
-            Applying Subject-Object-Verb (SOV) grammatical rules
-          </span>
-        </div>
-      ) : gestures.length > 0 ? (
-        <div className="space-y-3">
-          {/* Transcript & Gloss Header */}
-          <div className="bg-white dark:bg-[#07132C] rounded-2xl p-3.5 border border-slate-200/80 dark:border-white/10 shadow-xs space-y-2">
-            {transcript && (
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#60759A] dark:text-slate-400 block">
-                  Input Sentence
-                </span>
-                <p className="text-xs font-medium text-[#062B5C] dark:text-white">
-                  &ldquo;{transcript}&rdquo;
-                </p>
-              </div>
-            )}
-
-            {gloss && (
-              <div className="pt-1 border-t border-slate-100 dark:border-white/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#0757E8] dark:text-[#12CFF3]">
-                    ISL Grammar Gloss (SOV)
-                  </span>
-                  <span className="text-[10px] font-mono text-[#60759A] dark:text-slate-400">
-                    {tokens.length} {tokens.length === 1 ? 'gesture' : 'gestures'}
-                  </span>
-                </div>
-                <p className="text-xs font-mono font-bold text-[#062B5C] dark:text-white tracking-wide mt-0.5">
-                  {gloss}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Real Video Player Component */}
-          <div className="bg-white dark:bg-[#07132C] rounded-3xl p-3 border border-slate-200/80 dark:border-white/10 shadow-xs overflow-hidden">
-            <GestureSequencePlayer
-              gestures={gestures}
-              tokens={tokens}
-              onIndexChange={setActiveTokenIdx}
-            />
-          </div>
-
-          {/* Synchronized Token Chips */}
-          {tokens.length > 0 && (
-            <div className="p-3 rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-white/5 space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#60759A] dark:text-slate-400">
-                Playing Sequence
-              </span>
-              <TokenChips tokens={tokens} activeIndex={activeTokenIdx} />
-            </div>
-          )}
-        </div>
-      ) : isError ? (
-        <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+      {/* Error state */}
+      {isError && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 space-y-1">
           <div className="flex items-center gap-2 font-bold">
-            <AlertCircle size={16} />
+            <AlertCircle size={15} />
             <span>Translation Note</span>
           </div>
           <p>
-            {isError.message || 'Could not complete online translation. Trying offline dictionary fallback...'}
+            {isError.message || 'Could not complete online translation. Trying offline fallback...'}
           </p>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
