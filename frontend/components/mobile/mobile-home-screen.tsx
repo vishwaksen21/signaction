@@ -23,6 +23,7 @@ import {
   OFFICIAL_APK_DOWNLOAD_URL,
   OFFICIAL_APK_SIZE_LABEL,
 } from '@/lib/platform';
+import { triggerHaptic } from '@/lib/haptics';
 import { GesturePlayerSheet, type GestureSheetData } from './gesture-player-sheet';
 
 const FEATURED_SIGNS: Array<{
@@ -110,6 +111,7 @@ export function MobileHomeScreen() {
 
   const handleStartTranslate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    triggerHaptic(10);
     const text = quickInput.trim();
     if (text) {
       router.push(`/translator?text=${encodeURIComponent(text)}`);
@@ -119,6 +121,7 @@ export function MobileHomeScreen() {
   };
 
   const handleSelectChip = (phrase: string) => {
+    triggerHaptic(10);
     setQuickInput(phrase);
     router.push(`/translator?text=${encodeURIComponent(phrase)}`);
   };
@@ -170,6 +173,7 @@ export function MobileHomeScreen() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/translator?mode=voice"
+                  onClick={() => triggerHaptic(10)}
                   className="h-11 px-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 dark:bg-[#1E293B] dark:hover:bg-[#283548] border border-slate-900/[0.06] dark:border-white/[0.08] text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all duration-150 shadow-xs"
                   title="Voice Translation with Vosk"
                 >
@@ -374,13 +378,16 @@ export function MobileHomeScreen() {
             <button
               key={sign.token}
               type="button"
-              onClick={() => setSelectedGesture(sign)}
+              onClick={() => {
+                triggerHaptic(10);
+                setSelectedGesture(sign);
+              }}
               className="shrink-0 w-44 snap-start rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] p-3 text-left shadow-xs hover:border-violet-500/40 active:scale-[0.98] transition-all duration-150 flex flex-col justify-between space-y-2.5 group"
             >
               {/* Clean 16:10 aspect-ratio video preview with gradient mesh backdrop */}
               <div className="relative aspect-[16/10] w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-hidden flex items-center justify-center border border-white/[0.06] shadow-inner">
                 <video
-                  src={sign.videoUrl}
+                  src={`${sign.videoUrl}#t=0.2`}
                   muted
                   playsInline
                   preload="metadata"

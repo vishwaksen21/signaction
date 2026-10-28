@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
+import { triggerHaptic } from '@/lib/haptics';
 
 export interface GestureSheetData {
   token: string;
@@ -50,6 +51,7 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
   }, [speed]);
 
   const togglePlay = () => {
+    triggerHaptic(10);
     if (!videoRef.current) return;
     if (isPlaying) {
       videoRef.current.pause();
@@ -61,6 +63,7 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
   };
 
   const handleReplay = () => {
+    triggerHaptic(10);
     if (!videoRef.current) return;
     videoRef.current.currentTime = 0;
     videoRef.current.play().catch(() => {});

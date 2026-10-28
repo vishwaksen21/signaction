@@ -19,7 +19,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<ThemeType>('dark');
   const [mounted, setMounted] = useState(false);
 
-  // Apply theme to HTML element immediately on mount/change
+  // Synchronize document theme and Android system bar meta tag
   useLayoutEffect(() => {
     if (typeof window !== 'undefined') {
       const html = document.documentElement;
@@ -29,6 +29,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       
       // Add the appropriate class
       html.classList.add(theme === 'dark' ? 'dark' : 'light');
+
+      // Update Android system bar theme-color
+      const color = theme === 'dark' ? '#090D16' : '#F8FAFC';
+      let meta = document.querySelector('meta[name="theme-color"]:not([media])');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', color);
     }
   }, [theme]);
 

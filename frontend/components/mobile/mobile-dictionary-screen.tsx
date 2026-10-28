@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useDictionary } from '../../hooks/use-dictionary';
+import { triggerHaptic } from '@/lib/haptics';
 import { GesturePlayerSheet, type GestureSheetData } from './gesture-player-sheet';
 import type { DictionaryItem } from '../../lib/api';
 
@@ -113,7 +114,10 @@ export function MobileDictionaryScreen() {
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             <button
               type="button"
-              onClick={() => setActiveCategory('alpha')}
+              onClick={() => {
+                triggerHaptic(10);
+                setActiveCategory('alpha');
+              }}
               className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 ${
                 activeCategory === 'alpha'
                   ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
@@ -125,7 +129,10 @@ export function MobileDictionaryScreen() {
 
             <button
               type="button"
-              onClick={() => setActiveCategory('num')}
+              onClick={() => {
+                triggerHaptic(10);
+                setActiveCategory('num');
+              }}
               className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 ${
                 activeCategory === 'num'
                   ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
@@ -137,7 +144,10 @@ export function MobileDictionaryScreen() {
 
             <button
               type="button"
-              onClick={() => setActiveCategory('greetings')}
+              onClick={() => {
+                triggerHaptic(10);
+                setActiveCategory('greetings');
+              }}
               className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 ${
                 activeCategory === 'greetings'
                   ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
@@ -149,7 +159,10 @@ export function MobileDictionaryScreen() {
 
             <button
               type="button"
-              onClick={() => setActiveCategory('all')}
+              onClick={() => {
+                triggerHaptic(10);
+                setActiveCategory('all');
+              }}
               className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 ${
                 activeCategory === 'all'
                   ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
@@ -181,15 +194,16 @@ export function MobileDictionaryScreen() {
               <button
                 key={letter}
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  triggerHaptic(10);
                   setSelectedGesture({
                     token: letter,
                     label: `Letter ${letter}`,
                     category: 'Alphabet',
                     english: `Fingerspelling sign for letter ${letter}`,
                     videoUrl: `/assets/signs/${letter}.mp4`,
-                  })
-                }
+                  });
+                }}
                 className="relative h-16 rounded-2xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] p-2 flex flex-col items-center justify-center active:scale-90 hover:border-violet-500/40 transition-all duration-150 shadow-xs group overflow-hidden"
               >
                 {/* Subtle top-right play indicator dot */}
@@ -227,15 +241,16 @@ export function MobileDictionaryScreen() {
               <button
                 key={digit}
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  triggerHaptic(10);
                   setSelectedGesture({
                     token: digit,
                     label: `Digit ${digit}`,
                     category: 'Number',
                     english: `Indian Sign Language representation for ${digit}`,
                     videoUrl: `/assets/signs/${digit}.mp4`,
-                  })
-                }
+                  });
+                }}
                 className="relative h-16 rounded-2xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] p-2 flex flex-col items-center justify-center active:scale-90 hover:border-violet-500/40 transition-all duration-150 shadow-xs group overflow-hidden"
               >
                 <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-cyan-400/80 group-hover:scale-125 transition-transform" />
@@ -280,20 +295,21 @@ export function MobileDictionaryScreen() {
                 <button
                   key={item.token}
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
+                    triggerHaptic(10);
                     setSelectedGesture({
                       token: item.token,
                       label: item.token.replace(/_/g, ' '),
                       category: (item as any).category || 'ISL Gesture',
                       english: `Sign representation for ${item.token.replace(/_/g, ' ')}`,
                       videoUrl: item.url || `/assets/signs/${item.token}.mp4`,
-                    })
-                  }
+                    });
+                  }}
                   className="p-3 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] text-left shadow-xs active:scale-[0.98] hover:border-violet-500/40 transition-all duration-150 flex flex-col justify-between space-y-2 group"
                 >
                   <div className="relative aspect-[16/10] w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-hidden flex items-center justify-center border border-white/[0.06]">
                     <video
-                      src={item.url || `/assets/signs/${item.token}.mp4`}
+                      src={`${item.url || `/assets/signs/${item.token}.mp4`}#t=0.2`}
                       muted
                       playsInline
                       preload="metadata"

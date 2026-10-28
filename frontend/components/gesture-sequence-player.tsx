@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Hand } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { SignViewer } from './sign-viewer';
+import { DualBufferGesturePlayer } from './dual-buffer-gesture-player';
 
 export interface GestureSequencePlayerProps {
   gestures: string[];
@@ -109,19 +110,21 @@ export function GestureSequencePlayer({
         )}
       </div>
 
-      {/* Playback Frame */}
+      {/* Playback Frame with Zero-Flicker Dual-Buffer Engine */}
       <div className="relative group aspect-video w-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-950 overflow-hidden shadow-xs">
-        {current ? (
+        {gestures.length > 0 ? (
           <div className="absolute inset-0">
-            <SignViewer
-              key={`${index}-${current}`}
-              url={current}
-              onEnded={handleEnded}
-              playing={playing}
+            <DualBufferGesturePlayer
+              gestures={gestures}
+              tokens={tokens}
+              currentIndex={index}
+              onIndexChange={setIndex}
+              showControls={false}
+              autoPlay={playing}
             />
           </div>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center p-6 bg-[#FAF9F6] dark:bg-slate-900">
+          <div className="absolute inset-0 flex items-center justify-center p-6 bg-[#F8FAFC] dark:bg-slate-900">
             <div className="text-center space-y-3">
               <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 text-[#0757E8] dark:text-[#12CFF3] border border-slate-200/90 dark:border-slate-700 shadow-xs">
                 <Hand size={24} />
@@ -135,15 +138,6 @@ export function GestureSequencePlayer({
                 </p>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Floating Active Word Tag */}
-        {tokens && tokens[index] && gestures.length > 0 && (
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xs z-10">
-            <span className="text-xs font-mono font-bold text-[#0757E8] dark:text-[#12CFF3]">
-              {tokens[index]}
-            </span>
           </div>
         )}
       </div>

@@ -19,6 +19,8 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { SignViewer } from '../sign-viewer';
+import { DualBufferGesturePlayer } from '../dual-buffer-gesture-player';
+import { triggerHaptic } from '@/lib/haptics';
 import { useTranslateText, useTranslateSpeech } from '../../hooks/use-translate';
 import { translateTextOffline } from '../../lib/offline-translate';
 import { convertToWav16kHz } from '../../lib/audio-wav';
@@ -295,110 +297,20 @@ export function MobileTranslatorScreen() {
                 </p>
               </div>
             </div>
-          ) : gestures.length > 0 && currentGestureUrl ? (
-            /* Active Video Playback State */
-            <>
-              <div className="relative w-full h-full flex items-center justify-center">
-                <SignViewer
-                  key={`${currentGestureUrl}-${activeGestureIdx}`}
-                  url={currentGestureUrl}
-                  playing={isPlaying}
-                  onEnded={handleVideoEnded}
-                  playbackRate={playbackSpeed}
-                  loop={isLooping && gestures.length === 1}
-                />
-
-                {/* Gesture Token Badge Watermark */}
-                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                  <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-                    {currentToken}
-                  </span>
-                </div>
-
-                {/* Sequence Counter */}
-                <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono font-semibold text-slate-300">
-                  {activeGestureIdx + 1} / {gestures.length}
-                </div>
-
-                {/* Overlaid Play/Pause Button in Center */}
-                {!isPlaying && (
-                  <button
-                    type="button"
-                    onClick={() => setIsPlaying(true)}
-                    className="absolute z-20 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-transform"
-                    aria-label="Play video"
-                  >
-                    <Play size={22} className="ml-0.5 fill-current" />
-                  </button>
-                )}
-              </div>
-
-              {/* Bottom Video Controls Overlay */}
-              <div className="absolute bottom-0 inset-x-0 z-20 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-between gap-2">
-                {/* Progress bar */}
-                <div className="absolute top-0 inset-x-0 h-1 bg-white/20">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] transition-all duration-300"
-                    style={{
-                      width: `${((activeGestureIdx + 1) / gestures.length) * 100}%`,
-                    }}
-                  />
-                </div>
-
-                {/* Play/Pause & Replay */}
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
-                    title={isPlaying ? 'Pause' : 'Play'}
-                  >
-                    {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveGestureIdx(0);
-                      setIsPlaying(true);
-                    }}
-                    className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
-                    title="Replay sequence from start"
-                  >
-                    <RotateCcw size={14} />
-                  </button>
-                </div>
-
-                {/* Speed & Loop Toggles */}
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPlaybackSpeed(playbackSpeed === 1.0 ? 0.5 : 1.0)}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors ${
-                      playbackSpeed === 0.5
-                        ? 'bg-violet-500/80 border-violet-400 text-white shadow-xs'
-                        : 'bg-white/15 border-white/20 text-slate-200'
-                    }`}
-                  >
-                    {playbackSpeed === 0.5 ? '0.5x Slow-Mo' : '1.0x'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsLooping(!isLooping)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs border transition-colors ${
-                      isLooping
-                        ? 'bg-cyan-500/80 border-cyan-400 text-white shadow-xs'
-                        : 'bg-white/15 border-white/20 text-slate-200'
-                    }`}
-                    title={isLooping ? 'Loop enabled' : 'Loop disabled'}
-                  >
-                    <Repeat size={13} />
-                  </button>
-                </div>
-              </div>
-            </>
+          ) : gestures.length > 0 ? (
+            /* Active Zero-Flicker Dual-Buffer Playback State */
+            <DualBufferGesturePlayer
+              gestures={gestures}
+              tokens={tokens}
+              currentIndex={activeGestureIdx}
+              onIndexChange={setActiveGestureIdx}
+              playbackSpeed={playbackSpeed}
+              loop={isLooping}
+              onSpeedChange={setPlaybackSpeed}
+              onLoopChange={setIsLooping}
+              autoPlay={isPlaying}
+              showControls={true}
+            />
           ) : (
             /* Idle State: Dedicated Neural Silhouette Stage */
             <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
@@ -469,6 +381,7 @@ export function MobileTranslatorScreen() {
                       key={`${tok}-${idx}`}
                       type="button"
                       onClick={() => {
+                        triggerHaptic(10);
                         setActiveGestureIdx(idx);
                         setIsPlaying(true);
                       }}
@@ -530,6 +443,7 @@ export function MobileTranslatorScreen() {
                 key={chip}
                 type="button"
                 onClick={() => {
+                  triggerHaptic(10);
                   setText(chip);
                   executeTranslation(chip);
                 }}
@@ -547,7 +461,10 @@ export function MobileTranslatorScreen() {
 
             <button
               type="button"
-              onClick={() => handleTextSubmit()}
+              onClick={() => {
+                triggerHaptic(10);
+                handleTextSubmit();
+              }}
               disabled={isLoading || !text.trim()}
               className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] text-white font-bold text-xs flex items-center gap-2 shadow-[0_4px_16px_rgba(124,58,237,0.35)] disabled:opacity-50 active:scale-[0.98] transition-all duration-150"
             >
@@ -601,7 +518,14 @@ export function MobileTranslatorScreen() {
 
             <button
               type="button"
-              onClick={isRecording ? handleStopVoiceRecording : handleStartVoiceRecording}
+              onClick={() => {
+                triggerHaptic(10);
+                if (isRecording) {
+                  handleStopVoiceRecording();
+                } else {
+                  handleStartVoiceRecording();
+                }
+              }}
               disabled={isLoading}
               className={`w-20 h-20 rounded-full flex flex-col items-center justify-center text-white shadow-xl active:scale-95 transition-all duration-150 ${
                 isRecording

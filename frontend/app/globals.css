@@ -79,6 +79,25 @@
     font-size: 16px;
   }
 
+  /* Android WebView & WebKit media controls suppression for seamless video playback */
+  video::-webkit-media-controls {
+    display: none !important;
+  }
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+  video::-webkit-media-controls-panel {
+    display: none !important;
+  }
+  video::-webkit-media-controls-play-button {
+    display: none !important;
+    -webkit-appearance: none;
+  }
+  video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    -webkit-appearance: none;
+  }
+
   /* Apple accessibility: Reduced transparency fallback */
   @media (prefers-reduced-transparency: reduce) {
     header, nav, aside {

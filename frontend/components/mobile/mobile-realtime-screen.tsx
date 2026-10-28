@@ -16,6 +16,8 @@ import {
   Repeat,
 } from 'lucide-react';
 import { SignViewer } from '../sign-viewer';
+import { DualBufferGesturePlayer } from '../dual-buffer-gesture-player';
+import { triggerHaptic } from '@/lib/haptics';
 import { translateSpeechOnce } from '../../lib/api';
 import { convertToWav16kHz } from '../../lib/audio-wav';
 import { translateTextOffline } from '../../lib/offline-translate';
@@ -233,38 +235,17 @@ export function MobileRealtimeScreen() {
       </div>
 
       {/* 2. Instant Continuous Sign Playback Stage (if translated) */}
-      {gestures.length > 0 && currentGestureUrl && (
+      {gestures.length > 0 && (
         <div className="space-y-2">
           <div className="relative aspect-video w-full rounded-3xl bg-slate-950 border border-slate-900/[0.08] dark:border-white/[0.1] shadow-xl overflow-hidden flex items-center justify-center">
-            <SignViewer
-              key={`${currentGestureUrl}-${activeTokenIdx}`}
-              url={currentGestureUrl}
-              playing={isPlaying}
-              onEnded={handleVideoEnded}
+            <DualBufferGesturePlayer
+              gestures={gestures}
+              tokens={tokens}
+              currentIndex={activeTokenIdx}
+              onIndexChange={setActiveTokenIdx}
+              showControls={true}
+              autoPlay={true}
             />
-
-            {/* Token Badge */}
-            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-xs font-mono font-bold text-white uppercase">
-                {tokens[activeTokenIdx] || `SIGN ${activeTokenIdx + 1}`}
-              </span>
-            </div>
-
-            {/* Sequence Counter */}
-            <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-slate-300">
-              {activeTokenIdx + 1} / {gestures.length}
-            </div>
-
-            {/* Progress Bar */}
-            <div className="absolute bottom-0 inset-x-0 h-1 bg-white/20 z-20">
-              <div
-                className="h-full bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] transition-all duration-300"
-                style={{
-                  width: `${((activeTokenIdx + 1) / gestures.length) * 100}%`,
-                }}
-              />
-            </div>
           </div>
         </div>
       )}
@@ -309,7 +290,14 @@ export function MobileRealtimeScreen() {
           {/* Core Visualizer Button */}
           <button
             type="button"
-            onClick={running ? stopListening : startListening}
+            onClick={() => {
+              triggerHaptic(10);
+              if (running) {
+                stopListening();
+              } else {
+                startListening();
+              }
+            }}
             disabled={isProcessing}
             className={`relative w-24 h-24 rounded-full flex flex-col items-center justify-center text-white shadow-2xl active:scale-95 transition-all duration-150 ${
               running
@@ -353,7 +341,10 @@ export function MobileRealtimeScreen() {
             </span>
             <button
               type="button"
-              onClick={handleReset}
+              onClick={() => {
+                triggerHaptic(10);
+                handleReset();
+              }}
               className="text-xs text-violet-600 dark:text-cyan-400 font-bold flex items-center gap-1 active:scale-95"
             >
               <RotateCcw size={12} />
@@ -380,6 +371,7 @@ export function MobileRealtimeScreen() {
                       key={`${tok}-${idx}`}
                       type="button"
                       onClick={() => {
+                        triggerHaptic(10);
                         setActiveTokenIdx(idx);
                         setIsPlaying(true);
                       }}

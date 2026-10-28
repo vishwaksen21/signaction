@@ -33,8 +33,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAF9F6' },
-    { media: '(prefers-color-scheme: dark)', color: '#050B14' },
+    { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
+    { media: '(prefers-color-scheme: dark)', color: '#090D16' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -50,7 +50,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] dark:bg-[#050B14] text-[#062B5C] dark:text-slate-100">
+      <body className="min-h-[100dvh] flex flex-col bg-[#F8FAFC] dark:bg-[#090D16] text-[#0F172A] dark:text-slate-100">
         <Providers>
           <AppLayoutShell>
             {children}
