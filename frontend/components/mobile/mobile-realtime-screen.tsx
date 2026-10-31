@@ -198,15 +198,15 @@ export function MobileRealtimeScreen() {
   const currentGestureUrl = gestures[activeTokenIdx] ?? null;
 
   return (
-    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none">
+    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none bg-[#E2E8F0] dark:bg-[#0F172A]">
       {/* 1. Header & Engine Mode Pill */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs">
+      <div className="nm-flat rounded-2xl p-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4F46E5]/15 to-[#06B6D4]/15 border border-violet-500/20 text-violet-600 dark:text-cyan-400 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl nm-inset text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <Activity size={17} />
           </div>
           <div>
-            <h2 className="text-xs font-heading font-bold text-slate-900 dark:text-white">
+            <h2 className="text-xs font-heading font-bold text-[#0F172A] dark:text-[#F1F5F9]">
               Live Speech Studio
             </h2>
             <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
@@ -218,7 +218,7 @@ export function MobileRealtimeScreen() {
         <button
           type="button"
           onClick={() => setMode(mode === 'offline' ? 'online' : 'offline')}
-          className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-slate-100 dark:bg-[#1E293B] border border-slate-900/[0.06] dark:border-white/[0.08] text-slate-700 dark:text-slate-200 flex items-center gap-1.5 active:scale-95 transition-transform"
+          className="nm-inset active:nm-convex px-3 py-1.5 rounded-full text-[11px] font-mono font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 active:scale-95 transition-all"
         >
           {mode === 'offline' ? (
             <>
@@ -227,33 +227,35 @@ export function MobileRealtimeScreen() {
             </>
           ) : (
             <>
-              <Wifi size={13} className="text-violet-500" />
+              <Wifi size={13} className="text-indigo-500" />
               <span>Cloud</span>
             </>
           )}
         </button>
       </div>
 
-      {/* 2. Instant Continuous Sign Playback Stage (if translated) */}
+      {/* 2. Instant Continuous Sign Playback Stage: Recessed Bevel Frame */}
       {gestures.length > 0 && (
         <div className="space-y-2">
-          <div className="relative aspect-video w-full rounded-3xl bg-slate-950 border border-slate-900/[0.08] dark:border-white/[0.1] shadow-xl overflow-hidden flex items-center justify-center">
-            <DualBufferGesturePlayer
-              gestures={gestures}
-              tokens={tokens}
-              currentIndex={activeTokenIdx}
-              onIndexChange={setActiveTokenIdx}
-              showControls={true}
-              autoPlay={true}
-            />
+          <div className="relative aspect-video w-full rounded-3xl nm-inset p-2.5 overflow-hidden flex items-center justify-center">
+            <div className="w-full h-full rounded-[18px] overflow-hidden">
+              <DualBufferGesturePlayer
+                gestures={gestures}
+                tokens={tokens}
+                currentIndex={activeTokenIdx}
+                onIndexChange={setActiveTokenIdx}
+                showControls={true}
+                autoPlay={true}
+              />
+            </div>
           </div>
         </div>
       )}
 
-      {/* 3. Central Reactive Audio Visualizer Orb / Waveform Deck */}
-      <div className="p-6 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col items-center justify-center space-y-4 text-center">
+      {/* 3. Central Reactive Audio Orb Well & Waveform Deck */}
+      <div className="nm-flat rounded-3xl p-6 flex flex-col items-center justify-center space-y-4 text-center">
         <div className="space-y-1">
-          <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+          <h3 className="text-lg font-heading font-extrabold text-[#0F172A] dark:text-[#F1F5F9]">
             {running
               ? 'Listening to Speech...'
               : isProcessing
@@ -267,27 +269,27 @@ export function MobileRealtimeScreen() {
           </p>
         </div>
 
-        {/* Reactive Audio Visualizer Orb with Breathing Halo Rings */}
-        <div className="relative flex items-center justify-center my-4">
+        {/* Circular Debossed Basin (w-48 h-48) with Raised Convex Core Knob */}
+        <div className="relative nm-inset rounded-full w-48 h-48 flex items-center justify-center my-3">
           {running && (
             <>
               {/* Outer pulsing wave */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0.8 }}
-                animate={{ scale: 1.6, opacity: 0 }}
+                animate={{ scale: 1.5, opacity: 0 }}
                 transition={{ repeat: Infinity, duration: 1.6, ease: 'easeOut' }}
-                className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#4F46E5] to-[#06B6D4] -z-10 blur-xs"
+                className="absolute inset-2 rounded-full bg-indigo-500 -z-10 opacity-40 blur-xs"
               />
               <motion.div
                 initial={{ scale: 0.9, opacity: 0.5 }}
-                animate={{ scale: 1.35, opacity: 0 }}
+                animate={{ scale: 1.25, opacity: 0 }}
                 transition={{ repeat: Infinity, duration: 1.6, delay: 0.35, ease: 'easeOut' }}
-                className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#06B6D4] -z-10"
+                className="absolute inset-4 rounded-full bg-violet-500 -z-10 opacity-30"
               />
             </>
           )}
 
-          {/* Core Visualizer Button */}
+          {/* Core Raised Convex Visualizer Button */}
           <button
             type="button"
             onClick={() => {
@@ -299,16 +301,16 @@ export function MobileRealtimeScreen() {
               }
             }}
             disabled={isProcessing}
-            className={`relative w-24 h-24 rounded-full flex flex-col items-center justify-center text-white shadow-2xl active:scale-95 transition-all duration-150 ${
+            className={`relative w-24 h-24 rounded-full flex flex-col items-center justify-center text-white nm-convex active:nm-inset active:scale-95 transition-all duration-150 ${
               running
-                ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
-                : 'bg-gradient-to-tr from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] shadow-violet-500/40 hover:scale-105'
+                ? 'bg-red-500 hover:bg-red-600 shadow-md'
+                : 'bg-gradient-to-r from-indigo-600 to-violet-600 nm-led-indigo'
             }`}
           >
             {running ? (
-              <Square size={30} className="fill-current" />
+              <Square size={28} className="fill-current" />
             ) : (
-              <Mic size={34} />
+              <Mic size={32} />
             )}
           </button>
         </div>
@@ -325,19 +327,19 @@ export function MobileRealtimeScreen() {
         )}
 
         {error && (
-          <div className="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left w-full">
+          <div className="p-3.5 rounded-2xl nm-inset text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left w-full">
             <AlertCircle size={16} className="shrink-0" />
             <span>{error}</span>
           </div>
         )}
       </div>
 
-      {/* 4. Live Streaming Transcript & Gloss Highlighting Deck */}
+      {/* 4. Streaming Transcript Box: Recessed Terminal Display */}
       {committedTranscript && (
-        <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-2.5">
+        <div className="nm-inset rounded-2xl p-4 font-mono space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Recognized Speech
+              Terminal Transcript
             </span>
             <button
               type="button"
@@ -345,24 +347,24 @@ export function MobileRealtimeScreen() {
                 triggerHaptic(10);
                 handleReset();
               }}
-              className="text-xs text-violet-600 dark:text-cyan-400 font-bold flex items-center gap-1 active:scale-95"
+              className="text-xs text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 active:scale-95"
             >
               <RotateCcw size={12} />
               <span>Clear</span>
             </button>
           </div>
 
-          <p className="text-sm font-semibold text-slate-900 dark:text-white leading-relaxed">
+          <p className="text-sm font-semibold text-[#0F172A] dark:text-[#F1F5F9] leading-relaxed">
             &ldquo;{committedTranscript}&rdquo;
           </p>
 
           {gloss && (
-            <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06] space-y-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-violet-600 dark:text-cyan-400 block">
+            <div className="pt-2 border-t border-slate-300/40 dark:border-slate-800/60 space-y-2">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block">
                 ISL Gloss Tokens (SOV)
               </span>
 
-              {/* Clickable Gloss Tokens */}
+              {/* Clickable Gloss Keycaps */}
               <div className="flex flex-wrap items-center gap-1.5">
                 {tokens.map((tok, idx) => {
                   const isActive = idx === activeTokenIdx;
@@ -375,10 +377,10 @@ export function MobileRealtimeScreen() {
                         setActiveTokenIdx(idx);
                         setIsPlaying(true);
                       }}
-                      className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-all duration-150 active:scale-95 ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all duration-150 active:scale-95 ${
                         isActive
-                          ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-[#1E293B] text-slate-700 dark:text-slate-300 border border-slate-900/[0.04] dark:border-white/[0.06]'
+                          ? 'nm-inset text-indigo-600 dark:text-indigo-400 nm-led-indigo font-black'
+                          : 'nm-flat hover:nm-concave active:nm-inset text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       [{tok}]

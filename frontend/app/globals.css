@@ -246,3 +246,94 @@
     touch-action: none;
   }
 }
+
+/* ==========================================================================
+   NEUMORPHIC ("SOFT TACTILE UI") DESIGN SYSTEM
+   ========================================================================== */
+
+/* --- DARK MODE NEUMORPHISM (Tactile Slate: #0F172A) --- */
+.dark .nm-flat {
+  background: #0F172A;
+  box-shadow: 6px 6px 14px #060a12, -5px -5px 12px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+.dark .nm-concave {
+  background: linear-gradient(145deg, #0e1527, #10192e);
+  box-shadow: 6px 6px 14px #060a12, -5px -5px 12px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+.dark .nm-convex {
+  background: linear-gradient(145deg, #10192e, #0e1527);
+  box-shadow: 6px 6px 14px #060a12, -5px -5px 12px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+.dark .nm-inset,
+.dark .nm-flat:active,
+.dark .nm-pressed {
+  background: #0F172A;
+  box-shadow: inset 4px 4px 8px #060a12, inset -3px -3px 6px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+.dark .hover\:nm-concave:hover {
+  background: linear-gradient(145deg, #0e1527, #10192e);
+  box-shadow: 6px 6px 14px #060a12, -5px -5px 12px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+.dark .active\:nm-inset:active {
+  background: #0F172A;
+  box-shadow: inset 4px 4px 8px #060a12, inset -3px -3px 6px rgba(255, 255, 255, 0.04);
+  border: none !important;
+}
+
+/* --- LIGHT MODE NEUMORPHISM (Soft Clay: #E2E8F0) --- */
+:root:not(.dark) .nm-flat {
+  background: #E2E8F0;
+  box-shadow: 6px 6px 14px #b8c1cc, -6px -6px 14px #ffffff;
+  border: none !important;
+}
+
+:root:not(.dark) .nm-concave {
+  background: linear-gradient(145deg, #cbd5e1, #f1f5f9);
+  box-shadow: 6px 6px 14px #b8c1cc, -6px -6px 14px #ffffff;
+  border: none !important;
+}
+
+:root:not(.dark) .nm-convex {
+  background: linear-gradient(145deg, #f1f5f9, #cbd5e1);
+  box-shadow: 6px 6px 14px #b8c1cc, -6px -6px 14px #ffffff;
+  border: none !important;
+}
+
+:root:not(.dark) .nm-inset,
+:root:not(.dark) .nm-flat:active,
+:root:not(.dark) .nm-pressed {
+  background: #E2E8F0;
+  box-shadow: inset 4px 4px 8px #b8c1cc, inset -4px -4px 8px #ffffff;
+  border: none !important;
+}
+
+:root:not(.dark) .hover\:nm-concave:hover {
+  background: linear-gradient(145deg, #cbd5e1, #f1f5f9);
+  box-shadow: 6px 6px 14px #b8c1cc, -6px -6px 14px #ffffff;
+  border: none !important;
+}
+
+:root:not(.dark) .active\:nm-inset:active {
+  background: #E2E8F0;
+  box-shadow: inset 4px 4px 8px #b8c1cc, inset -4px -4px 8px #ffffff;
+  border: none !important;
+}
+
+/* Subtle LED Accent Pill & Halo Glows */
+.nm-led-indigo {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.45);
+}
+.nm-led-emerald {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+}
+

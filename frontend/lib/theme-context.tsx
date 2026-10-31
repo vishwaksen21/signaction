@@ -31,7 +31,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       html.classList.add(theme === 'dark' ? 'dark' : 'light');
 
       // Update Android system bar theme-color
-      const color = theme === 'dark' ? '#090D16' : '#F8FAFC';
+      const color = theme === 'dark' ? '#0F172A' : '#E2E8F0';
       let meta = document.querySelector('meta[name="theme-color"]:not([media])');
       if (!meta) {
         meta = document.createElement('meta');
@@ -42,16 +42,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [theme]);
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme from localStorage or default to Tactile Slate (dark)
   useLayoutEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme') as ThemeType | null;
-
-      const system: ThemeType = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-
-      const initialTheme = saved ?? system;
+      const initialTheme: ThemeType = saved ?? 'dark';
       setTheme(initialTheme);
       setMounted(true);
       

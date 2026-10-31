@@ -315,13 +315,13 @@ export function DualBufferGesturePlayer({
 
       {/* Controls Bar Overlay */}
       {showControls && hasGestures && (
-        <div className="absolute bottom-1 inset-x-0 z-30 p-2.5 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-center justify-between gap-2">
+        <div className="absolute bottom-1 inset-x-0 z-30 p-2.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-center justify-between gap-2">
           {/* Play/Pause & Replay */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
+              className="w-8 h-8 rounded-full nm-flat active:nm-inset text-white flex items-center justify-center active:scale-90 transition-transform"
               title={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
@@ -330,7 +330,7 @@ export function DualBufferGesturePlayer({
             <button
               type="button"
               onClick={handleReplay}
-              className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center active:scale-90 transition-transform"
+              className="w-8 h-8 rounded-full nm-flat active:nm-inset text-white flex items-center justify-center active:scale-90 transition-transform"
               title="Replay sequence"
             >
               <RotateCcw size={14} />
@@ -338,14 +338,14 @@ export function DualBufferGesturePlayer({
           </div>
 
           {/* Speed & Loop Toggles */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleToggleSpeed}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold transition-all active:scale-95 ${
                 speed === 0.5
-                  ? 'bg-violet-500/80 border-violet-400 text-white shadow-xs'
-                  : 'bg-white/15 border-white/20 text-slate-200'
+                  ? 'nm-inset text-indigo-400 nm-led-indigo'
+                  : 'nm-flat active:nm-inset text-slate-200'
               }`}
             >
               {speed === 0.5 ? '0.5x Slow-Mo' : '1.0x'}
@@ -354,10 +354,10 @@ export function DualBufferGesturePlayer({
             <button
               type="button"
               onClick={handleToggleLoop}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs border transition-colors ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 ${
                 isLooping
-                  ? 'bg-cyan-500/80 border-cyan-400 text-white shadow-xs'
-                  : 'bg-white/15 border-white/20 text-slate-200'
+                  ? 'nm-inset text-emerald-400 nm-led-emerald'
+                  : 'nm-flat active:nm-inset text-slate-200'
               }`}
               title={isLooping ? 'Looping enabled' : 'Looping disabled'}
             >

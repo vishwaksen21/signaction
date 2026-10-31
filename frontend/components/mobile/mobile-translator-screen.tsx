@@ -246,15 +246,15 @@ export function MobileTranslatorScreen() {
   const currentToken = tokens[activeGestureIdx] ?? (gestures.length > 0 ? `SIGN ${activeGestureIdx + 1}` : '');
 
   return (
-    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none">
-      {/* 1. Top Segmented Pill Switcher */}
-      <div className="flex items-center p-1 rounded-2xl bg-slate-200/60 dark:bg-[#111827]/80 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08]">
+    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none bg-[#E2E8F0] dark:bg-[#0F172A]">
+      {/* 1. Top Segmented Pill Switcher: Recessed Track & Extruded Active Slider */}
+      <div className="nm-inset rounded-full p-1.5 flex gap-2">
         <button
           type="button"
           onClick={() => setMode('text')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.98] ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-[0.98] ${
             mode === 'text'
-              ? 'bg-white dark:bg-[#1E293B] text-violet-600 dark:text-cyan-400 shadow-xs'
+              ? 'nm-flat text-indigo-600 dark:text-indigo-400 font-extrabold'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
@@ -265,9 +265,9 @@ export function MobileTranslatorScreen() {
         <button
           type="button"
           onClick={() => setMode('voice')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.98] ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-[0.98] ${
             mode === 'voice'
-              ? 'bg-white dark:bg-[#1E293B] text-violet-600 dark:text-cyan-400 shadow-xs'
+              ? 'nm-flat text-indigo-600 dark:text-indigo-400 font-extrabold'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
@@ -276,15 +276,15 @@ export function MobileTranslatorScreen() {
         </button>
       </div>
 
-      {/* 2. The ISL Gesture Stage (Centerpiece - Top of viewport, Never Empty) */}
+      {/* 2. The ISL Gesture Stage: Recessed Bevel Frame */}
       <div className="space-y-2">
-        <div className="relative aspect-video w-full rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-950 border border-slate-900/[0.08] dark:border-white/[0.1] shadow-xl overflow-hidden flex flex-col justify-between">
+        <div className="relative aspect-video w-full rounded-3xl nm-inset p-2.5 overflow-hidden flex flex-col justify-between">
           {isLoading ? (
             /* Loading State */
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 bg-slate-950/80 backdrop-blur-sm">
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 bg-slate-950/80 backdrop-blur-sm rounded-[22px]">
               <div className="relative w-12 h-12 flex items-center justify-center">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-60" />
-                <span className="relative inline-flex rounded-full h-10 w-10 bg-gradient-to-tr from-[#4F46E5] to-[#06B6D4] items-center justify-center text-white">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60" />
+                <span className="relative inline-flex rounded-full h-10 w-10 bg-gradient-to-tr from-indigo-600 to-violet-600 items-center justify-center text-white">
                   <Sparkles size={20} className="animate-spin" />
                 </span>
               </div>
@@ -298,28 +298,30 @@ export function MobileTranslatorScreen() {
               </div>
             </div>
           ) : gestures.length > 0 ? (
-            /* Active Zero-Flicker Dual-Buffer Playback State */
-            <DualBufferGesturePlayer
-              gestures={gestures}
-              tokens={tokens}
-              currentIndex={activeGestureIdx}
-              onIndexChange={setActiveGestureIdx}
-              playbackSpeed={playbackSpeed}
-              loop={isLooping}
-              onSpeedChange={setPlaybackSpeed}
-              onLoopChange={setIsLooping}
-              autoPlay={isPlaying}
-              showControls={true}
-            />
+            /* Active Zero-Flicker Dual-Buffer Playback State flush within bezel */
+            <div className="w-full h-full rounded-[18px] overflow-hidden relative">
+              <DualBufferGesturePlayer
+                gestures={gestures}
+                tokens={tokens}
+                currentIndex={activeGestureIdx}
+                onIndexChange={setActiveGestureIdx}
+                playbackSpeed={playbackSpeed}
+                loop={isLooping}
+                onSpeedChange={setPlaybackSpeed}
+                onLoopChange={setIsLooping}
+                autoPlay={isPlaying}
+                showControls={true}
+              />
+            </div>
           ) : (
             /* Idle State: Dedicated Neural Silhouette Stage */
-            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
+            <div className="w-full h-full rounded-[18px] bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-3">
               {/* Neural Hand-Mesh Ambient Graphic */}
-              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#4F46E5]/20 via-[#7C3AED]/20 to-[#06B6D4]/20 border border-violet-500/30 flex items-center justify-center shadow-[0_0_24px_rgba(124,58,237,0.25)]">
-                <Hand size={32} className="text-cyan-300 animate-pulse" />
+              <div className="relative w-16 h-16 rounded-2xl nm-flat flex items-center justify-center nm-led-indigo">
+                <Hand size={30} className="text-indigo-400 animate-pulse" />
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#06B6D4]" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#10B981] nm-led-emerald" />
                 </span>
               </div>
 
@@ -332,7 +334,7 @@ export function MobileTranslatorScreen() {
                 </p>
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono bg-white/10 backdrop-blur-md text-cyan-300 border border-white/10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono bg-white/10 text-indigo-300 border border-white/10">
                 <Sparkles size={11} />
                 <span>349 Offline Signs Loaded</span>
               </div>
@@ -341,16 +343,16 @@ export function MobileTranslatorScreen() {
         </div>
       </div>
 
-      {/* 3. AI Grammar Gloss Visualizer (The "AI Magic" Layer) */}
+      {/* 3. AI Grammar Gloss Visualizer: Extruded Keycaps */}
       {tokens.length > 0 && (
-        <div className="rounded-2xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs overflow-hidden">
+        <div className="nm-flat rounded-2xl overflow-hidden p-3.5 space-y-2.5">
           <button
             type="button"
             onClick={() => setIsGlossOpen(!isGlossOpen)}
-            className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors"
+            className="w-full flex items-center justify-between text-left"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-violet-600 dark:text-cyan-400">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                 SVO → SOV Neural Gloss
               </span>
               <span className="text-[10px] font-mono text-slate-400">
@@ -365,15 +367,15 @@ export function MobileTranslatorScreen() {
           </button>
 
           {isGlossOpen && (
-            <div className="px-4 pb-3.5 pt-1 space-y-2 border-t border-slate-100 dark:border-white/[0.04]">
+            <div className="space-y-2.5 pt-1 border-t border-slate-300/40 dark:border-slate-800/60">
               {transcript && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                <p className="text-xs text-slate-600 dark:text-slate-400 italic">
                   &ldquo;{transcript}&rdquo;
                 </p>
               )}
 
-              {/* Clickable Token Chips: Tapping replays that specific sign */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              {/* Clickable Token Chips: Extruded Physical Keycaps */}
+              <div className="flex flex-wrap items-center gap-2 pt-0.5">
                 {tokens.map((tok, idx) => {
                   const isActive = idx === activeGestureIdx;
                   return (
@@ -385,10 +387,10 @@ export function MobileTranslatorScreen() {
                         setActiveGestureIdx(idx);
                         setIsPlaying(true);
                       }}
-                      className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-all duration-150 active:scale-95 flex items-center gap-1 ${
+                      className={`px-3 py-2 rounded-xl text-xs font-mono font-bold transition-all duration-150 active:scale-95 flex items-center gap-1 ${
                         isActive
-                          ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-[#1E293B] text-slate-700 dark:text-slate-300 hover:border-violet-500/40 border border-slate-900/[0.04] dark:border-white/[0.06]'
+                          ? 'nm-inset text-indigo-600 dark:text-indigo-400 font-black nm-led-indigo'
+                          : 'nm-flat hover:nm-concave active:nm-inset text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <span>[{tok}]</span>
@@ -400,16 +402,16 @@ export function MobileTranslatorScreen() {
                 })}
               </div>
               <p className="text-[10px] font-mono text-slate-400">
-                Tap any token chip to jump directly to that sign video.
+                Tap any keycap to replay that gesture token.
               </p>
             </div>
           )}
         </div>
       )}
 
-      {/* 4. Bottom Composer Card (Text or Voice Mode) */}
+      {/* 4. Bottom Composer Card: Extruded Chassis & Inset Basin */}
       {mode === 'text' ? (
-        <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-3">
+        <div className="nm-flat rounded-3xl p-4 space-y-3.5">
           <div className="relative">
             <textarea
               rows={3}
@@ -419,7 +421,7 @@ export function MobileTranslatorScreen() {
                 setOfflineResult(null);
               }}
               placeholder="Type English sentence to synthesize into Indian Sign Language..."
-              className="w-full p-3.5 pr-8 rounded-2xl bg-slate-50/80 dark:bg-[#1E293B]/70 border border-slate-900/[0.06] dark:border-white/[0.08] text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none transition-all"
+              className="w-full p-3.5 pr-8 rounded-2xl nm-inset text-sm text-[#0F172A] dark:text-[#F1F5F9] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none resize-none transition-all"
             />
             {text && (
               <button
@@ -428,7 +430,7 @@ export function MobileTranslatorScreen() {
                   setText('');
                   setOfflineResult(null);
                 }}
-                className="absolute right-3 top-3 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-black dark:text-slate-300 dark:hover:text-white flex items-center justify-center text-xs"
+                className="absolute right-3 top-3 w-6 h-6 rounded-full nm-flat active:nm-inset text-slate-500 dark:text-slate-300 flex items-center justify-center text-xs"
                 aria-label="Clear input"
               >
                 ✕
@@ -436,8 +438,8 @@ export function MobileTranslatorScreen() {
             )}
           </div>
 
-          {/* Quick suggestions */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {/* Quick suggestions: Tactile Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
             {SAMPLE_TEXT_CHIPS.map((chip) => (
               <button
                 key={chip}
@@ -447,7 +449,7 @@ export function MobileTranslatorScreen() {
                   setText(chip);
                   executeTranslation(chip);
                 }}
-                className="shrink-0 px-3 py-1 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-cyan-300 active:scale-95 transition-all"
+                className="shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-medium nm-flat hover:nm-concave active:nm-inset text-slate-700 dark:text-slate-300 active:scale-95 transition-all"
               >
                 {chip}
               </button>
@@ -455,7 +457,7 @@ export function MobileTranslatorScreen() {
           </div>
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
               {text.length} characters
             </span>
 
@@ -466,7 +468,7 @@ export function MobileTranslatorScreen() {
                 handleTextSubmit();
               }}
               disabled={isLoading || !text.trim()}
-              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] text-white font-bold text-xs flex items-center gap-2 shadow-[0_4px_16px_rgba(124,58,237,0.35)] disabled:opacity-50 active:scale-[0.98] transition-all duration-150"
+              className="px-5 py-2.5 rounded-2xl nm-convex active:nm-inset text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50 active:scale-[0.98] transition-all bg-gradient-to-r from-indigo-600 to-violet-600 shadow-md"
             >
               {isLoading ? (
                 <>
@@ -485,9 +487,9 @@ export function MobileTranslatorScreen() {
         </div>
       ) : (
         /* Voice Mode Recording Card */
-        <div className="p-6 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col items-center justify-center space-y-4 text-center">
+        <div className="nm-flat rounded-3xl p-6 flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-1">
-            <h3 className="text-base font-heading font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-heading font-bold text-[#0F172A] dark:text-[#F1F5F9]">
               {isRecording ? 'Listening to speech...' : 'Tap to Start Voice Recording'}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">
@@ -497,8 +499,8 @@ export function MobileTranslatorScreen() {
             </p>
           </div>
 
-          {/* Center Mic Button with Pulsing Ring */}
-          <div className="relative flex items-center justify-center my-2">
+          {/* Center Mic Button in Debossed Basin */}
+          <div className="relative flex items-center justify-center my-2 p-3 nm-inset rounded-full">
             {isRecording && (
               <>
                 <motion.div
@@ -527,10 +529,10 @@ export function MobileTranslatorScreen() {
                 }
               }}
               disabled={isLoading}
-              className={`w-20 h-20 rounded-full flex flex-col items-center justify-center text-white shadow-xl active:scale-95 transition-all duration-150 ${
+              className={`w-20 h-20 rounded-full flex flex-col items-center justify-center text-white nm-convex active:nm-inset active:scale-95 transition-all duration-150 ${
                 isRecording
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-gradient-to-tr from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]'
+                  ? 'bg-red-500 hover:bg-red-600 shadow-md'
+                  : 'bg-gradient-to-r from-indigo-600 to-violet-600 nm-led-indigo'
               }`}
             >
               {isRecording ? (
@@ -553,7 +555,7 @@ export function MobileTranslatorScreen() {
           )}
 
           {voiceError && (
-            <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left">
+            <div className="p-3 rounded-2xl nm-inset text-red-600 dark:text-red-400 text-xs flex items-center gap-2 text-left">
               <AlertCircle size={16} className="shrink-0" />
               <span>{voiceError}</span>
             </div>
@@ -563,7 +565,7 @@ export function MobileTranslatorScreen() {
 
       {/* Error state */}
       {isError && (
-        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+        <div className="p-4 rounded-2xl nm-inset text-xs text-amber-700 dark:text-amber-300 space-y-1">
           <div className="flex items-center gap-2 font-bold">
             <AlertCircle size={15} />
             <span>Translation Note</span>

@@ -74,22 +74,22 @@ export function MobileSettingsScreen() {
   };
 
   return (
-    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-8 select-none">
+    <div className="flex-1 w-full max-w-lg mx-auto px-4 py-3 space-y-4 pb-10 select-none">
       <div>
         <h1 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">
           System & AI Telemetry
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Linear-style on-device diagnostics, hardware status, and app configuration.
+          Tactile on-device diagnostics, hardware status, and app configuration.
         </p>
       </div>
 
       {/* 1. Offline AI Engine Telemetry Card with Storage Readiness Gauge */}
-      <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-3.5">
+      <div className="nm-flat rounded-3xl p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-500/15 to-teal-500/15 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <Cpu size={19} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl nm-inset text-emerald-500 dark:text-emerald-400 flex items-center justify-center">
+              <Cpu size={20} />
             </div>
             <div>
               <h2 className="text-sm font-heading font-bold text-slate-900 dark:text-white">
@@ -101,62 +101,54 @@ export function MobileSettingsScreen() {
             </div>
           </div>
 
-          {/* Green Pulsing Active Badge */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
+          {/* Green Pulsing Active Badge in Debossed Well */}
+          <div className="nm-inset rounded-full px-3 py-1.5 flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981] nm-led-emerald" />
             </span>
-            <span>Active</span>
+            <span>ACTIVE</span>
           </div>
         </div>
 
         {/* Visual Storage Readiness Gauge */}
-        <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50/80 dark:bg-[#1E293B]/60 border border-slate-900/[0.04] dark:border-white/[0.04]">
+        <div className="space-y-2 p-3.5 rounded-2xl nm-inset">
           <div className="flex items-center justify-between text-[11px] font-mono">
             <span className="text-slate-500 dark:text-slate-400 font-medium">Engine Readiness</span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400">100% Air-Gapped</span>
           </div>
-          <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#10B981]" />
+          <div className="w-full h-2.5 rounded-full nm-inset p-0.5 overflow-hidden">
+            <div className="w-full h-full rounded-full bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#10B981] nm-led-emerald" />
           </div>
         </div>
 
-        {/* Clean Key-Value Rows with JetBrains Mono Values */}
-        <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-white/[0.06] text-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">Speech AI Model (Vosk)</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              39 MB (Bundled)
-            </span>
+        {/* Clean Key-Value Rows on Recessed Data Strips */}
+        <div className="space-y-2 text-xs font-mono">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
+            <span className="text-slate-500 dark:text-slate-400">Speech AI Model (Vosk)</span>
+            <span className="font-bold text-slate-900 dark:text-white">39 MB (Bundled)</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">ISL Video Gestures</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              349 Offline MP4s
-            </span>
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
+            <span className="text-slate-500 dark:text-slate-400">ISL Video Gestures</span>
+            <span className="font-bold text-slate-900 dark:text-white">349 Offline MP4s</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">Grammar Rule Parser</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              SVO → SOV Gloss
-            </span>
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
+            <span className="text-slate-500 dark:text-slate-400">Grammar Rule Parser</span>
+            <span className="font-bold text-slate-900 dark:text-white">SVO → SOV Gloss</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">Cloud Bandwidth Needed</span>
-            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-              0 KB (Zero Network)
-            </span>
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
+            <span className="text-slate-500 dark:text-slate-400">Cloud Bandwidth Needed</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">0 KB (Zero Network)</span>
           </div>
         </div>
       </div>
 
       {/* 2. Microphone Hardware Diagnostic Card */}
-      <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-3">
+      <div className="nm-flat rounded-3xl p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <Mic size={19} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl nm-inset text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
+              <Mic size={20} />
             </div>
             <div>
               <h2 className="text-sm font-heading font-bold text-slate-900 dark:text-white">
@@ -168,41 +160,41 @@ export function MobileSettingsScreen() {
             </div>
           </div>
 
-          <span
-            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
+          <div
+            className={`nm-inset rounded-full px-3 py-1.5 text-[10px] font-mono font-bold ${
               micStatus === 'granted'
-                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
+                ? 'text-emerald-600 dark:text-emerald-400'
                 : micStatus === 'denied'
-                ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/25'
+                ? 'text-red-500'
                 : micStatus === 'testing'
-                ? 'bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-500/25'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                ? 'text-indigo-500 animate-pulse'
+                : 'text-slate-500'
             }`}
           >
             {micStatus === 'granted'
-              ? 'Granted'
+              ? 'GRANTED'
               : micStatus === 'denied'
-              ? 'Denied'
+              ? 'DENIED'
               : micStatus === 'testing'
-              ? 'Testing...'
-              : 'Permission Required'}
-          </span>
+              ? 'TESTING...'
+              : 'READY'}
+          </div>
         </div>
 
-        {/* Live Audio Level Feedback Bar when testing */}
+        {/* Audio Level Testing Meter: Recessed LED vu-meter bar */}
         {micStatus === 'testing' && (
-          <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50/80 dark:bg-[#1E293B]/60 border border-slate-900/[0.04] dark:border-white/[0.04]">
+          <div className="space-y-2 p-3.5 rounded-2xl nm-inset">
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span className="flex items-center gap-1.5">
                 <Volume2 size={13} className="text-emerald-500 animate-pulse" />
-                <span>Live Audio Input</span>
+                <span>Live Audio Input (VU Meter)</span>
               </span>
               <span className="font-bold text-slate-900 dark:text-white">{micVolume}% dB</span>
             </div>
-            <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+            <div className="w-full h-3 rounded-full nm-inset p-0.5 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-75"
-                style={{ width: `${micVolume}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 transition-all duration-75 nm-led-emerald"
+                style={{ width: `${Math.max(6, micVolume)}%` }}
               />
             </div>
           </div>
@@ -211,26 +203,26 @@ export function MobileSettingsScreen() {
         <button
           type="button"
           onClick={handleTestMicrophone}
-          className="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200/80 dark:hover:bg-[#283548] border border-slate-900/[0.06] dark:border-white/[0.08] text-slate-800 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
+          className="w-full py-3 rounded-2xl nm-flat active:nm-inset text-slate-800 dark:text-white font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
         >
-          <Mic size={14} className="text-violet-500" />
+          <Mic size={15} className="text-indigo-500" />
           <span>{micStatus === 'testing' ? 'Listening to Input (3s)...' : 'Test Microphone Hardware'}</span>
         </button>
       </div>
 
       {/* 3. Appearance Card */}
-      <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-3">
+      <div className="nm-flat rounded-3xl p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-500/15 to-pink-500/15 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-              <Sun size={19} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl nm-inset text-amber-500 dark:text-amber-400 flex items-center justify-center">
+              <Sun size={20} />
             </div>
             <div>
               <h2 className="text-sm font-heading font-bold text-slate-900 dark:text-white">
-                Appearance
+                Tactile Appearance
               </h2>
               <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
-                Adaptive dual glass theme
+                {theme === 'dark' ? 'Dark Tactile Slate (#0F172A)' : 'Light Soft Clay (#E2E8F0)'}
               </span>
             </div>
           </div>
@@ -238,44 +230,44 @@ export function MobileSettingsScreen() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-slate-100 dark:bg-[#1E293B] border border-slate-900/[0.06] dark:border-white/[0.08] text-slate-800 dark:text-white flex items-center gap-1.5 active:scale-95 transition-transform"
+            className="nm-flat active:nm-inset px-4 py-2 rounded-full text-xs font-mono font-bold text-slate-800 dark:text-white flex items-center gap-2 active:scale-95 transition-all"
           >
             <Sun size={14} className="hidden dark:block text-amber-400" />
-            <Moon size={14} className="block dark:hidden text-violet-600" />
+            <Moon size={14} className="block dark:hidden text-indigo-600" />
             <span>Switch Theme</span>
           </button>
         </div>
       </div>
 
-      {/* 4. App Information Footer (Linear Telemetry Style) */}
-      <div className="p-4 rounded-3xl bg-white/70 dark:bg-[#111827]/70 backdrop-blur-xl border border-slate-900/[0.06] dark:border-white/[0.08] shadow-xs space-y-2.5 text-xs">
-        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100 dark:border-white/[0.06]">
-          <Smartphone size={16} className="text-violet-600 dark:text-cyan-400" />
+      {/* 4. App Information Footer (Hardware & Engine Telemetry Blocks) */}
+      <div className="nm-flat rounded-3xl p-5 space-y-3 text-xs">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-300/40 dark:border-white/[0.06]">
+          <Smartphone size={16} className="text-indigo-500 dark:text-indigo-400" />
           <h2 className="font-heading font-bold text-slate-900 dark:text-white">
-            Build Telemetry & Platform
+            Build Telemetry & Hardware Spec
           </h2>
         </div>
 
-        <div className="space-y-1.5 pt-1 text-slate-600 dark:text-slate-400 font-mono text-[11px]">
-          <div className="flex items-center justify-between">
+        <div className="space-y-2 text-slate-600 dark:text-slate-400 font-mono text-[11px]">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
             <span>Application</span>
             <span className="font-semibold text-slate-900 dark:text-white">
               SignAction (Play Edition • ISL)
             </span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
             <span>Package ID</span>
             <span className="text-slate-900 dark:text-white">com.signaction.app</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
             <span>Version & Build</span>
             <span className="text-slate-900 dark:text-white">v1.0 • Build 2026.10</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
             <span>Capacitor Runtime</span>
-            <span className="text-slate-900 dark:text-white">v8.5.0</span>
+            <span className="text-slate-900 dark:text-white">v8.5.0 (UIScene Ready)</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="nm-inset rounded-xl px-3 py-2 flex items-center justify-between">
             <span>Target OS</span>
             <span className="text-slate-900 dark:text-white">Android API 36</span>
           </div>

@@ -27,7 +27,7 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
   // 1. Mobile Android Application Shell
   if (isMobileApp) {
     return (
-      <div className="flex-1 flex flex-col w-full min-h-[100dvh] bg-[#F8FAFC] dark:bg-[#090D16] text-[#0F172A] dark:text-slate-100">
+      <div className="flex-1 flex flex-col w-full min-h-[100dvh] bg-[#E2E8F0] dark:bg-[#0F172A] text-[#0F172A] dark:text-[#F1F5F9]">
         <MobileTopBar />
         <main className="flex-1 flex flex-col w-full pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
           {children}

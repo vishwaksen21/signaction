@@ -96,17 +96,17 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="w-full max-w-lg bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-t-[32px] border-t border-slate-900/[0.06] dark:border-white/[0.08] shadow-[0_-12px_48px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[90vh] pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]"
+            className="w-full max-w-lg bg-[#E2E8F0] dark:bg-[#0F172A] rounded-t-[32px] nm-flat overflow-hidden flex flex-col max-h-[90vh] pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]"
           >
             {/* Sheet Handle */}
             <div className="w-full flex items-center justify-center pt-3 pb-1">
-              <div className="w-12 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <div className="w-12 h-1.5 rounded-full nm-inset" />
             </div>
 
             {/* Header bar */}
             <div className="flex items-center justify-between px-5 py-2.5">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-violet-500/10 dark:bg-cyan-400/15 text-violet-700 dark:text-cyan-300 border border-violet-500/25 dark:border-cyan-400/25">
+                <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider nm-inset text-indigo-600 dark:text-cyan-300">
                   {gesture.category || 'ISL Gesture'}
                 </span>
                 <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
@@ -114,11 +114,11 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1E293B] border border-slate-900/[0.04] dark:border-white/[0.06] active:scale-90 transition-transform"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 nm-flat active:nm-inset active:scale-95 transition-all"
                   title="Copy token"
                 >
                   {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
@@ -126,7 +126,7 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1E293B] border border-slate-900/[0.04] dark:border-white/[0.06] active:scale-90 transition-transform"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 nm-flat active:nm-inset active:scale-95 transition-all"
                   aria-label="Close"
                 >
                   <X size={16} />
@@ -134,35 +134,37 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
               </div>
             </div>
 
-            {/* Video Stage */}
+            {/* Video Stage in Recessed Well */}
             <div className="px-4 py-2">
-              <div className="relative aspect-video w-full rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center shadow-inner border border-slate-900/[0.08] dark:border-white/[0.08]">
+              <div className="relative aspect-video w-full rounded-2xl nm-inset p-2 overflow-hidden flex items-center justify-center">
                 {hasError ? (
                   <div className="flex flex-col items-center justify-center p-6 text-center text-slate-400 space-y-2">
-                    <Sparkles size={28} className="text-violet-500 animate-pulse" />
+                    <Sparkles size={28} className="text-indigo-500 animate-pulse" />
                     <span className="text-sm font-semibold">Video preview unavailable</span>
                     <span className="text-xs text-slate-500">Asset is undergoing offline indexing</span>
                   </div>
                 ) : (
-                  <video
-                    ref={videoRef}
-                    key={gesture.videoUrl}
-                    src={gesture.videoUrl}
-                    autoPlay
-                    loop={isLooping}
-                    muted
-                    playsInline
-                    onError={() => setHasError(true)}
-                    onEnded={() => {
-                      if (!isLooping) setIsPlaying(false);
-                    }}
-                    className="w-full h-full object-contain"
-                  />
+                  <div className="w-full h-full rounded-xl overflow-hidden bg-black flex items-center justify-center">
+                    <video
+                      ref={videoRef}
+                      key={gesture.videoUrl}
+                      src={gesture.videoUrl}
+                      autoPlay
+                      loop={isLooping}
+                      muted
+                      playsInline
+                      onError={() => setHasError(true)}
+                      onEnded={() => {
+                        if (!isLooping) setIsPlaying(false);
+                      }}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 )}
 
                 {/* Gesture Title Watermark */}
-                <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-xl text-white font-mono text-xs font-bold border border-white/15 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <div className="absolute bottom-4 left-4 nm-flat px-3 py-1 rounded-xl text-slate-900 dark:text-white font-mono text-xs font-bold flex items-center gap-1.5 shadow-md">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse nm-led-emerald" />
                   <span>{gesture.token}</span>
                 </div>
               </div>
@@ -182,13 +184,13 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
               </div>
 
               {/* Playback Controls Row */}
-              <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/80 dark:bg-[#1E293B]/70 border border-slate-900/[0.04] dark:border-white/[0.06]">
+              <div className="flex items-center justify-between gap-2 p-3 rounded-2xl nm-inset">
                 {/* Play/Pause & Replay */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={togglePlay}
-                    className="h-9 px-3.5 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform shadow-xs"
+                    className="h-9 px-4 rounded-xl nm-convex active:nm-inset text-white text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
                   >
                     {isPlaying ? <Pause size={14} /> : <Play size={14} />}
                     <span>{isPlaying ? 'Pause' : 'Play'}</span>
@@ -196,7 +198,7 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
                   <button
                     type="button"
                     onClick={handleReplay}
-                    className="w-9 h-9 rounded-xl bg-white dark:bg-[#111827] text-slate-700 dark:text-slate-300 border border-slate-900/[0.04] dark:border-white/[0.06] flex items-center justify-center active:scale-95 transition-transform"
+                    className="w-9 h-9 rounded-xl nm-flat active:nm-inset text-slate-700 dark:text-slate-300 flex items-center justify-center active:scale-95 transition-all"
                     title="Replay from start"
                   >
                     <RotateCcw size={14} />
@@ -204,10 +206,10 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
                   <button
                     type="button"
                     onClick={() => setIsLooping(!isLooping)}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all active:scale-95 ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-95 ${
                       isLooping
-                        ? 'bg-cyan-500/15 border-cyan-400/30 text-cyan-600 dark:text-cyan-300 font-bold'
-                        : 'bg-white dark:bg-[#111827] border-slate-900/[0.04] dark:border-white/[0.06] text-slate-400'
+                        ? 'nm-inset text-indigo-600 dark:text-cyan-300 font-bold nm-led-indigo'
+                        : 'nm-flat active:nm-inset text-slate-400'
                     }`}
                     title="Toggle Loop"
                   >
@@ -222,9 +224,9 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
                       key={s}
                       type="button"
                       onClick={() => setSpeed(s)}
-                      className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-colors ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                         speed === s
-                          ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                          ? 'nm-flat text-indigo-600 dark:text-white font-extrabold shadow-sm'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
@@ -238,7 +240,7 @@ export function GesturePlayerSheet({ gesture, onClose }: GesturePlayerSheetProps
               <Link
                 href={`/translator?text=${encodeURIComponent(gesture.token.replace(/_/g, ' '))}`}
                 onClick={onClose}
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(124,58,237,0.35)] active:scale-[0.98] transition-all"
+                className="w-full py-3.5 px-4 rounded-2xl nm-convex active:nm-inset text-white font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all nm-led-indigo"
               >
                 <span>Use &quot;{gesture.token}&quot; in Translator</span>
                 <ExternalLink size={15} />
